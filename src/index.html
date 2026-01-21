@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToWebP Clone - Client-Side Converter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 12L12 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>ToWebP<span>.clone</span></h1>
+            </div>
+            <div class="header-controls">
+                <div class="setting-group">
+                    <label for="quality">Quality (<span id="quality-value">80</span>%)</label>
+                    <input type="range" id="quality" min="1" max="100" value="80">
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="drop-zone" class="drop-zone">
+                <div class="drop-content">
+                    <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <h2>Drag & Drop images here</h2>
+                    <p>or click to browse</p>
+                    <input type="file" id="file-input" multiple accept="image/*" hidden>
+                </div>
+            </div>
+
+            <div id="carousel-section" class="carousel-section hidden">
+                <button class="nav-btn prev" id="prev-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18L9 12L15 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="carousel-track-container" id="carousel-track-container">
+                    <div class="carousel-track" id="carousel-track">
+                        <!-- Cards will be injected here -->
+                    </div>
+                </div>
+                <button class="nav-btn next" id="next-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18L15 12L9 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+
+            <div id="stats-bar" class="stats-bar hidden">
+                <span id="files-count">0 files</span>
+                <span class="divider">•</span>
+                <span id="total-saved">Saved 0 MB</span>
+                <button id="download-all" class="btn-primary">Download All (ZIP)</button>
+                <button id="clear-all" class="btn-text">Clear All</button>
+            </div>
+
+            <div id="file-list" class="file-list">
+                <!-- File items will be injected here -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Template for file item -->
+    <template id="file-item-template">
+        <div class="file-item">
+            <div class="file-preview-wrapper">
+                <img class="file-preview" src="" alt="">
+            </div>
+            <div class="file-info">
+                <div class="file-name"></div>
+                <div class="file-meta">
+                    <span class="size-old"></span>
+                    <svg class="arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="size-new">...</span>
+                </div>
+            </div>
+            <div class="file-status">
+                <div class="badge savings"></div>
+                <button class="btn-icon download-btn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16L12 8M12 16L9 13M12 16L15 13M19 21H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </template>
+
+    <template id="carousel-card-template">
+        <div class="carousel-card">
+            <div class="card-image-wrapper">
+                <img class="card-preview" src="" alt="">
+                <button class="card-close-btn" title="Remove">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6L18 18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="card-overlay">
+                    <svg class="check-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+            </div>
+            <div class="card-info">
+                <div class="card-filename" title=""></div>
+            </div>
+            <div class="card-actions">
+                <button class="card-download-btn">DOWNLOAD</button>
+                <button class="card-settings-btn" title="Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15A1.65 1.65 0 0020 12a1.65 1.65 0 00-.6-3M16.6 19.4A1.65 1.65 0 0012 20a1.65 1.65 0 00-3-.6M4.6 15A1.65 1.65 0 004 12a1.65 1.65 0 00.6-3M7.4 4.6A1.65 1.65 0 0012 4a1.65 1.65 0 003 .6M17.657 16.343l1.414 1.414M6.343 17.657l-1.414-1.414M16.343 6.343l1.414-1.414M4.929 4.929l1.414 1.414" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>

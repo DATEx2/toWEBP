@@ -774,6 +774,96 @@ header {
     text-align: center;
 }
 
+/* Dropdown Menu - RESET & TWO COLUMNS */
+.lang-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 320px; /* Fixed width for 2 columns */
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 99999;
+    padding: 8px;
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    pointer-events: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+    
+    display: block; /* Using block/grid inside */
+}
+
+.lang-menu:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.lang-menu-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 4px; /* Space between items */
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.lang-option {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid transparent; /* Prepare for hover border */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: left;
+    color: var(--text-main);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    text-decoration: none !important;
+    margin: 0; /* consistent spacing */
+}
+
+/* Flag Icons Styling */
+.lang-option .fi {
+    font-size: 1.25em;
+    border-radius: 2px;
+    box-shadow: 0 0 1px rgba(0,0,0,0.3);
+    min-width: 1.33em; /* Prevent shrink */
+}
+
+.lang-option:hover {
+    background: #f1f5f9;
+    border-color: var(--border);
+    color: var(--primary);
+    transform: none; 
+}
+
+.lang-option.active {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    font-weight: 600;
+    border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+    .lang-menu {
+        width: 280px;
+        right: -10px;
+    }
+    .lang-menu-list {
+        grid-template-columns: 1fr; /* Single column on mobile */
+    }
+}
+
 .card-actions {
     display: flex;
     padding: 0.5rem;

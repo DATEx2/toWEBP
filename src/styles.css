@@ -121,7 +121,7 @@ header {
 
 /* Header Sticky Stats */
 .header-sticky-stats {
-    display: flex;
+    display: none; /* Completely remove from layout by default */
     align-items: center;
     gap: 1rem; /* Reduced gap */
     opacity: 0;
@@ -133,6 +133,14 @@ header {
     /* Prevent stats from taking too much space if controls need it */
     min-width: 0; 
 }
+
+body.scrolled .header-sticky-stats,
+.header-sticky-stats.visible {
+    display: flex; /* Only take space when active */
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+} /* Reduced from 1.5rem */
 
 /* ... existing stats styles ... */
 

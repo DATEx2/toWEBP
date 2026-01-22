@@ -98,10 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initTypewriter();
     initParallax();
 
-    // Initialize i18n
-    if (window.i18n) {
-        window.i18n.apply(window.i18n.getLang());
-    }
+    // Initialize i18n with IP-based language detection
+    initLanguageSystem();
 
     // --- Event Listeners ---
 
@@ -1253,4 +1251,121 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+
+    // --- Language System ---
+    async function initLanguageSystem() {
+        const langBurger = document.getElementById('lang-burger');
+        const langMenu = document.getElementById('lang-menu');
+        const langMenuClose = langMenu?.querySelector('.lang-menu-close');
+        const langOptions = document.querySelectorAll('.lang-option');
+
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'lang-menu-overlay hidden';
+        document.body.appendChild(overlay);
+
+        // Detect language with priority: localStorage > IP > browser > default
+        let detectedLang = await detectLanguage();
+        
+        // Apply language
+        if (window.i18n) {
+            window.i18n.apply(detectedLang);
+        }
+
+        // Mark active language
+        updateActiveLang(detectedLang);
+
+        // Burger menu toggle
+        langBurger?.addEventListener('click', () => {
+            langMenu.classList.toggle('hidden');
+            overlay.classList.toggle('hidden');
+        });
+
+        // Close menu
+        const closeMenu = () => {
+            langMenu.classList.add('hidden');
+            overlay.classList.add('hidden');
+        };
+
+        langMenuClose?.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
+
+        // Language selection
+        langOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const lang = option.dataset.lang;
+                if (window.i18n) {
+                    window.i18n.apply(lang);
+                }
+                // Save to localStorage
+                localStorage.setItem('towebp_language', lang);
+                updateActiveLang(lang);
+                closeMenu();
+            });
+        });
+
+        function updateActiveLang(lang) {
+            langOptions.forEach(opt => {
+                if (opt.dataset.lang === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    async function detectLanguage() {
+        // 1. Check localStorage first
+        const savedLang = localStorage.getItem('towebp_language');
+        if (savedLang && window.translations && window.translations[savedLang]) {
+            return savedLang;
+        }
+
+        // 2. Try IP-based detection
+        try {
+            const response = await fetch('https://ipapi.co/json/', { 
+                signal: AbortSignal.timeout(3000) 
+            });
+            const data = await response.json();
+            const countryCode = data.country_code?.toLowerCase();
+            
+            // Map country codes to languages
+            const countryToLang = {
+                'ro': 'ro', 'md': 'ro',
+                'fr': 'fr', 'be': 'fr', 'ch': 'fr',
+                'de': 'de', 'at': 'de',
+                'es': 'es', 'mx': 'es', 'ar': 'es', 'co': 'es',
+                'it': 'it',
+                'pt': 'pt', 'br': 'pt',
+                'nl': 'nl',
+                'gr': 'el',
+                'hu': 'hu',
+                'pl': 'pl',
+                'sa': 'ar', 'ae': 'ar', 'eg': 'ar',
+                'bg': 'bg',
+                'jp': 'ja',
+                'cn': 'zh', 'tw': 'zh'
+            };
+
+            const detectedLang = countryToLang[countryCode];
+            if (detectedLang && window.translations && window.translations[detectedLang]) {
+                return detectedLang;
+            }
+        } catch (error) {
+            console.log('IP detection failed, using browser language');
+        }
+
+        // 3. Fall back to browser language
+        if (window.i18n) {
+            const browserLang = window.i18n.getLang();
+            if (window.translations && window.translations[browserLang]) {
+                return browserLang;
+            }
+        }
+
+        // 4. Default to English
+        return 'en';
+    }
+
 });

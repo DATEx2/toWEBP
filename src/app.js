@@ -105,14 +105,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler (Sticky UI)
+    // Scroll Handler (Sticky UI) - Debounced to prevent flickering
+    let scrollTimeout;
+    let lastScrolledState = false;
+    
     window.addEventListener('scroll', () => {
-        const y = window.scrollY;
-        // Hysteresis to prevent flickering due to layout shift
-        if (y > 50) {
-            document.body.classList.add('scrolled');
-        } else if (y < 30) {
-            document.body.classList.remove('scrolled');
+        const y = window.scrollY;        
+        const shouldBeScrolled = y > 100; // Single threshold
+        
+        // Only update if state actually changes
+        if (shouldBeScrolled !== lastScrolledState) {
+            // Clear any pending timeout
+            clearTimeout(scrollTimeout);
+            
+            // Debounce: wait a bit before applying the change
+            scrollTimeout = setTimeout(() => {
+                if (shouldBeScrolled) {
+                    document.body.classList.add('scrolled');
+                } else {
+                    document.body.classList.remove('scrolled');
+                }
+                lastScrolledState = shouldBeScrolled;
+            }, 50); // 50ms debounce
         }
     }, { passive: true });
 

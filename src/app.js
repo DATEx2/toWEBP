@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
     // Use all available cores except 1 for main thread to maximize speed
     const WORKER_COUNT = Math.max(2, (navigator.hardwareConcurrency || 4) - 1);
-    
+
     // --- DOM Elements ---
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Use Sticky Header Elements as primary controls if main ones are missing
     const downloadAllBtn = document.getElementById('download-all') || headerDownloadBtn;
     const clearAllBtn = document.getElementById('clear-all') || headerClearBtn;
-    
+
     // Stats elements
     const filesCountSpan = document.getElementById('files-count') || headerFilesCount;
     const totalSavedSpan = document.getElementById('total-saved') || headerTotalSaved;
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Rings to Empty State
     if (progressCircleOuter) progressCircleOuter.style.strokeDashoffset = CIRC_OUTER;
     if (progressCircleInner) progressCircleInner.style.strokeDashoffset = CIRC_INNER;
-    
+
     // Carousel Elements
     const carouselSection = document.getElementById('carousel-section');
     const carouselTrack = document.getElementById('carousel-track');
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         completed: new Map(),  // Map of completed results {id: {blob, fileName, ...}}
         workers: [],        // Array of Worker objects
         workerStatus: [],   // Array of booleans (true = busy)
-        carouselQueue: [], 
+        carouselQueue: [],
         quality: 80,
         format: 'image/webp', // Default format
         nextId: 1,
@@ -77,10 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadedFiles: [],
 
         fileSignatures: new Set(),
+        lastRunLookup: new Map(),
         lastRunSaved: null,
-        
+
         parsingCompleteTime: null, // For ring fade delay
-        
+
         // Visual Interpolation State
         visual: {
             innerProgress: 0,
@@ -95,9 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateQualityDisplay();
     initTypewriter();
+    initParallax();
 
     // --- Event Listeners ---
-    
+
     // Scroll Handler (Sticky UI)
     window.addEventListener('scroll', () => {
         const y = window.scrollY;
@@ -127,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ts.on('change', (val) => {
             state.format = val;
             localStorage.setItem('towebp_format', val);
-            
+
             // Trigger reprocessing
             const event = new Event('change');
             qualityInput.dispatchEvent(event);
@@ -136,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize from specific saved state
         const savedFmt = localStorage.getItem('towebp_format');
         if (savedFmt) {
-             state.format = savedFmt;
-             ts.setValue(savedFmt, true); // true = silent check (don't fire change initially?) - actually we might want to just set it
+            state.format = savedFmt;
+            ts.setValue(savedFmt, true); // true = silent check (don't fire change initially?) - actually we might want to just set it
         }
     }
 
@@ -169,11 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         state.queue = [];
         state.carouselQueue = [];
         state.pendingRowUpdates = [];
-        
+
         state.totalOriginalSize = 0;
         state.totalNewSize = 0;
         state.totalFilesCount = 0;
-        state.parsingTarget = state.loadedFiles.length; 
+        state.parsingTarget = state.loadedFiles.length;
 
         // 3. Reset UI - Carousel (Preserve Items, Set to Pending)
         // Don't clear carouselTrack.innerHTML
@@ -182,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('pending');
             // Ensure spinner is visible via CSS, check icon hidden
         });
-        
+
         if (typeof resetVisuals === 'function') resetVisuals(false);
         state.visual.innerProgress = 0;
         state.visual.innerTarget = 0;
@@ -191,36 +193,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Update File List IN-PLACE (No Flash, Instant)
         const rows = fileList.children;
-        
+
         state.loadedFiles.forEach((file, i) => {
             const row = rows[i];
             // Safety check for sync
-            if (!row) return; 
+            if (!row) return;
 
             // Extract existing ID (file-XXXX)
             const id = row.id.replace('file-', '');
-            
+
             // Reset Row UI State
             // We DO NOT touch the thumbnail (img.src) -> No flash!
-            
+
             // Reset Metadata
             const sizeNewEl = row.querySelector('.size-new');
             const badge = row.querySelector('.badge');
-            
+
             // Reset to "Waiting"
             if (sizeNewEl) {
                 sizeNewEl.textContent = 'Waiting...';
-                sizeNewEl.className = 'size-new text-muted'; 
+                sizeNewEl.className = 'size-new text-muted';
             }
             if (badge) {
                 badge.className = 'badge badge-pending';
                 badge.textContent = 'Pending';
                 badge.classList.remove('hidden');
             }
-            
+
             row.classList.remove('success', 'error', 'processing');
             // Remove any old diff tooltips or colors
-            
+
             // Re-Queue
             state.queue.push({ id, file });
             state.totalFilesCount++;
@@ -240,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Global Drag & Drop ---
-    
+
     // Prevent default browser behavior globally
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         window.addEventListener(eventName, preventDefaults, false);
@@ -310,53 +312,53 @@ document.addEventListener('DOMContentLoaded', () => {
             carouselTrack.innerHTML = '';
             if (statsBar) statsBar.classList.add('hidden'); // Safety check
             carouselSection.classList.add('hidden');
-        
-        // Reset State
-        
-        // Reset State Variables
-        state.completed.clear();
-        state.processing.clear();
-        state.queue = [];
-        state.fileSignatures.clear();
-        state.pendingRowUpdates = [];
-        state.carouselQueue = [];
-        state.totalFilesCount = 0;
-        state.totalOriginalSize = 0;
-        state.grandTotalInputSize = 0;
-        state.totalNewSize = 0;
-        state.sessionDiff = 0;
 
-        // Reset Rings / Visuals
-        state.visual.innerProgress = 0;
-        state.visual.innerTarget = 0;
-        state.visual.outerProgress = 0;
-        state.visual.outerTarget = 0;
+            // Reset State
 
-        if (progressCircleOuter) progressCircleOuter.style.strokeDashoffset = CIRC_OUTER;
-        if (progressCircleInner) progressCircleInner.style.strokeDashoffset = CIRC_INNER;
-        
-        if (pieDefaultContent) pieDefaultContent.classList.remove('hidden');
-        if (pieActiveContent) pieActiveContent.classList.add('hidden');
-        
-        // Hide Header Stats
-        const headerStats = document.querySelector('.header-sticky-stats');
-        if (headerStats) headerStats.classList.remove('visible');
+            // Reset State Variables
+            state.completed.clear();
+            state.processing.clear();
+            state.queue = [];
+            state.fileSignatures.clear();
+            state.pendingRowUpdates = [];
+            state.carouselQueue = [];
+            state.totalFilesCount = 0;
+            state.totalOriginalSize = 0;
+            state.grandTotalInputSize = 0;
+            state.totalNewSize = 0;
+            state.sessionDiff = 0;
 
-        // Reset Header Buttons
-        if (headerDownloadBtn) headerDownloadBtn.disabled = true;
-        
-        appContainer.classList.remove('expanded');
-        updateStats();
-    };
+            // Reset Rings / Visuals
+            state.visual.innerProgress = 0;
+            state.visual.innerTarget = 0;
+            state.visual.outerProgress = 0;
+            state.visual.outerTarget = 0;
 
-    if (clearAllBtn) clearAllBtn.addEventListener('click', performClear);
-    if (headerClearBtn) headerClearBtn.addEventListener('click', performClear);
+            if (progressCircleOuter) progressCircleOuter.style.strokeDashoffset = CIRC_OUTER;
+            if (progressCircleInner) progressCircleInner.style.strokeDashoffset = CIRC_INNER;
+
+            if (pieDefaultContent) pieDefaultContent.classList.remove('hidden');
+            if (pieActiveContent) pieActiveContent.classList.add('hidden');
+
+            // Hide Header Stats
+            const headerStats = document.querySelector('.header-sticky-stats');
+            if (headerStats) headerStats.classList.remove('visible');
+
+            // Reset Header Buttons
+            if (headerDownloadBtn) headerDownloadBtn.disabled = true;
+
+            appContainer.classList.remove('expanded');
+            updateStats();
+        };
+
+        if (clearAllBtn) clearAllBtn.addEventListener('click', performClear);
+        if (headerClearBtn) headerClearBtn.addEventListener('click', performClear);
 
     }
 
     downloadAllBtn.addEventListener('click', async () => {
         if (state.completed.size === 0) return;
-        
+
         const zip = new JSZip();
         let count = 0;
 
@@ -367,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (count > 0) {
             downloadAllBtn.textContent = 'Zipping...';
-            const content = await zip.generateAsync({type: "blob"});
+            const content = await zip.generateAsync({ type: "blob" });
             downloadBlob(content, "converted_images.zip");
             downloadAllBtn.textContent = 'Download All (ZIP)';
         }
@@ -404,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             // Accumulate velocity
             scrollVelocity += e.deltaY * 0.5;
-            
+
             // Clamp velocity
             const maxV = 60;
             if (scrollVelocity > maxV) scrollVelocity = maxV;
@@ -441,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         downloadAllBtn.disabled = true; // Disable until first file completes
         appContainer.classList.add('expanded');
-        
+
         const rawFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
         if (rawFiles.length === 0) return;
 
@@ -456,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (fileArray.length === 0) return;
-        
+
         // Calculate Total Input Size for Display (Pre-calculation)
         const batchSize = fileArray.reduce((acc, f) => acc + f.size, 0);
         state.grandTotalInputSize = (state.grandTotalInputSize || 0) + batchSize;
@@ -469,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dropStats = document.getElementById('drop-stats');
         if (dropInitial) dropInitial.classList.add('hidden');
         if (dropStats) dropStats.classList.remove('hidden');
-        
+
         // Show Active Pie Content
         if (pieDefaultContent) pieDefaultContent.classList.add('hidden');
         if (pieActiveContent) pieActiveContent.classList.remove('hidden');
@@ -477,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset counts for parsing phase
         state.parsingTarget += fileArray.length;
         // Parsing phase uses totalFilesCount to track "already parsed"
-        
+
         // Immediate update to show count and "Parsing..." or "Processing..."
         if (pieMainText) pieMainText.textContent = "Processing...";
         if (pieSubText) pieSubText.textContent = "Parsing files...";
@@ -494,11 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             chunk.forEach(file => {
                 const id = state.nextId++;
-                
+
                 // Create UI Item
                 const uiItem = createUiItem(id, file);
                 fragment.appendChild(uiItem);
-                
+
                 // Prepare job
                 newJobs.push({ id, file, uiElement: uiItem });
             });
@@ -507,26 +509,26 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update DOM and State in one go for this chunk
             fileList.appendChild(fragment);
             state.queue.push(...newJobs);
-            
+
             // Increment known total files as we parse them
             state.totalFilesCount += chunk.length;
-            
-        // Start processing this chunk immediately
-        processQueue();
-        
-        // Trigger Visual Update
-        state.renderDirty = true;
 
-        index += CHUNK_SIZE;
-        
-        if (index < fileArray.length) {
-            // Schedule next chunk
-            requestAnimationFrame(processChunk);
-        } else {
-            // Done parsing
+            // Start processing this chunk immediately
+            processQueue();
+
+            // Trigger Visual Update
             state.renderDirty = true;
+
+            index += CHUNK_SIZE;
+
+            if (index < fileArray.length) {
+                // Schedule next chunk
+                requestAnimationFrame(processChunk);
+            } else {
+                // Done parsing
+                state.renderDirty = true;
+            }
         }
-    }
 
         // Start processing
         processChunk();
@@ -536,11 +538,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const clone = template.content.cloneNode(true);
         const el = clone.querySelector('.file-item');
         el.id = `file-${id}`;
-        
+
         // Setup details
         el.querySelector('.file-name').textContent = file.name;
         el.querySelector('.size-old').textContent = formatSize(file.size);
-        
+
         // Preview
         const img = el.querySelector('.file-preview');
         // create object URL for preview
@@ -572,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Loop ---
-    
+
     // Main loop for UI updates (High Performance 60-165Hz)
     function renderLoop() {
         if (state.renderDirty) {
@@ -580,45 +582,45 @@ document.addEventListener('DOMContentLoaded', () => {
             state.renderDirty = false;
         }
         drawRings(); // Interpolate and Draw Rings every frame
-        processCarouselBatch(); 
+        processCarouselBatch();
         requestAnimationFrame(renderLoop);
     }
-    
+
     function updateStats() {
         if (!state.parsingTarget) return;
 
         const savedTotal = (state.totalOriginalSize - state.totalNewSize);
         const savedStr = formatSize(savedTotal);
-        
+
         // Clean simplified text
-        let html = `Saved ${savedStr}`;
-        
+        let html = `Total Saved: ${savedStr}`;
+
         // Only update pieSubText if we have actual data.
         if (state.totalNewSize > 0 && pieSubText) pieSubText.innerHTML = html;
-        
+
         if (pieMainText) {
             // Check if we have files to process
             const hasFiles = state.grandTotalInputSize > 0;
-            
+
             if (hasFiles) {
-                 // Format: "10 MB / 15 GB" (Processed Input / Total Input)
-                 // Use totalOriginalSize as 'Processed Input' (since it sums up as we finish files)
-                 const processedInput = state.totalOriginalSize; 
-                 const totalInput = state.grandTotalInputSize;
-                 
-                 pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
-                 
-                 // If processing but no files finished yet, this will show "0 B / 15 MB" which is correct.
+                // Format: "10 MB / 15 GB" (Processed Input / Total Input)
+                // Use totalOriginalSize as 'Processed Input' (since it sums up as we finish files)
+                const processedInput = state.totalOriginalSize;
+                const totalInput = state.grandTotalInputSize;
+
+                pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
+
+                // If processing but no files finished yet, this will show "0 B / 15 MB" which is correct.
             } else {
-                 pieMainText.textContent = "Processing...";
+                pieMainText.textContent = "Processing...";
             }
 
             // Saved text + Diff logic
             if (state.totalNewSize > 0) {
-                 let subHtml = `Saved ${savedStr}`;
-                 
-                 // Add diff if enabled and exists
-                 if (state.lastRunLookup && state.lastRunLookup.size > 0) {
+                let subHtml = `Total Saved: ${savedStr}`;
+
+                // Add diff if enabled and exists
+                if (state.lastRunLookup && state.lastRunLookup.size > 0) {
                     const diffSize = state.sessionDiff || 0;
                     if (diffSize !== 0) {
                         const diffStr = formatSize(diffSize);
@@ -626,12 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const colorClass = diffSize < 0 ? 'diff-better' : 'diff-worse';
                         subHtml += ` <span class="${colorClass}">(${sign}${diffStr})</span>`;
                     }
-                 }
-                 
-                 if (pieSubText) pieSubText.innerHTML = subHtml;
+                }
+
+                if (pieSubText) pieSubText.innerHTML = subHtml;
             } else {
-                 // If actively processing but 0 saved (e.g. first file not done), show generic 'Starting...'
-                 if (state.queue.length > 0 && pieSubText) pieSubText.innerHTML = 'Starting...';
+                // If actively processing but 0 saved (e.g. first file not done), show generic 'Starting...'
+                if (state.queue.length > 0 && pieSubText) pieSubText.innerHTML = 'Starting...';
             }
         }
     }
@@ -668,17 +670,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const offset = CIRC_OUTER - (state.visual.outerProgress * CIRC_OUTER);
             progressCircleOuter.style.strokeDashoffset = offset;
         }
-        
+
         // Update Sticky Bar (Multi-Layer)
         const stickyParsing = document.getElementById('sticky-bar-parsing');
         const stickyConversion = document.getElementById('sticky-bar-conversion');
         const stickySaved = document.getElementById('sticky-bar-saved');
 
         if (stickyParsing) {
-             stickyParsing.style.width = (state.visual.innerProgress * 100) + '%';
+            stickyParsing.style.width = (state.visual.innerProgress * 100) + '%';
         }
         if (stickyConversion) {
-             stickyConversion.style.width = (state.visual.outerProgress * 100) + '%';
+            stickyConversion.style.width = (state.visual.outerProgress * 100) + '%';
         }
         if (stickySaved) {
             // Visualizing SAVED ratio (Green = Saved)
@@ -698,48 +700,49 @@ document.addEventListener('DOMContentLoaded', () => {
     function initTypewriter() {
         const h2 = document.querySelector('.hero-section h2');
         const p = document.querySelector('.hero-section p');
-        
+
         if (!h2 || !p) return;
 
         // Hide other elements initially (Drop zone, Info)
         const finalRevealElements = document.querySelectorAll('.drop-zone, .info-section');
-        
+
         // Ensure initial hidden state
         p.style.opacity = '1'; // We handle P visibility by clearing text
         finalRevealElements.forEach(e => {
-             e.style.opacity = '0';
-             e.style.transition = 'opacity 0.8s ease-out';
+            e.style.opacity = '0';
+            e.style.transition = 'opacity 0.8s ease-out';
         });
+
 
         const textH2 = h2.textContent;
         const textP = p.textContent;
-        
+
         h2.textContent = '';
         p.textContent = '';
-        
+
         h2.classList.add('typewriter-cursor');
-        
+
         // Ultra fast typing helper
         // Helper returns Promise
         function typeLinePromise(element, text) {
-             return new Promise(resolve => {
-                 let i = 0;
-                 function type() {
+            return new Promise(resolve => {
+                let i = 0;
+                function type() {
                     if (i < text.length) {
                         element.textContent += text.charAt(i);
                         i++;
-                        
-                        if (text.charAt(i-1) === ' ') {
-                            setTimeout(type, 15); 
+
+                        if (text.charAt(i - 1) === ' ') {
+                            setTimeout(type, 15);
                         } else {
-                            setTimeout(type, Math.random() * 10 + 5); 
+                            setTimeout(type, Math.random() * 3 + 2);
                         }
                     } else {
                         resolve();
                     }
-                 }
-                 type();
-             });
+                }
+                type();
+            });
         }
 
         // Start Chain - Parallel Typing
@@ -748,47 +751,73 @@ document.addEventListener('DOMContentLoaded', () => {
             h2.classList.add('typewriter-cursor');
             p.classList.add('typewriter-cursor');
 
+            const dropZone = document.querySelector('.drop-zone');
+            if (dropZone) dropZone.style.opacity = '1';
+            setTimeout(t => {
+                const infoSection = document.querySelector('.info-section');
+                if (infoSection) {
+                    infoSection.style.opacity = '1';
+                    startInfoCardsTyping();
+                }
+            }, 1000);
             Promise.all([
                 typeLinePromise(h2, textH2).then(() => h2.classList.remove('typewriter-cursor')),
                 typeLinePromise(p, textP).then(() => p.classList.remove('typewriter-cursor'))
             ]).then(() => {
                 // Determine which elements to reveal
-                const dropZone = document.querySelector('.drop-zone');
-                if (dropZone) dropZone.style.opacity = '1';
 
-                const infoSection = document.querySelector('.info-section');
-                if (infoSection) { 
-                     infoSection.style.opacity = '1';
-                     startInfoCardsTyping();
-                }
             });
-        }, 100);
+        }, 5);
 
 
         function startInfoCardsTyping() {
-             const cards = document.querySelectorAll('.info-card');
-             cards.forEach((card, index) => {
-                 setTimeout(() => {
-                     const h3 = card.querySelector('h3');
-                     const p = card.querySelector('p');
-                     
-                     if (!h3 || !p) return;
+            const cards = document.querySelectorAll('.info-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    const h3 = card.querySelector('h3');
+                    const p = card.querySelector('p');
 
-                     const h3Text = h3.textContent;
-                     const pText = p.textContent;
-                     
-                     h3.textContent = '';
-                     p.textContent = '';
-                     h3.style.visibility = 'visible'; 
-                     p.style.visibility = 'visible';
+                    if (!h3 || !p) return;
 
-                     // Parallel typing for card content
-                     typeLinePromise(h3, h3Text).then(() => {
-                         typeLinePromise(p, pText);
-                     });
-                 }, index * 200); // Stagger cards slightly
-             });
+                    const h3Text = h3.textContent;
+                    const pText = p.textContent;
+
+                    h3.textContent = '';
+                    p.textContent = '';
+                    h3.style.visibility = 'visible';
+                    p.style.visibility = 'visible';
+
+                    // Parallel typing for card content
+                    typeLinePromise(h3, h3Text).then(() => {
+                        typeLinePromise(p, pText);
+                    });
+                }, index * 400); // Stagger cards slightly
+            });
         }
+    }
+
+    function initParallax() {
+        let ticking = false;
+        document.addEventListener('mousemove', (e) => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const x = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
+                    const y = (e.clientY / window.innerHeight - 0.5) * 2;
+                    
+                    const blobs = document.querySelectorAll('.blob');
+                    blobs.forEach((blob, index) => {
+                        // Reverse direction for depth feel, different speeds
+                        const speed = (index + 1) * 30; 
+                        const xOffset = x * speed * (index % 2 === 0 ? 1 : -1);
+                        const yOffset = y * speed * (index % 2 === 0 ? 1 : -1);
+                        
+                        blob.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+                    });
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
     }
 
     async function processCarouselBatch() {
@@ -803,22 +832,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const imagesToDecode = [];
-        
+
         batch.forEach(({ id, data, previewUrl }) => {
             // Check if card exists (Reprocessing case)
             let card = document.getElementById(`carousel-file-${id}`); // Changed ID format in handleFiles needed? 
             // Wait, standard IDs are `carousel-${id}`.
-            
+
             let isNew = false;
             card = document.getElementById(`carousel-${id}`);
-            
+
             if (!card) {
                 // Create New
                 const clone = carouselTemplate.content.cloneNode(true);
                 card = clone.querySelector('.carousel-card');
                 card.id = `carousel-${id}`;
                 isNew = true;
-                
+
                 // Close Action
                 const closeBtn = card.querySelector('.card-close-btn');
                 closeBtn.onclick = () => card.remove();
@@ -827,14 +856,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dwBtn = card.querySelector('.card-download-btn');
                 dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
             } else {
-                 // Update Existing Actions (Blob might have changed)
-                 const dwBtn = card.querySelector('.card-download-btn');
-                 dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
+                // Update Existing Actions (Blob might have changed)
+                const dwBtn = card.querySelector('.card-download-btn');
+                dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
             }
 
             // Set Image
             const img = card.querySelector('.card-preview');
-            img.src = previewUrl; 
+            img.src = previewUrl;
             imagesToDecode.push(img);
 
             // Set Filename
@@ -850,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Wait for all images in this batch to decode to avoid white flashes
-        await Promise.allSettled(imagesToDecode.map(img => img.decode().catch(e => {})));
+        await Promise.allSettled(imagesToDecode.map(img => img.decode().catch(e => { })));
 
         // Scroll to end ONLY if we added new items (not just updating)
         // Actually, user requested "scroll automat cand sunt done".
@@ -858,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Let's keep smooth scroll to end for now as it signals progress.
         // Or better: Only scroll if the user isn't actively interacting? 
         // For now, respect "scroll automat cand sunt done".
-        
+
         // Logic: If batch had items, scroll to show them.
         carouselTrackContainer.scrollTo({
             left: carouselTrackContainer.scrollWidth,
@@ -870,12 +899,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function processQueue() {
         // Find idle workers
         const idleWorkerIndex = state.workerStatus.findIndex(busy => !busy);
-        
+
         if (idleWorkerIndex !== -1 && state.queue.length > 0) {
             // Assign job
             const job = state.queue.shift();
             const worker = state.workers[idleWorkerIndex];
-            
+
             state.workerStatus[idleWorkerIndex] = true; // Mark busy
             state.processing.set(job.id, job);
 
@@ -901,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleWorkerMessage(workerIndex) {
         return (e) => {
             const { id, success, blob, thumbnail, originalSize, newSize, error } = e.data;
-            
+
             // Mark worker as idle
             state.workerStatus[workerIndex] = false;
 
@@ -918,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const ext = extMap[state.format] || '.webp';
             const newName = originalName.replace(/\.[^/.]+$/, "") + ext;
-            
+
             if (success) {
                 // Sanitize input numbers to prevent NaN
                 const oSize = Number(originalSize) || 0;
@@ -929,16 +958,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Store result
                 const resultData = {
-                    blob, 
+                    blob,
                     fileName: newName,
                     originalSize: oSize,
                     newSize: nSize
                 };
                 state.completed.set(id, resultData);
-                
+
                 // Update Cache Stats (Safe addition)
                 state.totalOriginalSize = (state.totalOriginalSize || 0) + oSize;
                 state.totalNewSize = (state.totalNewSize || 0) + nSize;
+
+
 
                 // Smart Diff Logic (Incremental)
                 if (state.lastRunLookup && state.lastRunLookup.has(newName)) {
@@ -974,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             state.processing.delete(id);
             state.renderDirty = true; // Request a global visual update
-            
+
             // Process next
             processQueue();
         };
@@ -985,11 +1016,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Limit updates to 20 per frame to guarantee 60-165fps
         // Even if 1000 files finish, visual updates will stream in over a few frames.
         // Limit updates to 100 per frame for faster visual feedback
-        const BATCH_LIMIT = 100; 
-        
+        const BATCH_LIMIT = 100;
+
         if (state.pendingRowUpdates.length > 0) {
             const updates = state.pendingRowUpdates.splice(0, BATCH_LIMIT);
-            
+
             for (const update of updates) {
                 const row = document.getElementById(`file-${update.id}`);
                 if (!row) continue;
@@ -1001,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // We clear specific size-new styling if needed or just append
                     row.querySelector('.size-new').innerHTML = ` <span style="opacity:0.6">&rarr;</span> ${formatSize(update.newSize)}`;
                     // Ensure size-old is visible (it is set on creation)
-                    
+
                     const badge = row.querySelector('.badge');
                     badge.textContent = `-${update.savedPercent}%`;
                     badge.classList.add('success');
@@ -1029,17 +1060,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (count > 0) {
             downloadAllBtn.disabled = false;
         } else {
-             downloadAllBtn.disabled = true;
+            downloadAllBtn.disabled = true;
         }
 
         // Use Cached Totals
         const originalTotal = state.totalOriginalSize;
         const newTotal = state.totalNewSize;
-        
+
         const savedTotal = originalTotal - newTotal;
         const savedText = `Saved ${formatSize(savedTotal)}`;
         totalSavedSpan.textContent = savedText;
-        
+
         // Update Sticky Header Stats
         if (headerFilesCount) headerFilesCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
         if (headerTotalSaved) headerTotalSaved.textContent = savedText;
@@ -1049,18 +1080,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show header stats via class if we have content
         const headerStats = document.querySelector('.header-sticky-stats');
         if (headerStats) {
-             const hasFiles = state.queue.length > 0 || state.processing.size > 0 || state.completed.size > 0;
-             if (hasFiles) {
-                 headerStats.classList.add('visible');
-             } else {
-                 headerStats.classList.remove('visible');
-             }
+            const hasFiles = state.queue.length > 0 || state.processing.size > 0 || state.completed.size > 0;
+            if (hasFiles) {
+                headerStats.classList.add('visible');
+            } else {
+                headerStats.classList.remove('visible');
+            }
         }
 
         // Update Progress Ring Targets (Logic Only)
-        
+
         const isParsing = state.totalFilesCount < state.parsingTarget;
-        
+
         // Phase 1: Parsing (Yellow Inner Ring)
         if (isParsing) {
             // Inner Ring Progress
@@ -1068,10 +1099,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progress = state.totalFilesCount / state.parsingTarget;
                 // Set Target for LERP
                 state.visual.innerTarget = progress;
-                
+
                 // Ensure opacity is 1
                 if (progressCircleInner) progressCircleInner.style.opacity = '1';
-                
+
                 // Outer Ring Concurrent Target
                 const procProgress = count / state.parsingTarget;
                 state.visual.outerTarget = procProgress; // Use same denominator for sync
@@ -1080,33 +1111,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Text handling moved to updateStats()
 
             }
-        } 
+        }
         // Phase 2: Converting (Green Outer Ring)
         else if (state.totalFilesCount > 0) {
             // Inner Ring Full (Parsing Complete) -> Fade Out with Delay
-            state.visual.innerTarget = 1; 
-            
+            state.visual.innerTarget = 1;
+
             if (!state.parsingCompleteTime) {
                 state.parsingCompleteTime = Date.now();
             }
 
             if (progressCircleInner) {
-                 // Wait 1s (1000ms) before changing opacity
-                 if (Date.now() - state.parsingCompleteTime > 1000) {
-                     progressCircleInner.style.opacity = '0';
-                 } else {
-                     progressCircleInner.style.opacity = '1';
-                 }
+                // Wait 1s (1000ms) before changing opacity
+                if (Date.now() - state.parsingCompleteTime > 1000) {
+                    progressCircleInner.style.opacity = '0';
+                } else {
+                    progressCircleInner.style.opacity = '1';
+                }
             }
 
             // Outer Ring Progress
             const progress = count / state.totalFilesCount;
             state.visual.outerTarget = progress;
-            
+
             // Text Update: "1 / 107"
             // Text Update handled by updateStats
 
-            
+
             if (count === state.totalFilesCount && count > 0) {
                 // Done logic handled in updateStats
             } else {
@@ -1119,12 +1150,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const deg = (compressedPercent / 100) * 360;
                 pieChart.style.setProperty('--p', `${deg}deg`);
             }
-               
+
         } else {
             // Ready State
             state.visual.innerTarget = 0;
             state.visual.outerTarget = 0;
-            
+
             // Show Default Content
             if (pieDefaultContent) pieDefaultContent.classList.remove('hidden');
             if (pieActiveContent) pieActiveContent.classList.add('hidden');
@@ -1136,14 +1167,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatSize(bytes) {
         if (typeof bytes !== 'number' || isNaN(bytes)) return '0 B';
         if (bytes === 0) return '0 B';
-        
+
         const isNegative = bytes < 0;
         const absBytes = Math.abs(bytes);
-        
+
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(absBytes) / Math.log(k));
-        
+
         // Safety bound check
         let val, unit;
         if (i < 0) {

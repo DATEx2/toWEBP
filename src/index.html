@@ -8,13 +8,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/webp" href="favicon.webp">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- Tom Select for nice dropdowns -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body>
+    <!-- Parallax Background -->
+    <div id="parallax-bg" class="parallax-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
     <!-- SVG Filter for Liquid Effect -->
     <svg style="visibility: hidden; position: absolute;" width="0" height="0">
         <defs>
@@ -60,7 +67,7 @@
                 </div>
                 <div class="setting-group">
                     <label for="quality">Quality (<span id="quality-value">80</span>%)</label>
-                    <input type="range" id="quality" min="1" max="100" value="80">
+                    <input type="range" id="quality" min="0" max="100" value="80" step="5">
                 </div>
             </div>
         </header>
@@ -152,12 +159,13 @@
                                         <span style="font-weight: 600; color: var(--text-main);">Drag & Drop</span>
                                         <small style="color: var(--text-muted);">or click to browse</small>
                                     </div>
-                                    <div id="pie-active-content" class="hidden" style="display: flex; flex-direction: column; align-items: center;">
-                                        <span id="pie-main-text">Processing</span>
-                                        <small id="pie-sub-text">Starting...</small>
-                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div id="pie-active-content" class="hidden stats-text-container">
+                            <div id="pie-main-text" class="stat-main-text">Processing</div>
+                            <div id="pie-sub-text" class="stat-sub-text">Starting...</div>
                         </div>
                     </div>
                     

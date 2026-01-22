@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
-    // --- Configuration ---
     // Use all available cores except 1 for main thread to maximize speed
     const WORKER_COUNT = Math.max(2, (navigator.hardwareConcurrency || 4) - 1);
 

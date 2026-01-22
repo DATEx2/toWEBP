@@ -3,14 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToWebP Clone - Client-Side Converter</title>
+    <title>ToWebP - Client-Side Image Converter to WEBP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Tom Select for nice dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body>
+    <!-- SVG Filter for Liquid Effect -->
+    <svg style="visibility: hidden; position: absolute;" width="0" height="0">
+        <defs>
+            <filter id="liquid-glow">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="liquid" />
+                <feComposite in="SourceGraphic" in2="liquid" operator="atop"/>
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="var(--primary)" flood-opacity="0.4"/>
+            </filter>
+        </defs>
+    </svg>
+
     <div class="app-container">
         <header>
             <div class="logo">
@@ -18,9 +34,30 @@
                     <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
                     <path d="M7 12L12 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <h1>ToWebP<span>.clone</span></h1>
+                <div class="logo-text">
+                    <h1>ToWebP</h1>
+                </div>
+            </div>
+            
+            <div class="header-sticky-stats">
+                <span class="stat-item files-count-display">0 files</span>
+                <span class="stat-item total-saved-display">Saved 0 MB</span>
+                <span class="stat-item" id="header-size-stats">0 B / 0 B</span>
+                <div class="header-actions">
+                    <button id="header-download-btn" class="btn-primary" disabled>Download ZIP</button>
+                    <button id="header-clear-btn" class="btn-text">Clear</button>
+                </div>
             </div>
             <div class="header-controls">
+                <div class="setting-group">
+                    <label for="format-select">Format</label>
+                    <select id="format-select" autocomplete="off">
+                        <option value="image/webp" selected>WebP</option>
+                        <option value="image/avif">AVIF</option>
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                    </select>
+                </div>
                 <div class="setting-group">
                     <label for="quality">Quality (<span id="quality-value">80</span>%)</label>
                     <input type="range" id="quality" min="1" max="100" value="80">
@@ -29,16 +66,101 @@
         </header>
 
         <main>
+            <div class="hero-section">
+                <h2>The best & fastest way to convert your images to WebP</h2>
+                <p>Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
+            </div>
+
             <div id="drop-zone" class="drop-zone">
+                <div class="sticky-progress-container">
+                    <div class="sticky-bar-parsing" id="sticky-bar-parsing"></div>
+                    <div class="sticky-bar-conversion" id="sticky-bar-conversion">
+                        <div class="sticky-bar-saved" id="sticky-bar-saved"></div>
+                    </div>
+                </div>
                 <div class="drop-content">
-                    <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <h2>Drag & Drop images here</h2>
-                    <p>or click to browse</p>
+                    <!-- Initial View -->
+                    <div id="drop-initial" class="hidden">
+                        <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <h2>Drag & Drop images here</h2>
+                        <p>or click to browse</p>
+                    </div>
+                    
+                    <!-- Stats View (Pie Chart) -->
+                    <div id="drop-stats">
+                        <div class="pie-chart-wrapper large" style="position: relative;">
+                            <!-- Progress Rings (Dual SVG Speedometer) -->
+                            <div id="progress-ring" class="progress-ring-svg-container" style="position:absolute; inset:0; z-index:10;">
+                                <svg width="240" height="240" viewBox="0 0 240 240" style="transform: rotate(-90deg); overflow: visible;">
+                                     <!-- Filter applied via CSS class if needed -->
+                                    <defs>
+                                        <filter id="svg-glow-filter">
+                                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- Outer Track (Processing) -->
+                                    <circle cx="120" cy="120" r="116" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
+                                    <!-- Inner Track (Parsing) -->
+                                    <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
+                                    
+                                    <!-- Outer Ring: Processing (Green) -->
+                                    <!-- Circumference = 2*PI*116 ≈ 729 -->
+                                    <circle id="progress-circle-outer" 
+                                            cx="120" cy="120" r="116" 
+                                            fill="none" 
+                                            stroke="var(--primary)" 
+                                            stroke-width="4" 
+                                            stroke-linecap="round" 
+                                            stroke-dasharray="729" 
+                                            stroke-dashoffset="729"
+                                            style="will-change: stroke-dashoffset;" />
+
+                                    <!-- Inner Ring: Parsing (Yellow) -->
+                                    <!-- Circumference = 2*PI*108 ≈ 678 -->
+                                    <circle id="progress-circle-inner" 
+                                            cx="120" cy="120" r="108" 
+                                            fill="none" 
+                                            stroke="#eab308" 
+                                            stroke-width="4" 
+                                            stroke-linecap="round" 
+                                            stroke-dasharray="678" 
+                                            stroke-dashoffset="678"
+                                            style="will-change: stroke-dashoffset;" />
+                                </svg>
+                            </div>
+                            
+                            <!-- Pie Chart (Content) - Relative Overlay -->
+                            <div id="pie-chart" class="pie-chart" style="--p:0deg; position:relative; z-index:20;">
+                                <div class="pie-center-text">
+                                    <div id="pie-default-content" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;">
+                                        <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                        <span style="font-weight: 600; color: var(--text-main);">Drag & Drop</span>
+                                        <small style="color: var(--text-muted);">or click to browse</small>
+                                    </div>
+                                    <div id="pie-active-content" class="hidden" style="display: flex; flex-direction: column; align-items: center;">
+                                        <span id="pie-main-text">Processing</span>
+                                        <small id="pie-sub-text">Starting...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <input type="file" id="file-input" multiple accept="image/*" hidden>
                 </div>
             </div>
@@ -57,18 +179,29 @@
                 </button>
             </div>
 
-            <div id="stats-bar" class="stats-bar hidden">
-                <span id="files-count">0 files</span>
-                <span class="divider">•</span>
-                <span id="total-saved">Saved 0 MB</span>
-                <button id="download-all" class="btn-primary">Download All (ZIP)</button>
-                <button id="clear-all" class="btn-text">Clear All</button>
-            </div>
+
 
             <div id="file-list" class="file-list">
                 <!-- File items will be injected here -->
             </div>
         </main>
+    </div>
+    
+    <div class="info-section">
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🚀 Fast & Secure</h3>
+                <p>All conversions happen locally on your device. Your images never leave your computer, ensuring 100% privacy.</p>
+            </div>
+            <div class="info-card">
+                <h3>📉 Smart Compression</h3>
+                <p>Reduce file size by up to 80% without visible quality loss. WebP is the modern standard for lighter websites.</p>
+            </div>
+            <div class="info-card">
+                <h3>⚡ Batch Process</h3>
+                <p>Convert hundreds of images in seconds using multi-core processing. Drag, drop, and done.</p>
+            </div>
+        </div>
     </div>
     
     <!-- Template for file item -->
@@ -104,6 +237,7 @@
                 </button>
                 <div class="card-overlay">
                     <svg class="check-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div class="card-spinner"></div>
                 </div>
             </div>
             <div class="card-info">
@@ -111,9 +245,7 @@
             </div>
             <div class="card-actions">
                 <button class="card-download-btn">DOWNLOAD</button>
-                <button class="card-settings-btn" title="Settings">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15A1.65 1.65 0 0020 12a1.65 1.65 0 00-.6-3M16.6 19.4A1.65 1.65 0 0012 20a1.65 1.65 0 00-3-.6M4.6 15A1.65 1.65 0 004 12a1.65 1.65 0 00.6-3M7.4 4.6A1.65 1.65 0 0012 4a1.65 1.65 0 003 .6M17.657 16.343l1.414 1.414M6.343 17.657l-1.414-1.414M16.343 6.343l1.414-1.414M4.929 4.929l1.414 1.414" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+                <!-- Settings button removed -->
             </div>
         </div>
     </template>

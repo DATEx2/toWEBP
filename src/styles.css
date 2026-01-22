@@ -14,6 +14,9 @@
     --radius-lg: 1rem;
     --radius-md: 0.75rem;
     --radius-sm: 0.5rem;
+    --header-height: 80px;
+    --success: #10b981;
+    --error: #ef4444;
 }
 
 * {
@@ -31,19 +34,26 @@ body {
     color: var(--text-main);
     line-height: 1.5;
     min-height: 100vh;
-    padding: 2rem 1rem;
+    padding: 0; /* Remove body padding to allow full width sticky */
 }
 
+/* Ensure container allows sticky children */
 .app-container {
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 2rem auto; /* Moved padding here */
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     border: 1px solid rgba(255, 255, 255, 0.5);
-    overflow: hidden;
+    overflow: visible; /* CRITICAL for sticky */
+    transition: max-width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.app-container.expanded {
+    max-width: 95%;
 }
 
 header {
@@ -52,7 +62,66 @@ header {
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: all 0.3s ease;
+    height: var(--header-height);
+}
+
+/* Scrolled Header State (Controlled by JS) */
+body.scrolled header {
+    padding: 0.5rem 2rem;
+    box-shadow: var(--shadow-sm);
+    --header-height: 60px;
+    height: var(--header-height);
+}
+
+body.scrolled .logo h1 {
+    font-size: 1.25rem;
+}
+
+/* Header Sticky Stats */
+.header-sticky-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+body.scrolled .header-sticky-stats,
+.header-sticky-stats.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.header-sticky-stats .stat-item {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.header-sticky-stats .header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.header-sticky-stats .btn-primary {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    height: auto;
+}
+.header-sticky-stats .btn-text {
+    font-size: 0.85rem;
+    padding: 0.4rem;
 }
 
 .logo {
@@ -62,15 +131,64 @@ header {
     color: var(--primary);
 }
 
-.logo h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    color: var(--text-main);
+/* Simplified Logo Text (Brand only) */
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.logo span {
-    color: var(--primary);
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--text-main);
+    line-height: 1;
+    margin: 0;
+}
+
+/* Hero Section in Main */
+.hero-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.hero-section h2 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.hero-section h2.typewriter-cursor::after {
+    content: '|';
+    display: inline-block; /* allows animation */
+    margin-left: 2px;
+    font-weight: 400;
+    color: var(--primary); /* Cursor color */
+    animation: blink 1s step-end infinite;
+    -webkit-text-fill-color: var(--primary); /* Override the transparent fill of parent */
+}
+
+@keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.hero-section p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 500;
 }
 
 .header-controls {
@@ -102,26 +220,173 @@ input[type="range"] {
     cursor: pointer;
 }
 
+/* Tom Select Integration */
+.ts-wrapper {
+    width: 120px;
+    display: inline-block;
+}
+.ts-control {
+    border: none;
+    background: transparent;
+    padding: 0 0.5rem;
+    box-shadow: none;
+    font-weight: 500;
+    color: var(--text-main);
+}
+.ts-wrapper.single .ts-control:after {
+    border-color: #64748b transparent transparent transparent;
+}
+.ts-dropdown {
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-sm);
+    z-index: 1000;
+}
+
 main {
     padding: 2rem;
 }
 
 /* Drop Zone */
+/* Drop Zone */
 .drop-zone {
-    border: 2px dashed #cbd5e1;
+    /* Remove boxy look, rely on the circle */
+    border: none;
+    background: transparent;
     border-radius: var(--radius-lg);
-    padding: 4rem 2rem;
+    padding: 2rem;
     text-align: center;
-    background: rgba(255, 255, 255, 0.5);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default; /* Cursor handled by input or just drop */
+    margin-bottom: 2.5rem; /* Increased margin */
+    
+    /* Initially hidden for typewriter effect */
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
 }
 
 .drop-zone:hover, .drop-zone.drag-over {
-    border-color: var(--primary);
-    background: rgba(13, 148, 136, 0.05);
-    transform: scale(1.005);
+    /* Subtle scaling of the content instead of box highlight */
+    transform: scale(1.02);
+}
+
+/* Sticky Progress Bar System */
+.sticky-progress-container {
+    position: absolute;
+    bottom: -2px; 
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px; /* Default height */
+    background: rgba(0,0,0,0.05);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.sticky-bar-parsing {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    background: rgba(250, 204, 21, 0.5); /* Yellow-400 equivalent */
+    width: 0%;
+    transition: width 0.2s linear;
+    z-index: 1;
+}
+
+.sticky-bar-conversion {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    width: 0%;
+    transition: width 0.1s linear;
+    z-index: 2;
+    overflow: hidden;
+    /* "Semi-transparent total" - Background of bar represents 100% capacity */
+    background: rgba(13, 148, 136, 0.35); /* Increased opacity for visibility */
+}
+
+.sticky-bar-saved {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%;
+    height: 100%; /* Vertical Fill controlled by JS height %, or simple background */
+    /* Wait, user wants "in partea de jos a barei sa fie culoarea".
+       So vertical fill from bottom.
+    */
+    /* This is the Opaque "Used Space" or "New Size" Bar */
+    background: var(--primary);
+    transform-origin: bottom center;
+    transform: scaleY(0); /* Default 0 height */
+    transition: transform 0.3s ease;
+    z-index: 3;
+}
+
+
+
+/* Scrolled State Overrides */
+body.scrolled .drop-zone {
+    /* Morph into a progress bar container */
+    padding: 0;
+    min-height: 8px; /* Taller bar for visibility */
+    height: 8px;
+    background: white;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    margin-bottom: 0; /* Remove margin to let carousel stick flush */
+    box-shadow: var(--shadow-sm);
+    top: 60px; /* Header Height */
+    overflow: visible;
+}
+
+body.scrolled .sticky-progress-container {
+    opacity: 1;
+    bottom: 0;
+    height: 100%;
+}
+
+/* Sticky Carousel */
+#carousel-section {
+    position: sticky;
+    top: 68px; /* Header(60) + Bar(8) */
+    z-index: 30;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding-top: 0.5rem;
+    margin-top: 0;
+}
+
+body.scrolled .carousel-card {
+    min-width: 80px;
+    width: 80px;
+    border-radius: var(--radius-sm);
+}
+body.scrolled .card-image-wrapper {
+    height: 60px;
+}
+body.scrolled .card-info, 
+body.scrolled .card-actions {
+    display: none;
+}
+/* Hover to peek */
+body.scrolled .carousel-card:hover {
+    transform: scale(1.1);
+    z-index: 50;
+    box-shadow: var(--shadow-md);
+}
+
+body.scrolled .drop-content {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+body.scrolled .pie-chart-wrapper {
+    display: none;
 }
 
 .drop-content {
@@ -129,7 +394,9 @@ main {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    pointer-events: none; /* Let clicks pass through to container */
+    /* pointer-events: none; - REMOVE this so we can click if needed, though drag is global */
+    pointer-events: auto; 
+    transition: all 0.3s ease;
 }
 
 .upload-icon {
@@ -217,8 +484,10 @@ main {
 
 /* File List */
 .file-list {
-    display: grid;
-    gap: 1rem;
+    display: flex; /* Flex is often lighter than grid for simple lists */
+    flex-direction: column;
+    gap: 0.5rem;
+    contain: content; /* Isolate layout */
 }
 
 .file-item {
@@ -230,7 +499,12 @@ main {
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     transition: transform 0.2s;
-    animation: fadeIn 0.3s ease-out;
+    /* Removed animation fadeIn to prevent jank on insert */
+    
+    /* Performance */
+    contain: content;
+    content-visibility: auto;
+    contain-intrinsic-size: 80px; /* Reduces layout shift */
 }
 
 .file-item:hover {
@@ -253,7 +527,7 @@ main {
 .file-preview {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .file-info {
@@ -444,7 +718,7 @@ main {
 .card-image-wrapper {
     position: relative;
     height: 120px;
-    background: #f1f5f9;
+    background: #ffffff;
     border-bottom: 1px solid var(--border);
 }
 
@@ -485,13 +759,50 @@ main {
     justify-content: center;
     background: rgba(0,0,0,0.1);
     pointer-events: none;
+    transition: background 0.3s;
 }
 
 .check-icon {
     color: white;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     width: 40px;
     height: 40px;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.card-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none;
+}
+
+/* Pending/Processing State */
+.carousel-card.pending .card-image-wrapper {
+    background: #f0f0f0; 
+}
+.carousel-card.pending .card-preview {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+    transition: opacity 0.3s;
+}
+.carousel-card.pending .check-icon {
+    display: none; 
+}
+.carousel-card.pending .card-spinner {
+    display: block;
+}
+.carousel-card.pending .card-download-btn {
+    opacity: 0.6;
+    pointer-events: none;
+    background: var(--text-muted);
+}
+.carousel-card.pending .card-overlay {
+    background: rgba(0,0,0,0.2) !important;
 }
 
 .card-info {
@@ -572,4 +883,416 @@ main {
     border-color: var(--primary);
     color: var(--primary);
     box-shadow: var(--shadow-sm);
+}
+
+/* Pie Chart */
+.pie-chart-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0 1.5rem;
+}
+
+.pie-chart {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) var(--p), #e2e8f0 0deg);
+    position: relative;
+    box-shadow: inset 0 0 0 4px #fff;
+    cursor: help;
+    transition: --p 0.2s ease;
+}
+
+/* Tooltip */
+.pie-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 50;
+}
+
+.pie-chart-wrapper:hover .pie-tooltip {
+    opacity: 1;
+}
+
+.dot-compressed {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    margin-right: 4px;
+}
+
+.dot-saved {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    margin-right: 4px;
+}
+/* Big Pie Chart */
+.pie-chart-wrapper.large {
+    width: 240px;
+    height: 240px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; /* Center the wrapper itself in the container */
+}
+
+
+
+/* Center Text */
+/* Center Text */
+/* Center Text Container */
+.progress-ring-svg-container svg {
+    overflow: visible;
+    pointer-events: none; /* Ensure SVG doesn't block clicks */
+}
+
+/* Center Text Container */
+.pie-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%; /* Fill parent */
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary); /* Was primary, ensure it contrasts with white */
+    z-index: 30;
+    pointer-events: none; /* Let clicks pass to parent .pie-chart */
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pie-chart:hover .pie-center-text {
+    /* Scale effect on text is fine, but ensure recenter works. 
+       Actually with the new parent scale, we don't strictly need to scale text separately 
+       if the whole bubble scales. 
+       Let's REMOVE text scaling to be safe and avoid double scaling issues or translation errors.
+    */
+    transform: translate(-50%, -50%); 
+}
+
+/* Default Drag & Drop View - Transparent */
+#pie-default-content {
+    /* No background, just centered icon/text */
+    animation: fadeIn 0.5s ease-out;
+    color: var(--text-main); /* Ensure visible text */
+}
+
+/* Active Stats View - Styled Pill */
+#pie-active-content {
+    /* Remove pill styling, use parent circle */
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: unset; 
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    
+    color: #ffffff; /* Use White for contrast against Teal background */
+    animation: fadeIn 0.5s ease-out;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Strong shadow for readability on light gray */
+}
+
+#pie-main-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff; 
+    line-height: 1.2;
+    /* Extra shadow for the main text */
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6); 
+}
+
+#pie-sub-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95); /* Bright white */
+    margin-top: 0.25rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+#pie-percent {
+    font-size: 1.5rem; /* Adjusted from 2.5rem which was huge */
+    font-weight: 800;
+    line-height: 1;
+}
+
+.pie-center-text small {
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Progress Ring (SVG Container) */
+.progress-ring-svg-container {
+    width: 240px;
+    height: 240px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Optional: Apply filter to the whole SVG for liquid feel */
+    filter: url(#liquid-glow);
+}
+
+/* Ensure SVG overflow is visible for glow/shadows */
+.progress-ring-svg-container svg {
+    overflow: visible;
+}
+
+#progress-circle-inner, #progress-circle-outer {
+    transition: opacity 1.5s ease;
+}
+
+/* We use SVG strokes now, so we don't need the ::before dot or ::after mask! */
+/* Clean and performant */
+
+/* Image Zoom Overlay */
+.image-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    animation: overlayFadeIn 0.2s ease-out;
+}
+
+.image-zoom-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    transform: scale(0.9);
+    animation: imageZoomIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    object-fit: contain;
+    pointer-events: none; /* Click goes to overlay to close */
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.pie-chart {
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pie-chart:hover {
+    transform: scale(1.1); /* Bigger scale */
+}
+/* Ensure inner text doesn't double scale if needed, or let it scale with parent. 
+   If we want just the text to scale more, we can do that too, but scaling parent is best for "circle bigger". 
+*/
+
+
+@keyframes imageZoomIn {
+    to { transform: scale(1); }
+}
+
+/* Also ensure wrapper has pointer cursor */
+.file-preview-wrapper {
+    cursor: zoom-in;
+}
+.pie-chart-wrapper.large .pie-chart {
+    width: 210px; 
+    height: 210px;
+    z-index: 20;
+    /* White bubble */
+    background-color: var(--surface);
+    border-radius: 50%;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.15);
+    /* Flex center content */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* contain ripples or content */
+}
+
+
+/* 
+   Since pie-chart is inside progress-ring, and pie-chart is 200px, 
+   progress-ring is 240px. 
+   Area between 200px and 240px is visible progress ring.
+   Area inside 200px is pie chart.
+*/
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+/* Info Section */
+.info-section {
+    max-width: 1000px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+    /* Initially hidden for typewriter effect */
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.info-card {
+    /* Minimalist look - no background/border, just floating text/icon */
+    background: transparent;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+    /* No shadow/bg on hover, keep it clean */
+}
+
+.info-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column; /* Stack icon and text */
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-card p {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    opacity: 0.8;
+}
+@property --prog {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --p {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --ring-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0d9488;
+}
+
+.diff-better {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.diff-worse {
+    color: var(--error);
+    font-weight: 600;
+}
+
+/* Pillars / Info Grid */
+.info-section {
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Opacity controlled by JS */
+    opacity: 0; 
+    transition: opacity 1s ease-out;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+    gap: 2rem;
+}
+
+/* Responsive Pillars */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+.info-card {
+    text-align: center;
+    padding: 1.5rem;
+    /* background: var(--surface);  Optional card background */
+    border-radius: var(--radius-lg);
+    /* box-shadow: var(--shadow-sm); Optional */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    visibility: hidden; /* Initial state for typewriter */
+    min-height: 1.5em; /* Reserve space to prevent layout jump */
+}
+
+.info-card p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    visibility: hidden; /* Initial state for typewriter */
+    min-height: 3em;
+}
+
+.typewriter-cursor::after {
+    content: '|';
+    animation: cursorBlink 1s infinite;
+    color: var(--primary);
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }

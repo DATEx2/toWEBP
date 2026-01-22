@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
-    const WORKER_COUNT = navigator.hardwareConcurrency || 4;
+    // --- Configuration ---
+    // Use all available cores except 1 for main thread to maximize speed
+    const WORKER_COUNT = Math.max(2, (navigator.hardwareConcurrency || 4) - 1);
     
     // --- DOM Elements ---
     const dropZone = document.getElementById('drop-zone');
@@ -8,12 +10,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const qualityInput = document.getElementById('quality');
     const qualityValue = document.getElementById('quality-value');
     const fileList = document.getElementById('file-list');
-    const statsBar = document.getElementById('stats-bar');
-    const filesCountSpan = document.getElementById('files-count');
-    const totalSavedSpan = document.getElementById('total-saved');
-    const downloadAllBtn = document.getElementById('download-all');
-    const clearAllBtn = document.getElementById('clear-all');
+    // Sticky Header Elements
+    const headerFilesCount = document.querySelector('.header-sticky-stats .files-count-display');
+    const headerTotalSaved = document.querySelector('.header-sticky-stats .total-saved-display');
+    const headerDownloadBtn = document.getElementById('header-download-btn');
+    const headerClearBtn = document.getElementById('header-clear-btn');
+    const headerSizeStats = document.getElementById('header-size-stats');
+    const formatSelect = document.getElementById('format-select'); // Was also missing
+
+    // Use Sticky Header Elements as primary controls if main ones are missing
+    const downloadAllBtn = document.getElementById('download-all') || headerDownloadBtn;
+    const clearAllBtn = document.getElementById('clear-all') || headerClearBtn;
+    
+    // Stats elements
+    const filesCountSpan = document.getElementById('files-count') || headerFilesCount;
+    const totalSavedSpan = document.getElementById('total-saved') || headerTotalSaved;
+
+
     const template = document.getElementById('file-item-template');
+    const pieChart = document.getElementById('pie-chart');
+    const progressRing = document.getElementById('progress-ring');
+    // const dropInitial = document.getElementById('drop-initial'); // Removed/Unused if we always show ring
+    // const dropStats = document.getElementById('drop-stats'); // Always visible now
+    const pieMainText = document.getElementById('pie-main-text');
+    const pieSubText = document.getElementById('pie-sub-text');
+    const pieDefaultContent = document.getElementById('pie-default-content');
+    const pieActiveContent = document.getElementById('pie-active-content');
+    const progressCircleOuter = document.getElementById('progress-circle-outer');
+    const progressCircleInner = document.getElementById('progress-circle-inner');
+    const CIRC_OUTER = 729;
+    const CIRC_INNER = 678;
+
+    // Initialize Rings to Empty State
+    if (progressCircleOuter) progressCircleOuter.style.strokeDashoffset = CIRC_OUTER;
+    if (progressCircleInner) progressCircleInner.style.strokeDashoffset = CIRC_INNER;
     
     // Carousel Elements
     const carouselSection = document.getElementById('carousel-section');
@@ -22,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const carouselTemplate = document.getElementById('carousel-card-template');
+    const appContainer = document.querySelector('.app-container');
 
     // --- State ---
     const state = {
@@ -30,53 +61,298 @@ document.addEventListener('DOMContentLoaded', () => {
         completed: new Map(),  // Map of completed results {id: {blob, fileName, ...}}
         workers: [],        // Array of Worker objects
         workerStatus: [],   // Array of booleans (true = busy)
+        carouselQueue: [], 
         quality: 80,
-        nextId: 1
+        format: 'image/webp', // Default format
+        nextId: 1,
+        totalFilesCount: 0,
+        parsingTarget: 0,
+        // Performance & Stats
+        totalOriginalSize: 0,
+        grandTotalInputSize: 0,
+        totalNewSize: 0,
+        pendingRowUpdates: [],
+        renderDirty: false,
+        // Deduplication & Reprocessing
+        loadedFiles: [],
+
+        fileSignatures: new Set(),
+        lastRunSaved: null,
+        
+        parsingCompleteTime: null, // For ring fade delay
+        
+        // Visual Interpolation State
+        visual: {
+            innerProgress: 0,
+            innerTarget: 0,
+            outerProgress: 0,
+            outerTarget: 0
+        }
     };
 
     // --- Initialization ---
     initWorkers();
+
     updateQualityDisplay();
+    initTypewriter();
 
     // --- Event Listeners ---
+    
+    // Scroll Handler (Sticky UI)
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        // Hysteresis to prevent flickering due to layout shift
+        if (y > 50) {
+            document.body.classList.add('scrolled');
+        } else if (y < 30) {
+            document.body.classList.remove('scrolled');
+        }
+    }, { passive: true });
+
+
+
+    // Format Change Listener
+
+
+
+
+    if (formatSelect) {
+        // Initialize Tom Select
+        // We can just rely on the native change event which Tom Select propagates or fires
+        const ts = new TomSelect(formatSelect, {
+            controlInput: null, // Disable search/text input
+            allowEmptyOption: false
+        });
+
+        ts.on('change', (val) => {
+            state.format = val;
+            localStorage.setItem('towebp_format', val);
+            
+            // Trigger reprocessing
+            const event = new Event('change');
+            qualityInput.dispatchEvent(event);
+        });
+
+        // Initialize from specific saved state
+        const savedFmt = localStorage.getItem('towebp_format');
+        if (savedFmt) {
+             state.format = savedFmt;
+             ts.setValue(savedFmt, true); // true = silent check (don't fire change initially?) - actually we might want to just set it
+        }
+    }
+
     qualityInput.addEventListener('input', (e) => {
         state.quality = parseInt(e.target.value, 10);
         updateQualityDisplay();
     });
 
-    dropZone.addEventListener('dragover', (e) => {
+    // Handle Quality Change (Reprocess All)
+    // Handle Quality Change (Reprocess All - Optimized In-Place)
+    qualityInput.addEventListener('change', () => {
+        if (!state.loadedFiles || state.loadedFiles.length === 0) return;
+
+        // 1. Build Lookup Map for Smart Diff
+        state.lastRunLookup = new Map();
+        for (const [id, data] of state.completed) {
+            state.lastRunLookup.set(data.fileName, data.newSize);
+        }
+        state.sessionDiff = 0;
+
+        // 2. Reset System
+        state.workers.forEach(w => w.terminate());
+        state.workers = [];
+        state.workerStatus = [];
+        initWorkers();
+
+        state.completed.clear();
+        state.processing.clear();
+        state.queue = [];
+        state.carouselQueue = [];
+        state.pendingRowUpdates = [];
+        
+        state.totalOriginalSize = 0;
+        state.totalNewSize = 0;
+        state.totalFilesCount = 0;
+        state.parsingTarget = state.loadedFiles.length; 
+
+        // 3. Reset UI - Carousel (Preserve Items, Set to Pending)
+        // Don't clear carouselTrack.innerHTML
+        const cards = carouselTrack.querySelectorAll('.carousel-card');
+        cards.forEach(card => {
+            card.classList.add('pending');
+            // Ensure spinner is visible via CSS, check icon hidden
+        });
+        
+        if (typeof resetVisuals === 'function') resetVisuals(false);
+        state.visual.innerProgress = 0;
+        state.visual.innerTarget = 0;
+        state.visual.outerProgress = 0;
+        state.visual.outerTarget = 0;
+
+        // 4. Update File List IN-PLACE (No Flash, Instant)
+        const rows = fileList.children;
+        
+        state.loadedFiles.forEach((file, i) => {
+            const row = rows[i];
+            // Safety check for sync
+            if (!row) return; 
+
+            // Extract existing ID (file-XXXX)
+            const id = row.id.replace('file-', '');
+            
+            // Reset Row UI State
+            // We DO NOT touch the thumbnail (img.src) -> No flash!
+            
+            // Reset Metadata
+            const sizeNewEl = row.querySelector('.size-new');
+            const badge = row.querySelector('.badge');
+            
+            // Reset to "Waiting"
+            if (sizeNewEl) {
+                sizeNewEl.textContent = 'Waiting...';
+                sizeNewEl.className = 'size-new text-muted'; 
+            }
+            if (badge) {
+                badge.className = 'badge badge-pending';
+                badge.textContent = 'Pending';
+                badge.classList.remove('hidden');
+            }
+            
+            row.classList.remove('success', 'error', 'processing');
+            // Remove any old diff tooltips or colors
+            
+            // Re-Queue
+            state.queue.push({ id, file });
+            state.totalFilesCount++;
+        });
+
+        // Start
+        processQueue();
+    });
+
+    // Global Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Close Lightbox
+            const overlay = document.querySelector('.image-zoom-overlay');
+            if (overlay) overlay.remove();
+        }
+    });
+
+    // --- Global Drag & Drop ---
+    
+    // Prevent default browser behavior globally
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        window.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
         e.preventDefault();
-        dropZone.classList.add('drag-over');
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone when dragging anywhere on the page
+    // Prevent default browser behavior (opening files) for all drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        window.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
     });
 
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('drag-over');
+    // Highlight drop zone logic
+    let dragCounter = 0;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        window.addEventListener(eventName, (e) => {
+            if (eventName === 'dragenter') dragCounter++;
+            dropZone.classList.add('drag-over');
+        });
     });
 
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        handleFiles(e.dataTransfer.files);
+    ['dragleave', 'drop'].forEach(eventName => {
+        window.addEventListener(eventName, (e) => {
+            if (eventName === 'dragleave') dragCounter--;
+            if (dragCounter === 0 || eventName === 'drop') {
+                dropZone.classList.remove('drag-over');
+                dragCounter = 0;
+            }
+        });
     });
 
-    dropZone.addEventListener('click', () => fileInput.click());
+    // Handle Drop
+    window.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    });
+
+    // Handle click on dropzone manually
+    // No, click is separate.
+
+    dropZone.addEventListener('click', (e) => {
+        // Only trigger if clicking the bubble (pie-chart) or its children
+        const pie = document.getElementById('pie-chart');
+        if (pie && (e.target === pie || pie.contains(e.target))) {
+            fileInput.click();
+        }
+    });
 
     fileInput.addEventListener('change', (e) => {
         handleFiles(e.target.files);
         fileInput.value = ''; // Reset to allow selecting same files
     });
 
-    clearAllBtn.addEventListener('click', () => {
-        // Clear UI
-        fileList.innerHTML = '';
-        carouselTrack.innerHTML = '';
-        statsBar.classList.add('hidden');
-        carouselSection.classList.add('hidden');
+    if (clearAllBtn || headerClearBtn) {
+        const performClear = () => {
+            // Clear UI
+            fileList.innerHTML = '';
+            carouselTrack.innerHTML = '';
+            if (statsBar) statsBar.classList.add('hidden'); // Safety check
+            carouselSection.classList.add('hidden');
         
-        // Clear State
+        // Reset State
+        
+        // Reset State Variables
         state.completed.clear();
+        state.processing.clear();
         state.queue = [];
-    });
+        state.fileSignatures.clear();
+        state.pendingRowUpdates = [];
+        state.carouselQueue = [];
+        state.totalFilesCount = 0;
+        state.totalOriginalSize = 0;
+        state.grandTotalInputSize = 0;
+        state.totalNewSize = 0;
+        state.sessionDiff = 0;
+
+        // Reset Rings / Visuals
+        state.visual.innerProgress = 0;
+        state.visual.innerTarget = 0;
+        state.visual.outerProgress = 0;
+        state.visual.outerTarget = 0;
+
+        if (progressCircleOuter) progressCircleOuter.style.strokeDashoffset = CIRC_OUTER;
+        if (progressCircleInner) progressCircleInner.style.strokeDashoffset = CIRC_INNER;
+        
+        if (pieDefaultContent) pieDefaultContent.classList.remove('hidden');
+        if (pieActiveContent) pieActiveContent.classList.add('hidden');
+        
+        // Hide Header Stats
+        const headerStats = document.querySelector('.header-sticky-stats');
+        if (headerStats) headerStats.classList.remove('visible');
+
+        // Reset Header Buttons
+        if (headerDownloadBtn) headerDownloadBtn.disabled = true;
+        
+        appContainer.classList.remove('expanded');
+        updateStats();
+    };
+
+    if (clearAllBtn) clearAllBtn.addEventListener('click', performClear);
+    if (headerClearBtn) headerClearBtn.addEventListener('click', performClear);
+
+    }
 
     downloadAllBtn.addEventListener('click', async () => {
         if (state.completed.size === 0) return;
@@ -106,6 +382,41 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselTrackContainer.scrollBy({ left: 200, behavior: 'smooth' });
     });
 
+    // Carousel Momentum Scroll
+    let scrollVelocity = 0;
+    let isScrolling = false;
+    let scrollRafId = null;
+
+    function momentumLoop() {
+        if (Math.abs(scrollVelocity) > 0.5) {
+            carouselTrackContainer.scrollLeft += scrollVelocity;
+            scrollVelocity *= 0.92; // Friction
+            scrollRafId = requestAnimationFrame(momentumLoop);
+        } else {
+            isScrolling = false;
+            scrollVelocity = 0;
+            if (scrollRafId) cancelAnimationFrame(scrollRafId);
+        }
+    }
+
+    carouselTrackContainer.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+            e.preventDefault();
+            // Accumulate velocity
+            scrollVelocity += e.deltaY * 0.5;
+            
+            // Clamp velocity
+            const maxV = 60;
+            if (scrollVelocity > maxV) scrollVelocity = maxV;
+            if (scrollVelocity < -maxV) scrollVelocity = -maxV;
+
+            if (!isScrolling) {
+                isScrolling = true;
+                scrollRafId = requestAnimationFrame(momentumLoop);
+            }
+        }
+    }, { passive: false });
+
     // --- Core Functions ---
 
     function initWorkers() {
@@ -125,13 +436,56 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleFiles(files) {
         if (!files.length) return;
 
-        statsBar.classList.remove('hidden');
+        if (!files.length) return;
+
+
+        downloadAllBtn.disabled = true; // Disable until first file completes
+        appContainer.classList.add('expanded');
         
-        const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
+        const rawFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (rawFiles.length === 0) return;
+
+        // Deduplicate
+        const fileArray = [];
+        rawFiles.forEach(f => {
+            const sig = `${f.name}-${f.size}-${f.lastModified}`;
+            if (!state.fileSignatures.has(sig)) {
+                state.fileSignatures.add(sig);
+                fileArray.push(f);
+            }
+        });
+
         if (fileArray.length === 0) return;
+        
+        // Calculate Total Input Size for Display (Pre-calculation)
+        const batchSize = fileArray.reduce((acc, f) => acc + f.size, 0);
+        state.grandTotalInputSize = (state.grandTotalInputSize || 0) + batchSize;
+
+        // Archive for reprocessing
+        state.loadedFiles.push(...fileArray);
+
+        // Ensure Stats View is visible
+        const dropInitial = document.getElementById('drop-initial');
+        const dropStats = document.getElementById('drop-stats');
+        if (dropInitial) dropInitial.classList.add('hidden');
+        if (dropStats) dropStats.classList.remove('hidden');
+        
+        // Show Active Pie Content
+        if (pieDefaultContent) pieDefaultContent.classList.add('hidden');
+        if (pieActiveContent) pieActiveContent.classList.remove('hidden');
+
+        // Reset counts for parsing phase
+        state.parsingTarget += fileArray.length;
+        // Parsing phase uses totalFilesCount to track "already parsed"
+        
+        // Immediate update to show count and "Parsing..." or "Processing..."
+        if (pieMainText) pieMainText.textContent = "Processing...";
+        if (pieSubText) pieSubText.textContent = "Parsing files...";
+
+        if (typeof updateStats === 'function') updateStats(); // This might overwrite it? Checked below.
 
         let index = 0;
-        const CHUNK_SIZE = 10; // Process 10 files per frame to keep UI responsive
+        const CHUNK_SIZE = 50; // Process more files per frame for faster initial feedback
 
         function processChunk() {
             const chunk = fileArray.slice(index, index + CHUNK_SIZE);
@@ -150,20 +504,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Update DOM and State in one go for this chunk
+            // Update DOM and State in one go for this chunk
             fileList.appendChild(fragment);
             state.queue.push(...newJobs);
             
-            // Start processing this chunk immediately
-            processQueue();
-            updateStats();
-
-            index += CHUNK_SIZE;
+            // Increment known total files as we parse them
+            state.totalFilesCount += chunk.length;
             
-            if (index < fileArray.length) {
-                // Schedule next chunk
-                requestAnimationFrame(processChunk);
-            }
+        // Start processing this chunk immediately
+        processQueue();
+        
+        // Trigger Visual Update
+        state.renderDirty = true;
+
+        index += CHUNK_SIZE;
+        
+        if (index < fileArray.length) {
+            // Schedule next chunk
+            requestAnimationFrame(processChunk);
+        } else {
+            // Done parsing
+            state.renderDirty = true;
         }
+    }
 
         // Start processing
         processChunk();
@@ -186,6 +549,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Don't revoke here, we might need it for the carousel
         el.dataset.previewUrl = url;
 
+        // Lightbox Zoom (Whole Row)
+        el.style.cursor = 'zoom-in';
+        el.onclick = (e) => {
+            // Ignore if clicking buttons (like download)
+            if (e.target.closest('button') || e.target.closest('a')) return;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'image-zoom-overlay';
+            const largeImg = document.createElement('img');
+            largeImg.src = url;
+            overlay.appendChild(largeImg);
+            overlay.onclick = () => overlay.remove();
+            document.body.appendChild(overlay);
+        };
+
         // Status
         el.classList.add('converting');
         el.querySelector('.badge').textContent = 'Waiting...';
@@ -193,52 +571,301 @@ document.addEventListener('DOMContentLoaded', () => {
         return el;
     }
 
-    async function addCarouselItem(id, data, previewUrl) {
+    // --- Loop ---
+    
+    // Main loop for UI updates (High Performance 60-165Hz)
+    function renderLoop() {
+        if (state.renderDirty) {
+            updateVisuals();
+            state.renderDirty = false;
+        }
+        drawRings(); // Interpolate and Draw Rings every frame
+        processCarouselBatch(); 
+        requestAnimationFrame(renderLoop);
+    }
+    
+    function updateStats() {
+        if (!state.parsingTarget) return;
+
+        const savedTotal = (state.totalOriginalSize - state.totalNewSize);
+        const savedStr = formatSize(savedTotal);
+        
+        // Clean simplified text
+        let html = `Saved ${savedStr}`;
+        
+        // Only update pieSubText if we have actual data.
+        if (state.totalNewSize > 0 && pieSubText) pieSubText.innerHTML = html;
+        
+        if (pieMainText) {
+            // Check if we have files to process
+            const hasFiles = state.grandTotalInputSize > 0;
+            
+            if (hasFiles) {
+                 // Format: "10 MB / 15 GB" (Processed Input / Total Input)
+                 // Use totalOriginalSize as 'Processed Input' (since it sums up as we finish files)
+                 const processedInput = state.totalOriginalSize; 
+                 const totalInput = state.grandTotalInputSize;
+                 
+                 pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
+                 
+                 // If processing but no files finished yet, this will show "0 B / 15 MB" which is correct.
+            } else {
+                 pieMainText.textContent = "Processing...";
+            }
+
+            // Saved text + Diff logic
+            if (state.totalNewSize > 0) {
+                 let subHtml = `Saved ${savedStr}`;
+                 
+                 // Add diff if enabled and exists
+                 if (state.lastRunLookup && state.lastRunLookup.size > 0) {
+                    const diffSize = state.sessionDiff || 0;
+                    if (diffSize !== 0) {
+                        const diffStr = formatSize(diffSize);
+                        const sign = diffSize > 0 ? '+' : '';
+                        const colorClass = diffSize < 0 ? 'diff-better' : 'diff-worse';
+                        subHtml += ` <span class="${colorClass}">(${sign}${diffStr})</span>`;
+                    }
+                 }
+                 
+                 if (pieSubText) pieSubText.innerHTML = subHtml;
+            } else {
+                 // If actively processing but 0 saved (e.g. first file not done), show generic 'Starting...'
+                 if (state.queue.length > 0 && pieSubText) pieSubText.innerHTML = 'Starting...';
+            }
+        }
+    }
+
+    // Smooth Animation System
+    function drawRings() {
+        updateStats();
+
+        // LERP Factor (Lower = Smoother/Slower, Higher = Snappier)
+        const LERP = 0.05;
+
+        // 1. Inner Ring (Yellow)
+        const dInner = state.visual.innerTarget - state.visual.innerProgress;
+        if (Math.abs(dInner) > 0.0001) {
+            state.visual.innerProgress += dInner * LERP;
+        } else {
+            state.visual.innerProgress = state.visual.innerTarget;
+        }
+
+        // 2. Outer Ring (Green)
+        const dOuter = state.visual.outerTarget - state.visual.outerProgress;
+        if (Math.abs(dOuter) > 0.0001) {
+            state.visual.outerProgress += dOuter * LERP;
+        } else {
+            state.visual.outerProgress = state.visual.outerTarget;
+        }
+
+        // Apply to DOM
+        if (progressCircleInner) {
+            const offset = CIRC_INNER - (state.visual.innerProgress * CIRC_INNER);
+            progressCircleInner.style.strokeDashoffset = offset;
+        }
+        if (progressCircleOuter) {
+            const offset = CIRC_OUTER - (state.visual.outerProgress * CIRC_OUTER);
+            progressCircleOuter.style.strokeDashoffset = offset;
+        }
+        
+        // Update Sticky Bar (Multi-Layer)
+        const stickyParsing = document.getElementById('sticky-bar-parsing');
+        const stickyConversion = document.getElementById('sticky-bar-conversion');
+        const stickySaved = document.getElementById('sticky-bar-saved');
+
+        if (stickyParsing) {
+             stickyParsing.style.width = (state.visual.innerProgress * 100) + '%';
+        }
+        if (stickyConversion) {
+             stickyConversion.style.width = (state.visual.outerProgress * 100) + '%';
+        }
+        if (stickySaved) {
+            // Visualizing SAVED ratio (Green = Saved)
+            // If we saved 90%, the bar is 90% full solid green.
+            let savedRatio = 0;
+            if (state.totalOriginalSize > 0) {
+                const saved = state.totalOriginalSize - state.totalNewSize;
+                savedRatio = saved / state.totalOriginalSize;
+            }
+            stickySaved.style.transform = `scaleY(${savedRatio})`;
+        }
+    }
+
+    // Start Loops
+    requestAnimationFrame(renderLoop);
+
+    function initTypewriter() {
+        const h2 = document.querySelector('.hero-section h2');
+        const p = document.querySelector('.hero-section p');
+        
+        if (!h2 || !p) return;
+
+        // Hide other elements initially (Drop zone, Info)
+        const finalRevealElements = document.querySelectorAll('.drop-zone, .info-section');
+        
+        // Ensure initial hidden state
+        p.style.opacity = '1'; // We handle P visibility by clearing text
+        finalRevealElements.forEach(e => {
+             e.style.opacity = '0';
+             e.style.transition = 'opacity 0.8s ease-out';
+        });
+
+        const textH2 = h2.textContent;
+        const textP = p.textContent;
+        
+        h2.textContent = '';
+        p.textContent = '';
+        
+        h2.classList.add('typewriter-cursor');
+        
+        // Ultra fast typing helper
+        // Helper returns Promise
+        function typeLinePromise(element, text) {
+             return new Promise(resolve => {
+                 let i = 0;
+                 function type() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        i++;
+                        
+                        if (text.charAt(i-1) === ' ') {
+                            setTimeout(type, 15); 
+                        } else {
+                            setTimeout(type, Math.random() * 10 + 5); 
+                        }
+                    } else {
+                        resolve();
+                    }
+                 }
+                 type();
+             });
+        }
+
+        // Start Chain - Parallel Typing
+        setTimeout(() => {
+            // Add cursors to both
+            h2.classList.add('typewriter-cursor');
+            p.classList.add('typewriter-cursor');
+
+            Promise.all([
+                typeLinePromise(h2, textH2).then(() => h2.classList.remove('typewriter-cursor')),
+                typeLinePromise(p, textP).then(() => p.classList.remove('typewriter-cursor'))
+            ]).then(() => {
+                // Determine which elements to reveal
+                const dropZone = document.querySelector('.drop-zone');
+                if (dropZone) dropZone.style.opacity = '1';
+
+                const infoSection = document.querySelector('.info-section');
+                if (infoSection) { 
+                     infoSection.style.opacity = '1';
+                     startInfoCardsTyping();
+                }
+            });
+        }, 100);
+
+
+        function startInfoCardsTyping() {
+             const cards = document.querySelectorAll('.info-card');
+             cards.forEach((card, index) => {
+                 setTimeout(() => {
+                     const h3 = card.querySelector('h3');
+                     const p = card.querySelector('p');
+                     
+                     if (!h3 || !p) return;
+
+                     const h3Text = h3.textContent;
+                     const pText = p.textContent;
+                     
+                     h3.textContent = '';
+                     p.textContent = '';
+                     h3.style.visibility = 'visible'; 
+                     p.style.visibility = 'visible';
+
+                     // Parallel typing for card content
+                     typeLinePromise(h3, h3Text).then(() => {
+                         typeLinePromise(p, pText);
+                     });
+                 }, index * 200); // Stagger cards slightly
+             });
+        }
+    }
+
+    async function processCarouselBatch() {
+        if (state.carouselQueue.length === 0) return;
+
+        // Take all current items
+        const batch = [...state.carouselQueue];
+        state.carouselQueue = []; // Clear queue
+
         if (carouselSection.classList.contains('hidden')) {
             carouselSection.classList.remove('hidden');
         }
 
-        const clone = carouselTemplate.content.cloneNode(true);
-        const card = clone.querySelector('.carousel-card');
-        card.id = `carousel-${id}`;
-
-        // Set Image
-        const img = card.querySelector('.card-preview');
-        img.src = previewUrl; // Use the same blob URL from the list item
-
-        // Set Filename
-        card.querySelector('.card-filename').textContent = data.fileName;
-        card.querySelector('.card-filename').title = data.fileName;
-
-        // Helper to remove item
-        const closeBtn = card.querySelector('.card-close-btn');
-        closeBtn.onclick = () => {
-            card.remove();
-        };
-
-        // Download Action
-        const dwBtn = card.querySelector('.card-download-btn');
-        dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
-
-        // Append to track
-        carouselTrack.appendChild(card);
+        const imagesToDecode = [];
         
-        // Wait for image to be ready to paint prevents "white" empty scroll
-        try {
-            await img.decode();
-        } catch (err) {
-            console.warn('Image decode failed', err);
-        }
+        batch.forEach(({ id, data, previewUrl }) => {
+            // Check if card exists (Reprocessing case)
+            let card = document.getElementById(`carousel-file-${id}`); // Changed ID format in handleFiles needed? 
+            // Wait, standard IDs are `carousel-${id}`.
+            
+            let isNew = false;
+            card = document.getElementById(`carousel-${id}`);
+            
+            if (!card) {
+                // Create New
+                const clone = carouselTemplate.content.cloneNode(true);
+                card = clone.querySelector('.carousel-card');
+                card.id = `carousel-${id}`;
+                isNew = true;
+                
+                // Close Action
+                const closeBtn = card.querySelector('.card-close-btn');
+                closeBtn.onclick = () => card.remove();
 
-        // Auto scroll to see the new item
-        // Use a small timeout to ensure layout is settled
-        setTimeout(() => {
-            carouselTrackContainer.scrollTo({
-                left: carouselTrackContainer.scrollWidth,
-                behavior: 'smooth'
-            });
-        }, 50);
+                // Download Action
+                const dwBtn = card.querySelector('.card-download-btn');
+                dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
+            } else {
+                 // Update Existing Actions (Blob might have changed)
+                 const dwBtn = card.querySelector('.card-download-btn');
+                 dwBtn.onclick = () => downloadBlob(data.blob, data.fileName);
+            }
+
+            // Set Image
+            const img = card.querySelector('.card-preview');
+            img.src = previewUrl; 
+            imagesToDecode.push(img);
+
+            // Set Filename
+            card.querySelector('.card-filename').textContent = data.fileName;
+            card.querySelector('.card-filename').title = data.fileName;
+
+            // Remove Pending State (if recycling or just created)
+            card.classList.remove('pending');
+
+            if (isNew) {
+                carouselTrack.appendChild(card);
+            }
+        });
+
+        // Wait for all images in this batch to decode to avoid white flashes
+        await Promise.allSettled(imagesToDecode.map(img => img.decode().catch(e => {})));
+
+        // Scroll to end ONLY if we added new items (not just updating)
+        // Actually, user requested "scroll automat cand sunt done".
+        // If we just updated, maybe we don't need to scroll unless it was pending?
+        // Let's keep smooth scroll to end for now as it signals progress.
+        // Or better: Only scroll if the user isn't actively interacting? 
+        // For now, respect "scroll automat cand sunt done".
+        
+        // Logic: If batch had items, scroll to show them.
+        carouselTrackContainer.scrollTo({
+            left: carouselTrackContainer.scrollWidth,
+            behavior: 'smooth'
+        });
     }
+
 
     function processQueue() {
         // Find idle workers
@@ -262,7 +889,8 @@ document.addEventListener('DOMContentLoaded', () => {
             worker.postMessage({
                 id: job.id,
                 file: job.file,
-                quality: state.quality
+                quality: state.quality,
+                format: state.format
             });
 
             // Try to assign more if we have multiple idle workers
@@ -272,79 +900,265 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleWorkerMessage(workerIndex) {
         return (e) => {
-            const { id, success, blob, originalSize, newSize, error } = e.data;
+            const { id, success, blob, thumbnail, originalSize, newSize, error } = e.data;
             
             // Mark worker as idle
             state.workerStatus[workerIndex] = false;
+
+            // Retrieve job data (Pure Data)
+            // Retrieve job data (Pure Data)
+            const job = state.processing.get(id);
+            // We use job.file.name to avoid touching DOM for read
+            const originalName = job ? job.file.name : `image_${id}`;
+            const extMap = {
+                'image/jpeg': '.jpg',
+                'image/png': '.png',
+                'image/webp': '.webp',
+                'image/avif': '.avif'
+            };
+            const ext = extMap[state.format] || '.webp';
+            const newName = originalName.replace(/\.[^/.]+$/, "") + ext;
             
-            // UI Update
-            const row = document.getElementById(`file-${id}`);
-            if (row) {
-                row.classList.remove('converting');
+            if (success) {
+                // Sanitize input numbers to prevent NaN
+                const oSize = Number(originalSize) || 0;
+                const nSize = Number(newSize) || 0;
+
+                const savedBytes = oSize - nSize;
+                const savedPercent = oSize > 0 ? Math.round((savedBytes / oSize) * 100) : 0;
+
+                // Store result
+                const resultData = {
+                    blob, 
+                    fileName: newName,
+                    originalSize: oSize,
+                    newSize: nSize
+                };
+                state.completed.set(id, resultData);
                 
-                if (success) {
-                    const savedBytes = originalSize - newSize;
-                    const savedPercent = Math.round((savedBytes / originalSize) * 100);
-                    const newName = row.querySelector('.file-name').textContent.replace(/\.[^/.]+$/, "") + ".webp";
+                // Update Cache Stats (Safe addition)
+                state.totalOriginalSize = (state.totalOriginalSize || 0) + oSize;
+                state.totalNewSize = (state.totalNewSize || 0) + nSize;
 
-                    row.querySelector('.size-new').textContent = formatSize(newSize);
-                    
-                    const badge = row.querySelector('.badge');
-                    badge.textContent = `-${savedPercent}%`;
-                    badge.classList.add('success');
-
-                    // Setup individual download
-                    const dlBtn = row.querySelector('.download-btn');
-                    dlBtn.disabled = false;
-                    dlBtn.onclick = () => downloadBlob(blob, newName);
-
-                    // Store result
-                    const resultData = {
-                        blob, 
-                        fileName: newName,
-                        originalSize,
-                        newSize
-                    };
-                    state.completed.set(id, resultData);
-
-                    // Add to Carousel
-                    const previewUrl = row.dataset.previewUrl;
-                    addCarouselItem(id, resultData, previewUrl);
-
-                } else {
-                    row.querySelector('.badge').textContent = 'Error';
-                    console.error(error);
+                // Smart Diff Logic (Incremental)
+                if (state.lastRunLookup && state.lastRunLookup.has(newName)) {
+                    const oldNewSize = state.lastRunLookup.get(newName);
+                    // Diff = CurrentSize - PreviousSize
+                    // If Current is 40, Prev was 50, Diff is -10 (Blue/Good).
+                    const fileDiff = nSize - oldNewSize;
+                    state.sessionDiff = (state.sessionDiff || 0) + fileDiff;
                 }
+
+                // Add to Carousel Queue (Pure Data)
+                state.carouselQueue.push({ id, data: resultData, previewUrl: thumbnail });
+
+                // Queue DOM Update (Batching)
+                state.pendingRowUpdates.push({
+                    id,
+                    success: true,
+                    newSize: nSize,
+                    savedPercent,
+                    newName,
+                    blob
+                });
+
+            } else {
+                console.error(error);
+                // Queue Error Update
+                state.pendingRowUpdates.push({
+                    id,
+                    success: false,
+                    error
+                });
             }
 
             state.processing.delete(id);
-            updateStats();
+            state.renderDirty = true; // Request a global visual update
             
             // Process next
             processQueue();
         };
     }
 
-    function updateStats() {
+    function updateVisuals() {
+        // 1. Flush Row Updates (Time Sliced Batching)
+        // Limit updates to 20 per frame to guarantee 60-165fps
+        // Even if 1000 files finish, visual updates will stream in over a few frames.
+        // Limit updates to 100 per frame for faster visual feedback
+        const BATCH_LIMIT = 100; 
+        
+        if (state.pendingRowUpdates.length > 0) {
+            const updates = state.pendingRowUpdates.splice(0, BATCH_LIMIT);
+            
+            for (const update of updates) {
+                const row = document.getElementById(`file-${update.id}`);
+                if (!row) continue;
+
+                row.classList.remove('converting');
+
+                if (update.success) {
+                    // Update size format: "12.3MB -> 351.6KB"
+                    // We clear specific size-new styling if needed or just append
+                    row.querySelector('.size-new').innerHTML = ` <span style="opacity:0.6">&rarr;</span> ${formatSize(update.newSize)}`;
+                    // Ensure size-old is visible (it is set on creation)
+                    
+                    const badge = row.querySelector('.badge');
+                    badge.textContent = `-${update.savedPercent}%`;
+                    badge.classList.add('success');
+
+                    // Binding click handler (cheap)
+                    const dlBtn = row.querySelector('.download-btn');
+                    dlBtn.disabled = false;
+                    dlBtn.onclick = () => downloadBlob(update.blob, update.newName);
+                } else {
+                    row.querySelector('.badge').textContent = 'Error';
+                }
+            }
+
+            // If more updates remain, ensure we render next frame
+            if (state.pendingRowUpdates.length > 0) {
+                state.renderDirty = true;
+            }
+        }
+
+        // 2. Global Stats Updates
         const count = state.completed.size;
         filesCountSpan.textContent = `${count} file${count !== 1 ? 's' : ''} converted`;
 
-        let savedTotal = 0;
-        for (const data of state.completed.values()) {
-            savedTotal += (data.originalSize - data.newSize);
+        // Enable Download All if we have distinct results
+        if (count > 0) {
+            downloadAllBtn.disabled = false;
+        } else {
+             downloadAllBtn.disabled = true;
         }
+
+        // Use Cached Totals
+        const originalTotal = state.totalOriginalSize;
+        const newTotal = state.totalNewSize;
         
-        totalSavedSpan.textContent = `Saved ${formatSize(savedTotal)}`;
+        const savedTotal = originalTotal - newTotal;
+        const savedText = `Saved ${formatSize(savedTotal)}`;
+        totalSavedSpan.textContent = savedText;
+        
+        // Update Sticky Header Stats
+        if (headerFilesCount) headerFilesCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
+        if (headerTotalSaved) headerTotalSaved.textContent = savedText;
+        if (headerSizeStats) headerSizeStats.textContent = `${formatSize(newTotal)} / ${formatSize(originalTotal)}`;
+        if (headerDownloadBtn) headerDownloadBtn.disabled = downloadAllBtn.disabled;
+
+        // Show header stats via class if we have content
+        const headerStats = document.querySelector('.header-sticky-stats');
+        if (headerStats) {
+             const hasFiles = state.queue.length > 0 || state.processing.size > 0 || state.completed.size > 0;
+             if (hasFiles) {
+                 headerStats.classList.add('visible');
+             } else {
+                 headerStats.classList.remove('visible');
+             }
+        }
+
+        // Update Progress Ring Targets (Logic Only)
+        
+        const isParsing = state.totalFilesCount < state.parsingTarget;
+        
+        // Phase 1: Parsing (Yellow Inner Ring)
+        if (isParsing) {
+            // Inner Ring Progress
+            if (state.parsingTarget > 0) {
+                const progress = state.totalFilesCount / state.parsingTarget;
+                // Set Target for LERP
+                state.visual.innerTarget = progress;
+                
+                // Ensure opacity is 1
+                if (progressCircleInner) progressCircleInner.style.opacity = '1';
+                
+                // Outer Ring Concurrent Target
+                const procProgress = count / state.parsingTarget;
+                state.visual.outerTarget = procProgress; // Use same denominator for sync
+
+                // Text
+                // Text handling moved to updateStats()
+
+            }
+        } 
+        // Phase 2: Converting (Green Outer Ring)
+        else if (state.totalFilesCount > 0) {
+            // Inner Ring Full (Parsing Complete) -> Fade Out with Delay
+            state.visual.innerTarget = 1; 
+            
+            if (!state.parsingCompleteTime) {
+                state.parsingCompleteTime = Date.now();
+            }
+
+            if (progressCircleInner) {
+                 // Wait 1s (1000ms) before changing opacity
+                 if (Date.now() - state.parsingCompleteTime > 1000) {
+                     progressCircleInner.style.opacity = '0';
+                 } else {
+                     progressCircleInner.style.opacity = '1';
+                 }
+            }
+
+            // Outer Ring Progress
+            const progress = count / state.totalFilesCount;
+            state.visual.outerTarget = progress;
+            
+            // Text Update: "1 / 107"
+            // Text Update handled by updateStats
+
+            
+            if (count === state.totalFilesCount && count > 0) {
+                // Done logic handled in updateStats
+            } else {
+                // Processing logic handled in updateStats
+            }
+
+            // Inner Pie - Saved %
+            if (originalTotal > 0) {
+                const compressedPercent = (newTotal / originalTotal) * 100;
+                const deg = (compressedPercent / 100) * 360;
+                pieChart.style.setProperty('--p', `${deg}deg`);
+            }
+               
+        } else {
+            // Ready State
+            state.visual.innerTarget = 0;
+            state.visual.outerTarget = 0;
+            
+            // Show Default Content
+            if (pieDefaultContent) pieDefaultContent.classList.remove('hidden');
+            if (pieActiveContent) pieActiveContent.classList.add('hidden');
+        }
     }
 
     // --- Helpers ---
 
     function formatSize(bytes) {
+        if (typeof bytes !== 'number' || isNaN(bytes)) return '0 B';
         if (bytes === 0) return '0 B';
+        
+        const isNegative = bytes < 0;
+        const absBytes = Math.abs(bytes);
+        
         const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(absBytes) / Math.log(k));
+        
+        // Safety bound check
+        let val, unit;
+        if (i < 0) {
+            val = absBytes;
+            unit = 'B';
+        } else if (i >= sizes.length) {
+            const last = sizes.length - 1;
+            val = parseFloat((absBytes / Math.pow(k, last)).toFixed(1));
+            unit = sizes[last];
+        } else {
+            val = parseFloat((absBytes / Math.pow(k, i)).toFixed(1));
+            unit = sizes[i];
+        }
+
+        return (isNegative ? '-' : '') + val + ' ' + unit;
     }
 
     function downloadBlob(blob, filename) {

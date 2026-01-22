@@ -17,21 +17,53 @@ self.onmessage = async function(e) {
         // 3. Draw image to canvas
         ctx.drawImage(bitmap, 0, 0);
         
-        // 4. Convert to WebP
-        // Quality mapped from 1-100 to 0.0-1.0
-        const blob = await canvas.convertToBlob({
+        // 4. Convert
+        // Quality mapped from 1-100 to 0.0-1.0 (if supplied via postMessage, or normalize)
+        // Adjust type based on input request
+        const targetFormat = e.data.format || 'image/webp';
+        
+        let conversionOptions = {
+            type: targetFormat,
+        };
+
+        // Quality is only supported for image/jpeg, image/webp and image/avif
+        if (targetFormat === 'image/jpeg' || targetFormat === 'image/webp' || targetFormat === 'image/avif') {
+             conversionOptions.quality = quality; // assumed 0..1 from app.js div by 100
+        }
+
+        const blob = await canvas.convertToBlob(conversionOptions);
+
+        // 5. Generate Thumbnail (Base64)
+        // Max height 120px to match carousel, maintain aspect ratio
+        const thumbHeight = 120;
+        const scaleFactor = thumbHeight / bitmap.height;
+        const thumbWidth = bitmap.width * scaleFactor;
+        
+        const thumbCanvas = new OffscreenCanvas(thumbWidth, thumbHeight);
+        const thumbCtx = thumbCanvas.getContext('2d');
+        thumbCtx.drawImage(bitmap, 0, 0, thumbWidth, thumbHeight);
+        
+        const thumbBlob = await thumbCanvas.convertToBlob({
             type: 'image/webp',
-            quality: quality / 100
+            quality: 0.5 // Low quality for speed/size
+        });
+        
+        // Convert Blob to Base64
+        const reader = new FileReader();
+        const thumbnailBase64 = await new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(thumbBlob);
         });
 
-        // 5. Cleanup
+        // 6. Cleanup
         bitmap.close();
 
-        // 6. Send back result
+        // 7. Send back result
         self.postMessage({
             id,
             success: true,
             blob,
+            thumbnail: thumbnailBase64,
             originalSize: file.size,
             newSize: blob.size
         });

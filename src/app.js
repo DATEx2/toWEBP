@@ -103,8 +103,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler removed to prevent flickering
-    // TODO: Re-implement using CSS-only sticky approach or robust Observer
+    // Scroll Handler (Sticky UI) - Intersection Observer with fixed sentinel
+    // The sentinel is positioned absolutely at top:200px and doesn't move with layout changes
+    // This toggles the visibility of the sticky progress bar in the header
+    const scrollSentinel = document.getElementById('scroll-sentinel');
+    
+    if (scrollSentinel) {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    // When sentinel is NOT visible (scrolled past 200px), add 'scrolled' class
+                    if (!entry.isIntersecting) {
+                        document.body.classList.add('scrolled');
+                    } else {
+                        document.body.classList.remove('scrolled');
+                    }
+                });
+            },
+            {
+                threshold: 0
+            }
+        );
+        
+        observer.observe(scrollSentinel);
+    }
 
 
 

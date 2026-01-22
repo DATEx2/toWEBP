@@ -281,14 +281,6 @@ body.scrolled .header-sticky-stats,
     flex-direction: column;
 }
 
-/* Dark mode support logic (assumed via body class or variables) */
-@media (prefers-color-scheme: dark) {
-    .lang-menu {
-        background: #1a1a1a;
-        border-color: #333;
-    }
-}
-
 .lang-menu:not(.hidden) {
     opacity: 1;
     transform: translateY(0);
@@ -489,28 +481,17 @@ main {
 
 
 /* Scrolled State Overrides */
-body.scrolled .drop-zone {
-    /* Morph into a progress bar container */
-    padding: 0;
-    min-height: 8px; /* Taller bar for visibility */
-    height: 8px;
-    background: white;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-    margin-bottom: 0; /* Remove margin to let carousel stick flush */
-    box-shadow: var(--shadow-sm);
-    top: 60px; /* Header Height */
-    overflow: visible;
-    position: sticky;
-    z-index: 40;
-}
+/* Note: We REMOVED the rule that collapses the drop-zone to prevent flickering */
 
 body.scrolled .sticky-progress-container {
     opacity: 1;
-    bottom: 0;
-    height: 100%;
 }
+
+/* Ensure sticky bar stays at bottom of header */
+header {
+    position: relative; 
+}
+
 
 /* Sticky Carousel */
 #carousel-section {

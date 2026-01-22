@@ -103,35 +103,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler (Sticky UI) - RAF-based to prevent flickering
-    let ticking = false;
-    let lastKnownScrollY = 0;
-    const SCROLL_THRESHOLD = 150; // Single, higher threshold
+    // Scroll Handler (Sticky UI) - Intersection Observer to prevent flickering
+    // Monitor when the hero section goes out of view
+    const heroSection = document.querySelector('.hero-section');
     
-    function updateScrollState() {
-        const shouldBeScrolled = lastKnownScrollY > SCROLL_THRESHOLD;
-        const isCurrentlyScrolled = document.body.classList.contains('scrolled');
-        
-        // Only update if state needs to change
-        if (shouldBeScrolled !== isCurrentlyScrolled) {
-            if (shouldBeScrolled) {
-                document.body.classList.add('scrolled');
-            } else {
-                document.body.classList.remove('scrolled');
+    if (heroSection) {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    // When hero is NOT intersecting (scrolled past), add 'scrolled' class
+                    if (!entry.isIntersecting) {
+                        document.body.classList.add('scrolled');
+                    } else {
+                        document.body.classList.remove('scrolled');
+                    }
+                });
+            },
+            {
+                // Trigger when hero goes completely out of view at the top
+                threshold: 0,
+                rootMargin: '-80px 0px 0px 0px' // Account for header height
             }
-        }
+        );
         
-        ticking = false;
+        observer.observe(heroSection);
     }
-    
-    window.addEventListener('scroll', () => {
-        lastKnownScrollY = window.scrollY;
-        
-        if (!ticking) {
-            window.requestAnimationFrame(updateScrollState);
-            ticking = true;
-        }
-    }, { passive: true });
 
 
 

@@ -515,37 +515,7 @@ header {
     margin-top: 0;
 }
 
-body.scrolled .carousel-card {
-    min-width: 80px;
-    width: 80px;
-    border-radius: var(--radius-sm);
-}
-body.scrolled .card-image-wrapper {
-    height: 60px;
-}
-body.scrolled .card-info, 
-body.scrolled .card-actions {
-    display: none;
-}
-/* Hover to peek */
-body.scrolled .carousel-card:hover {
-    transform: scale(1.1);
-    z-index: 50;
-    box-shadow: var(--shadow-md);
-}
-
-body.scrolled .drop-content {
-    opacity: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-body.scrolled .pie-chart-wrapper {
-    display: none;
-}
+/* Removed resizing logic for carousel on scroll to prevent flickering */
 
 .drop-content {
     display: flex;

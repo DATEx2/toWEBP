@@ -103,28 +103,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler (Sticky UI) - Debounced to prevent flickering
-    let scrollTimeout;
-    let lastScrolledState = false;
+    // Scroll Handler (Sticky UI) - RAF-based to prevent flickering
+    let ticking = false;
+    let lastKnownScrollY = 0;
+    const SCROLL_THRESHOLD = 150; // Single, higher threshold
+    
+    function updateScrollState() {
+        const shouldBeScrolled = lastKnownScrollY > SCROLL_THRESHOLD;
+        const isCurrentlyScrolled = document.body.classList.contains('scrolled');
+        
+        // Only update if state needs to change
+        if (shouldBeScrolled !== isCurrentlyScrolled) {
+            if (shouldBeScrolled) {
+                document.body.classList.add('scrolled');
+            } else {
+                document.body.classList.remove('scrolled');
+            }
+        }
+        
+        ticking = false;
+    }
     
     window.addEventListener('scroll', () => {
-        const y = window.scrollY;        
-        const shouldBeScrolled = y > 100; // Single threshold
+        lastKnownScrollY = window.scrollY;
         
-        // Only update if state actually changes
-        if (shouldBeScrolled !== lastScrolledState) {
-            // Clear any pending timeout
-            clearTimeout(scrollTimeout);
-            
-            // Debounce: wait a bit before applying the change
-            scrollTimeout = setTimeout(() => {
-                if (shouldBeScrolled) {
-                    document.body.classList.add('scrolled');
-                } else {
-                    document.body.classList.remove('scrolled');
-                }
-                lastScrolledState = shouldBeScrolled;
-            }, 50); // 50ms debounce
+        if (!ticking) {
+            window.requestAnimationFrame(updateScrollState);
+            ticking = true;
         }
     }, { passive: true });
 

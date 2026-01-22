@@ -1348,3 +1348,31 @@ body.scrolled .pie-chart-wrapper {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* SEO Description Section */
+.seo-description {
+    max-width: 800px;
+    margin: 4rem auto 2rem;
+    text-align: center;
+    padding: 0 1rem;
+    animation: fadeIn 0.8s ease-out 0.5s backwards; /* Delay appearance slightly */
+}
+
+.seo-description h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+.seo-description p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.seo-description strong {
+    color: var(--primary);
+    font-weight: 600;
+}

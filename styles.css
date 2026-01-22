@@ -153,6 +153,7 @@ body.scrolled .header-sticky-stats,
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .header-sticky-stats .header-actions {

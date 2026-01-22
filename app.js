@@ -595,8 +595,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clean simplified text
         let html = `Total Saved: ${savedStr}`;
 
-        // Only update pieSubText if we have actual data.
-        if (state.totalNewSize > 0 && pieSubText) pieSubText.innerHTML = html;
+        // Only update pieSubText if we have actual savings.
+        if (state.totalNewSize > 0 && savedTotal > 0 && pieSubText) {
+            pieSubText.innerHTML = html;
+        } else if (pieSubText) {
+            pieSubText.innerHTML = '';
+        }
 
         if (pieMainText) {
             // Check if we have files to process
@@ -616,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Saved text + Diff logic
-            if (state.totalNewSize > 0) {
+            if (state.totalNewSize > 0 && savedTotal > 0) {
                 let subHtml = `Total Saved: ${savedStr}`;
 
                 // Add diff if enabled and exists
@@ -633,7 +637,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pieSubText) pieSubText.innerHTML = subHtml;
             } else {
                 // If actively processing but 0 saved (e.g. first file not done), show generic 'Starting...'
-                if (state.queue.length > 0 && pieSubText) pieSubText.innerHTML = 'Starting...';
+                if (state.queue.length > 0 && pieSubText) {
+                     pieSubText.innerHTML = 'Starting...';
+                } else if (pieSubText) {
+                     pieSubText.innerHTML = '';
+                }
             }
         }
     }
@@ -1068,8 +1076,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTotal = state.totalNewSize;
 
         const savedTotal = originalTotal - newTotal;
-        const savedText = `Saved ${formatSize(savedTotal)}`;
+        const savedText = savedTotal > 0 ? `Saved ${formatSize(savedTotal)}` : '';
         totalSavedSpan.textContent = savedText;
+        totalSavedSpan.style.display = savedTotal > 0 ? 'inline' : 'none';
 
         // Update Sticky Header Stats
         if (headerFilesCount) headerFilesCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
@@ -1078,10 +1087,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (headerDownloadBtn) headerDownloadBtn.disabled = downloadAllBtn.disabled;
 
         // Show header stats via class if we have content
+        // Show header stats via class if we are TOTALLY DONE
         const headerStats = document.querySelector('.header-sticky-stats');
         if (headerStats) {
-            const hasFiles = state.queue.length > 0 || state.processing.size > 0 || state.completed.size > 0;
-            if (hasFiles) {
+            const isDone = state.completed.size > 0 && state.queue.length === 0 && state.processing.size === 0;
+            if (isDone) {
                 headerStats.classList.add('visible');
             } else {
                 headerStats.classList.remove('visible');

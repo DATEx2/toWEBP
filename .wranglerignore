@@ -1,0 +1,9 @@
+.git
+.github
+node_modules
+wrangler.jsonc
+.wranglerignore
+LICENSE
+README.md
+web.config
+.gitignore

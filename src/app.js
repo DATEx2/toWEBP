@@ -98,6 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initTypewriter();
     initParallax();
 
+    // Initialize i18n
+    if (window.i18n) {
+        window.i18n.apply(window.i18n.getLang());
+    }
+
     // --- Event Listeners ---
 
     // Scroll Handler (Sticky UI)
@@ -368,10 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (count > 0) {
-            downloadAllBtn.textContent = 'Zipping...';
+            downloadAllBtn.textContent = 'Zipping...'; // Will be handled by translating dynamically if needed, or just leave as is for now
             const content = await zip.generateAsync({ type: "blob" });
             downloadBlob(content, "converted_images.zip");
-            downloadAllBtn.textContent = 'Download All (ZIP)';
+            downloadAllBtn.textContent = i18n.t('download_zip');
         }
     });
 
@@ -481,8 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Parsing phase uses totalFilesCount to track "already parsed"
 
         // Immediate update to show count and "Parsing..." or "Processing..."
-        if (pieMainText) pieMainText.textContent = "Processing...";
-        if (pieSubText) pieSubText.textContent = "Parsing files...";
+        if (pieMainText) pieMainText.textContent = i18n.t('processing');
+        if (pieSubText) pieSubText.textContent = i18n.t('parsing_files');
 
         if (typeof updateStats === 'function') updateStats(); // This might overwrite it? Checked below.
 
@@ -568,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Status
         el.classList.add('converting');
-        el.querySelector('.badge').textContent = 'Waiting...';
+        el.querySelector('.badge').textContent = i18n.t('waiting');
 
         return el;
     }
@@ -593,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedStr = formatSize(savedTotal);
 
         // Clean simplified text
-        let html = `Total Saved: ${savedStr}`;
+        let html = `${i18n.t('total_saved_prefix')} ${savedStr}`;
 
         // Only update pieSubText if we have actual savings.
         if (state.totalNewSize > 0 && savedTotal > 0 && pieSubText) {
@@ -611,17 +616,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Use totalOriginalSize as 'Processed Input' (since it sums up as we finish files)
                 const processedInput = state.totalOriginalSize;
                 const totalInput = state.grandTotalInputSize;
+                const totalNew = state.totalNewSize;
 
-                pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
+                const isDone = state.completed.size === state.totalFilesCount && state.totalFilesCount > 0 && state.queue.length === 0;
+
+                if (isDone) {
+                    pieMainText.textContent = `${formatSize(processedInput)} → ${formatSize(totalNew)}`;
+                    if (pieSubText) {
+                        const savedTotal = processedInput - totalNew;
+                        const savedPercent = Math.round((savedTotal / processedInput) * 100);
+                        pieSubText.innerHTML = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> (${formatSize(savedTotal)} ${i18n.t('saved')})`;
+                    }
+                } else {
+                    pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
+                }
 
                 // If processing but no files finished yet, this will show "0 B / 15 MB" which is correct.
             } else {
-                pieMainText.textContent = "Processing...";
+                pieMainText.textContent = i18n.t('processing');
             }
 
             // Saved text + Diff logic
             if (state.totalNewSize > 0 && savedTotal > 0) {
-                let subHtml = `Total Saved: ${savedStr}`;
+                let subHtml = `${i18n.t('total_saved_prefix')} ${savedStr}`;
 
                 // Add diff if enabled and exists
                 if (state.lastRunLookup && state.lastRunLookup.size > 0) {
@@ -638,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // If actively processing but 0 saved (e.g. first file not done), show generic 'Starting...'
                 if (state.queue.length > 0 && pieSubText) {
-                     pieSubText.innerHTML = 'Starting...';
+                     pieSubText.innerHTML = i18n.t('starting');
                 } else if (pieSubText) {
                      pieSubText.innerHTML = '';
                 }
@@ -1132,11 +1149,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (progressCircleInner) {
-                // Wait 1s (1000ms) before changing opacity
-                if (Date.now() - state.parsingCompleteTime > 1000) {
-                    progressCircleInner.style.opacity = '0';
+                // Determine if we should hide parsing ring (yellow)
+                // Parsing is done when totalFilesCount matches parsingTarget
+                const isParsingDone = state.totalFilesCount >= state.parsingTarget && state.parsingTarget > 0;
+                
+                if (isParsingDone) {
+                    // Start fading out shortly after parsing is complete to give visual feedback
+                    if (!state.parsingCompleteTime) state.parsingCompleteTime = Date.now();
+                    
+                    if (Date.now() - state.parsingCompleteTime > 300) {
+                         progressCircleInner.style.opacity = '0';
+                         progressCircleInner.style.visibility = 'hidden';
+                    }
                 } else {
                     progressCircleInner.style.opacity = '1';
+                    progressCircleInner.style.visibility = 'visible';
                 }
             }
 

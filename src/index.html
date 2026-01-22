@@ -42,22 +42,22 @@
                     <path d="M7 12L12 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <div class="logo-text">
-                    <h1>ToWebP</h1>
+                    <h1 data-i18n="app_name">ToWebP</h1>
                 </div>
             </div>
             
             <div class="header-sticky-stats">
-                <span class="stat-item files-count-display">0 files</span>
-                <span class="stat-item total-saved-display">Saved 0 MB</span>
+                <span class="stat-item files-count-display"><span id="files-count-val">0</span> <span data-i18n="files">files</span></span>
+                <span class="stat-item total-saved-display" data-i18n="total_saved_header">Total Saved: 0 MB</span>
                 <span class="stat-item" id="header-size-stats">0 B / 0 B</span>
                 <div class="header-actions">
-                    <button id="header-download-btn" class="btn-primary" disabled>Download ZIP</button>
-                    <button id="header-clear-btn" class="btn-text">Clear</button>
+                    <button id="header-download-btn" class="btn-primary" disabled data-i18n="download_zip">Download ZIP</button>
+                    <button id="header-clear-btn" class="btn-text" data-i18n="clear">Clear</button>
                 </div>
             </div>
             <div class="header-controls">
                 <div class="setting-group">
-                    <label for="format-select">Format</label>
+                    <label for="format-select" data-i18n="format">Format</label>
                     <select id="format-select" autocomplete="off">
                         <option value="image/webp" selected>WebP</option>
                         <option value="image/avif">AVIF</option>
@@ -66,7 +66,7 @@
                     </select>
                 </div>
                 <div class="setting-group">
-                    <label for="quality">Quality (<span id="quality-value">80</span>%)</label>
+                    <label for="quality"><span data-i18n="quality">Quality</span> (<span id="quality-value">80</span>%)</label>
                     <input type="range" id="quality" min="0" max="100" value="80" step="5">
                 </div>
             </div>
@@ -74,8 +74,8 @@
 
         <main>
             <div class="hero-section">
-                <h2>The best & fastest way to convert your images to WebP</h2>
-                <p>Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
+                <h2 data-i18n="hero_title">The best & fastest way to convert your images to WebP</h2>
+                <p data-i18n="hero_subtitle">Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
             </div>
 
             <div id="drop-zone" class="drop-zone">
@@ -94,8 +94,8 @@
                             <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
                         </svg>
-                        <h2>Drag & Drop images here</h2>
-                        <p>or click to browse</p>
+                        <h2 data-i18n="drag_drop_images">Drag & Drop images here</h2>
+                        <p data-i18n="click_browse_p">or click to browse</p>
                     </div>
                     
                     <!-- Stats View (Pie Chart) -->
@@ -156,8 +156,8 @@
                                             <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z" stroke="currentColor" stroke-width="2"/>
                                         </svg>
-                                        <span style="font-weight: 600; color: var(--text-main);">Drag & Drop</span>
-                                        <small style="color: var(--text-muted);">or click to browse</small>
+                                        <span style="font-weight: 600; color: var(--text-main);" data-i18n="drag_drop">Drag & Drop</span>
+                                        <small style="color: var(--text-muted);" data-i18n="click_browse">or click to browse</small>
                                     </div>
                                 </div>
                             </div>
@@ -198,28 +198,28 @@
     <div class="info-section">
         <div class="info-grid">
             <div class="info-card">
-                <h3>🚀 Fast & Secure</h3>
-                <p>All conversions happen locally on your device. Your images never leave your computer, ensuring 100% privacy.</p>
+                <h3 data-i18n="feature_1_title">🚀 Fast & Secure</h3>
+                <p data-i18n="feature_1_desc">All conversions happen locally on your device. Your images never leave your computer, ensuring 100% privacy.</p>
             </div>
             <div class="info-card">
-                <h3>📉 Smart Compression</h3>
-                <p>Reduce file size by up to 80% without visible quality loss. WebP is the modern standard for lighter websites.</p>
+                <h3 data-i18n="feature_2_title">📉 Smart Compression</h3>
+                <p data-i18n="feature_2_desc">Reduce file size by up to 80% without visible quality loss. WebP is the modern standard for lighter websites.</p>
             </div>
             <div class="info-card">
-                <h3>⚡ Batch Process</h3>
-                <p>Convert hundreds of images in seconds using multi-core processing. Drag, drop, and done.</p>
+                <h3 data-i18n="feature_3_title">⚡ Batch Process</h3>
+                <p data-i18n="feature_3_desc">Convert hundreds of images in seconds using multi-core processing. Drag, drop, and done.</p>
             </div>
         </div>
         
         <div class="seo-description">
-            <h3>Why use ToWebP?</h3>
-            <p>
-                ToWebP is a <strong>privacy-first</strong> image converter that runs entirely in your browser. 
+            <h3 data-i18n="why_use_title">Why use ToWebP?</h3>
+            <p data-i18n="why_use_p1">
+                ToWebP is a privacy-first image converter that runs entirely in your browser. 
                 Unlike other online converters, we do not upload your images to any server. 
                 This means your photos, designs, and documents remain 100% confidential and never leave your device.
             </p>
-            <p>
-                <strong>No Cookies, No Tracking.</strong> We believe in a clean and fast web. 
+            <p data-i18n="why_use_p2">
+                No Cookies, No Tracking. We believe in a clean and fast web. 
                 This site does not use persistent cookies or trackers, so you won't be pestered by consent banners. 
                 Just drag, drop, and convert with zero traces left behind.
             </p>
@@ -266,12 +266,13 @@
                 <div class="card-filename" title=""></div>
             </div>
             <div class="card-actions">
-                <button class="card-download-btn">DOWNLOAD</button>
+                <button class="card-download-btn" data-i18n="download">DOWNLOAD</button>
                 <!-- Settings button removed -->
             </div>
         </div>
     </template>
 
+    <script src="translations.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

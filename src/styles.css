@@ -259,7 +259,8 @@ body.scrolled .header-sticky-stats,
     right: 0;
     width: 320px;
     height: 100vh;
-    background: var(--bg-main);
+    background: #ffffff;
+    backdrop-filter: blur(20px);
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
     z-index: 10000;
     transform: translateX(100%);

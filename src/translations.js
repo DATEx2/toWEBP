@@ -73,10 +73,8 @@ function applyTranslations(lang = "en") {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (t[key]) {
-            if (key === 'total_saved_header' || key === 'hero_subtitle') {
-                if (!el.dataset.i18nOriginal) el.dataset.i18nOriginal = el.innerText;
-            }
-            el.innerText = t[key];
+            // Use textContent to completely replace the content without duplication
+            el.textContent = t[key];
         }
     });
     document.documentElement.lang = selectedLang;

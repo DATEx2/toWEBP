@@ -764,6 +764,46 @@ header {
     overflow-y: auto;
 }
 
+.lang-option {
+    width: 100%;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: left;
+    color: var(--text-main);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    text-decoration: none !important;
+    margin: 0;
+}
+
+/* Flag Icons Styling */
+.lang-option .fi {
+    font-size: 1.25em;
+    border-radius: 2px;
+    box-shadow: 0 0 1px rgba(0,0,0,0.3);
+    min-width: 1.33em;
+    flex-shrink: 0;
+}
+
+.lang-option:hover {
+    background: #f1f5f9;
+    border-color: var(--border);
+    color: var(--primary);
+}
+
+.lang-option.active {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    font-weight: 600;
+}
+
 /* Ensure controls stick to the right */
 .header-controls {
     margin-left: auto; /* Push to the right forcefully if flex gap fails */

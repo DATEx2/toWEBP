@@ -34,13 +34,13 @@ body {
     line-height: 1.5;
     min-height: 100vh;
     padding: 0; /* Remove body padding to allow full width sticky */
-    overflow-x: hidden;
-    overflow-y: auto; /* Ensure vertical scroll works for sticky */
+    overflow-x: auto; /* Allow horizontal scroll for zoom/accessibility */
+    overflow-y: auto; /* Ensure vertical scroll works */
 }
 
 html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: auto; /* Allow horizontal scroll for zoom */
 }
 
 /* Parallax Background */

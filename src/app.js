@@ -430,10 +430,96 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!isScrolling) {
                 isScrolling = true;
-                scrollRafId = requestAnimationFrame(momentumLoop);
             }
         }
     }, { passive: false });
+
+    // --- Keyboard Navigation for Carousel ---
+    // --- Lightbox & Keyboard Navigation ---
+    let currentLightboxIndex = -1;
+
+    function openLightbox(index) {
+        const images = document.querySelectorAll('.card-preview');
+        if (index < 0 || index >= images.length) return;
+        
+        currentLightboxIndex = index;
+        const img = images[index];
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const caption = document.getElementById('lightbox-caption');
+
+        lightboxImg.src = img.src;
+        
+        // Try to get filename
+        const card = img.closest('.carousel-card');
+        if (card) {
+            const nameEl = card.querySelector('.card-filename');
+            if (nameEl && caption) caption.textContent = nameEl.textContent;
+        }
+
+        lightbox.classList.remove('hidden');
+        // Small delay to allow display:flex to apply before transition
+        requestAnimationFrame(() => lightbox.classList.add('visible'));
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        lightbox.classList.remove('visible');
+        setTimeout(() => lightbox.classList.add('hidden'), 300);
+    }
+
+    function nextImage() {
+        const images = document.querySelectorAll('.card-preview');
+        if (currentLightboxIndex < images.length - 1) {
+            openLightbox(currentLightboxIndex + 1);
+        }
+    }
+
+    function prevImage() {
+        if (currentLightboxIndex > 0) {
+            openLightbox(currentLightboxIndex - 1);
+        }
+    }
+
+    // Lightbox Controls Events
+    const lbClose = document.getElementById('lightbox-close');
+    const lbNext = document.getElementById('lightbox-next');
+    const lbPrev = document.getElementById('lightbox-prev');
+    const lbOverlay = document.getElementById('lightbox');
+
+    if (lbClose) lbClose.onclick = closeLightbox;
+    if (lbNext) lbNext.onclick = (e) => { e.stopPropagation(); nextImage(); };
+    if (lbPrev) lbPrev.onclick = (e) => { e.stopPropagation(); prevImage(); };
+    if (lbOverlay) lbOverlay.onclick = (e) => {
+        if (e.target === lbOverlay) closeLightbox();
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const lightbox = document.getElementById('lightbox');
+        const isLightboxOpen = lightbox && !lightbox.classList.contains('hidden');
+
+        if (isLightboxOpen) {
+             if (e.key === 'ArrowRight') nextImage();
+             else if (e.key === 'ArrowLeft') prevImage();
+             else if (e.key === 'Escape') closeLightbox();
+             return;
+        }
+
+        // Carousel Scroll
+        const carousel = document.getElementById('carousel-track');
+        if (!carousel) return;
+        const scrollAmount = 300; 
+
+        if (e.key === 'ArrowRight') {
+            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        } else if (e.key === 'ArrowLeft') {
+            carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+    });
+
+    // --- File Detection & Typewriter Effect ---
 
     // --- Core Functions ---
 
@@ -900,6 +986,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set Image
             const img = card.querySelector('.card-preview');
             img.src = previewUrl;
+            img.style.cursor = 'zoom-in';
+            
+            img.onclick = () => {
+                const all = Array.from(document.querySelectorAll('.card-preview'));
+                openLightbox(all.indexOf(img));
+            };
+
             imagesToDecode.push(img);
 
             // Set Filename

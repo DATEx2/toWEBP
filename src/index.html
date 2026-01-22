@@ -308,6 +308,17 @@
         </div>
     </template>
 
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox hidden" aria-hidden="true">
+        <button id="lightbox-close" class="lightbox-close" aria-label="Close"></button>
+        <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"></button>
+        <button id="lightbox-next" class="lightbox-nav next" aria-label="Next"></button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Full preview">
+            <div id="lightbox-caption"></div>
+        </div>
+    </div>
+
     <script src="translations.js"></script>
     <script src="app.js"></script>
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5b57c5d7410f438ea67d0ccf13d0381d"}'></script><!-- End Cloudflare Web Analytics -->

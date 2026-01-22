@@ -38,6 +38,31 @@ body {
     overflow-y: auto; /* Ensure vertical scroll works */
 }
 
+/* Lightbox Styles (Inserted here for certainty) */
+.lightbox {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+.lightbox.visible { opacity: 1; pointer-events: auto; }
+.lightbox.hidden { display: none; }
+.lightbox-content { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; }
+.lightbox img { max-width: 100%; max-height: 85vh; border-radius: 4px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); user-select: none; }
+.lightbox-close { position: absolute; top: 20px; right: 30px; width: 44px; height: 44px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; cursor: pointer; z-index: 1001; transition: background 0.2s; }
+.lightbox-close:hover { background: rgba(255,255,255,0.25); }
+.lightbox-close::before, .lightbox-close::after { content: ''; position: absolute; width: 24px; height: 2px; background: white; top: 50%; left: 50%; }
+.lightbox-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.lightbox-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: transparent; color: rgba(255,255,255,0.6); border: none; width: 60px; height: 100%; cursor: pointer; z-index: 1001; font-size: 3rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s, background 0.2s; outline: none; }
+.lightbox-nav:hover { color: white; background: rgba(255,255,255,0.05); }
+.lightbox-nav.prev { left: 0; } .lightbox-nav.prev::after { content: '‹'; }
+.lightbox-nav.next { right: 0; } .lightbox-nav.next::after { content: '›'; }
+#lightbox-caption { margin-top: 1rem; color: rgba(255,255,255,0.9); font-size: 1.1rem; font-weight: 500; text-align: center; }
+
 html {
     scroll-behavior: smooth;
     overflow-x: auto; /* Allow horizontal scroll for zoom */

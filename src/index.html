@@ -36,67 +36,80 @@
         </defs>
     </svg>
 
-    <div class="app-container">
-        <header>
-            <div class="logo">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M7 12L12 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="logo-text">
-                    <h1 data-i18n="app_name">ToWebP</h1>
-                </div>
+    <header>
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M7 12L12 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="logo-text">
+                <h1 data-i18n="app_name">ToWebP</h1>
             </div>
-            
-            <div class="header-sticky-stats">
-                <span class="stat-item files-count-display"><span id="files-count-val">0</span> <span data-i18n="files">files</span></span>
-                <span class="stat-item total-saved-display" data-i18n="total_saved_header">Total Saved: 0 MB</span>
-                <span class="stat-item" id="header-size-stats">0 B / 0 B</span>
-                <div class="header-actions">
-                    <button id="header-download-btn" class="btn-primary" disabled data-i18n="download_zip">Download ZIP</button>
-                    <button id="header-clear-btn" class="btn-text" data-i18n="clear">Clear</button>
-                </div>
+        </div>
+        
+        <div class="header-sticky-stats">
+            <div class="stat-item">
+                <span data-i18n="total_saved_header">Total Saved: </span>
+                <span class="total-saved-pill">0 B</span>
             </div>
-            <div class="header-controls">
-                <div class="setting-group">
-                    <label for="format-select" data-i18n="format">Format</label>
-                    <select id="format-select" autocomplete="off">
-                        <option value="image/webp" selected>WebP</option>
-                        <option value="image/avif">AVIF</option>
-                        <option value="image/jpeg">JPEG</option>
-                        <option value="image/png">PNG</option>
+            <div class="header-actions">
+                <button id="header-download-all" class="btn-primary" style="display: none;">
+                    <span data-i18n="download_zip">Download ZIP</span>
+                </button>
+                <button id="header-clear-all" class="btn-text" style="display: none;">
+                    <span data-i18n="clear">Clear</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <!-- Format Selection -->
+            <div class="setting-group">
+                <label for="format-select" data-i18n="format">Format</label>
+                <div class="ts-wrapper single">
+                    <select id="format-select">
+                        <option value="webp" selected>WebP</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
                     </select>
                 </div>
-                <div class="setting-group">
-                    <label for="quality"><span data-i18n="quality">Quality</span> (<span id="quality-value">80</span>%)</label>
-                    <input type="range" id="quality" min="0" max="100" value="80" step="5">
+            </div>
+
+            <!-- Quality Slider -->
+            <div class="setting-group">
+                <label for="quality-slider" data-i18n="quality">Quality</label>
+                <div class="range-wrapper">
+                    <input type="range" id="quality-slider" min="1" max="100" value="80">
+                    <span id="quality-value">80%</span>
                 </div>
             </div>
 
-            <!-- Language Dropdown Wrapper -->
-            <div class="lang-dropdown-wrapper">
-                <button id="lang-burger" class="lang-burger" aria-label="Language">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 0 0 20M12 2a15.3 15.3 0 0 1 0 20" stroke="currentColor" stroke-width="2"/>
+            <!-- Language Dropdown -->
+             <div class="lang-dropdown-wrapper">
+                <button id="lang-burger" class="lang-burger" aria-label="Select Language">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                     </svg>
                 </button>
-
+                
                 <div id="lang-menu" class="lang-menu hidden">
+                    <h3 class="lang-menu-header" data-i18n="select_language">Select Language</h3>
                     <div class="lang-menu-list">
-                        <button class="lang-option" data-lang="en"><span class="fi fi-gb"></span> English</button>
+                        <button class="lang-option" data-lang="en"><span class="fi fi-us"></span> English</button>
                         <button class="lang-option" data-lang="ro"><span class="fi fi-ro"></span> Română</button>
+                        <button class="lang-option" data-lang="es"><span class="fi fi-es"></span> Español</button>
                         <button class="lang-option" data-lang="fr"><span class="fi fi-fr"></span> Français</button>
                         <button class="lang-option" data-lang="de"><span class="fi fi-de"></span> Deutsch</button>
-                        <button class="lang-option" data-lang="es"><span class="fi fi-es"></span> Español</button>
                         <button class="lang-option" data-lang="it"><span class="fi fi-it"></span> Italiano</button>
                         <button class="lang-option" data-lang="pt"><span class="fi fi-pt"></span> Português</button>
                         <button class="lang-option" data-lang="nl"><span class="fi fi-nl"></span> Nederlands</button>
+                        <button class="lang-option" data-lang="pl"><span class="fi fi-pl"></span> Polski</button>
+                        <button class="lang-option" data-lang="uk"><span class="fi fi-ua"></span> Українська</button>
+                        <button class="lang-option" data-lang="bg"><span class="fi fi-bg"></span> Български</button>
                         <button class="lang-option" data-lang="el"><span class="fi fi-gr"></span> Ελληνικά</button>
                         <button class="lang-option" data-lang="hu"><span class="fi fi-hu"></span> Magyar</button>
-                        <button class="lang-option" data-lang="pl"><span class="fi fi-pl"></span> Polski</button>
-                        <button class="lang-option" data-lang="ar"><span class="fi fi-sa"></span> العربية</button>
-                        <button class="lang-option" data-lang="bg"><span class="fi fi-bg"></span> Български</button>
                         <button class="lang-option" data-lang="ja"><span class="fi fi-jp"></span> 日本語</button>
                         <button class="lang-option" data-lang="zh"><span class="fi fi-cn"></span> 中文</button>
                         <button class="lang-option" data-lang="cs"><span class="fi fi-cz"></span> Čeština</button>
@@ -117,8 +130,17 @@
                     </div>
                 </div>
             </div>
-        </header>
+        </div>
+        
+        <!-- Sticky Progress Bar (Initially Hidden) -->
+        <div class="sticky-progress-container">
+            <div class="sticky-bar-parsing" id="sticky-parsing"></div>
+            <div class="sticky-bar-conversion" id="sticky-conversion"></div>
+            <div class="sticky-bar-saved" id="sticky-saved"></div>
+        </div>
+    </header>
 
+    <div class="app-container">
         <!-- Scroll sentinel - invisible fixed element that doesn't move with layout changes -->
         <div id="scroll-sentinel" style="position: absolute; top: 200px; height: 1px; width: 1px; pointer-events: none;"></div>
 

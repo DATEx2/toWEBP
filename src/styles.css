@@ -288,10 +288,7 @@ body.scrolled .sticky-progress-container {
     opacity: 1;
 }
 
-/* Ensure sticky bar stays at bottom of header */
-header {
-    position: relative; 
-}
+/* Sticky bar constraint removed - Header is fixed now */
 
 
 /* Sticky Carousel */

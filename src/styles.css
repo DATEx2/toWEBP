@@ -262,8 +262,8 @@ body.scrolled .header-sticky-stats,
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    width: 220px;
-    height: auto;
+    min-width: 180px; /* Smaller min-width */
+    width: max-content; /* Fit content */
     max-height: 400px;
     background: #ffffff; /* Solid white */
     border: 1px solid var(--border);
@@ -294,7 +294,7 @@ body.scrolled .header-sticky-stats,
 
 .lang-option {
     width: 100%;
-    padding: 10px 12px;
+    padding: 10px 16px; /* More horizontal padding */
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -306,13 +306,23 @@ body.scrolled .header-sticky-stats,
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    white-space: nowrap; /* Prevent breaking */
+}
+
+/* Flag Icons Styling */
+.lang-option .fi {
+    font-size: 1.2em; /* Slightly larger flags */
+    border-radius: 2px; /* Soft corners */
+    box-shadow: 0 0 1px rgba(0,0,0,0.2); /* Slight border definition */
+    width: 1.33em;
+    line-height: 1em;
 }
 
 .lang-option:hover {
     background: rgba(var(--primary-rgb), 0.08);
     color: var(--primary);
-    transform: none; /* Removed slide effect for cleaner dropdown feel */
+    transform: none; 
 }
 
 .lang-option.active {

@@ -1234,13 +1234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initLanguageSystem() {
         const langBurger = document.getElementById('lang-burger');
         const langMenu = document.getElementById('lang-menu');
-        const langMenuClose = langMenu?.querySelector('.lang-menu-close');
         const langOptions = document.querySelectorAll('.lang-option');
-
-        // Create overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'lang-menu-overlay hidden';
-        document.body.appendChild(overlay);
 
         // Detect language with priority: localStorage > IP > browser > default
         let detectedLang = await detectLanguage();
@@ -1254,19 +1248,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateActiveLang(detectedLang);
 
         // Burger menu toggle
-        langBurger?.addEventListener('click', () => {
+        langBurger?.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent document click from closing it immediately
             langMenu.classList.toggle('hidden');
-            overlay.classList.toggle('hidden');
         });
 
-        // Close menu
-        const closeMenu = () => {
-            langMenu.classList.add('hidden');
-            overlay.classList.add('hidden');
-        };
-
-        langMenuClose?.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (langMenu && !langMenu.classList.contains('hidden')) {
+                // If click is outside the menu and not on the burger
+                if (!langMenu.contains(e.target) && !langBurger.contains(e.target)) {
+                    langMenu.classList.add('hidden');
+                }
+            }
+        });
 
         // Language selection
         langOptions.forEach(option => {
@@ -1278,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Save to localStorage
                 localStorage.setItem('towebp_language', lang);
                 updateActiveLang(lang);
-                closeMenu();
+                langMenu.classList.add('hidden'); // Close after selection
             });
         });
 

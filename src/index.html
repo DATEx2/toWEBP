@@ -46,30 +46,6 @@
                 </div>
             </div>
             
-            <div id="lang-menu" class="lang-menu hidden">
-                <div class="lang-menu-header">
-                    <span data-i18n="select_language">Select Language</span>
-                    <button class="lang-menu-close">&times;</button>
-                </div>
-                <div class="lang-menu-list">
-                    <button class="lang-option" data-lang="en">🇬🇧 English</button>
-                    <button class="lang-option" data-lang="ro">🇷🇴 Română</button>
-                    <button class="lang-option" data-lang="fr">🇫🇷 Français</button>
-                    <button class="lang-option" data-lang="de">🇩🇪 Deutsch</button>
-                    <button class="lang-option" data-lang="es">🇪🇸 Español</button>
-                    <button class="lang-option" data-lang="it">🇮🇹 Italiano</button>
-                    <button class="lang-option" data-lang="pt">🇵🇹 Português</button>
-                    <button class="lang-option" data-lang="nl">🇳🇱 Nederlands</button>
-                    <button class="lang-option" data-lang="el">🇬🇷 Ελληνικά</button>
-                    <button class="lang-option" data-lang="hu">🇭🇺 Magyar</button>
-                    <button class="lang-option" data-lang="pl">🇵🇱 Polski</button>
-                    <button class="lang-option" data-lang="ar">🇸🇦 العربية</button>
-                    <button class="lang-option" data-lang="bg">🇧🇬 Български</button>
-                    <button class="lang-option" data-lang="ja">🇯🇵 日本語</button>
-                    <button class="lang-option" data-lang="zh">🇨🇳 中文</button>
-                </div>
-            </div>
-            
             <div class="header-sticky-stats">
                 <span class="stat-item files-count-display"><span id="files-count-val">0</span> <span data-i18n="files">files</span></span>
                 <span class="stat-item total-saved-display" data-i18n="total_saved_header">Total Saved: 0 MB</span>
@@ -94,14 +70,36 @@
                     <input type="range" id="quality" min="0" max="100" value="80" step="5">
                 </div>
             </div>
-            
-            <!-- Language Burger Menu - Moved to far right -->
-            <button id="lang-burger" class="lang-burger" aria-label="Language">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                    <path d="M2 12h20M12 2a15.3 15.3 0 0 0 0 20M12 2a15.3 15.3 0 0 1 0 20" stroke="currentColor" stroke-width="2"/>
-                </svg>
-            </button>
+
+            <!-- Language Dropdown Wrapper -->
+            <div class="lang-dropdown-wrapper">
+                <button id="lang-burger" class="lang-burger" aria-label="Language">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 0 0 20M12 2a15.3 15.3 0 0 1 0 20" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <div id="lang-menu" class="lang-menu hidden">
+                    <div class="lang-menu-list">
+                        <button class="lang-option" data-lang="en">🇬🇧 English</button>
+                        <button class="lang-option" data-lang="ro">🇷🇴 Română</button>
+                        <button class="lang-option" data-lang="fr">🇫🇷 Français</button>
+                        <button class="lang-option" data-lang="de">🇩🇪 Deutsch</button>
+                        <button class="lang-option" data-lang="es">🇪🇸 Español</button>
+                        <button class="lang-option" data-lang="it">🇮🇹 Italiano</button>
+                        <button class="lang-option" data-lang="pt">🇵🇹 Português</button>
+                        <button class="lang-option" data-lang="nl">🇳🇱 Nederlands</button>
+                        <button class="lang-option" data-lang="el">🇬🇷 Ελληνικά</button>
+                        <button class="lang-option" data-lang="hu">🇭🇺 Magyar</button>
+                        <button class="lang-option" data-lang="pl">🇵🇱 Polski</button>
+                        <button class="lang-option" data-lang="ar">🇸🇦 العربية</button>
+                        <button class="lang-option" data-lang="bg">🇧🇬 Български</button>
+                        <button class="lang-option" data-lang="ja">🇯🇵 日本語</button>
+                        <button class="lang-option" data-lang="zh">🇨🇳 中文</button>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <!-- Scroll sentinel - invisible fixed element that doesn't move with layout changes -->

@@ -103,28 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler (Sticky UI) - One-way latch to prevent flickering
-    // Problem: When scrolled class is added, drop-zone collapses, pulling content up
-    // This makes scrollY decrease, which would remove scrolled, causing a loop
-    // Solution: Once scrolled, stay scrolled until user is at the very top
-    
-    let isScrolledState = false;
-    const SCROLL_DOWN_THRESHOLD = 200; // Scroll this much to activate
-    const SCROLL_UP_THRESHOLD = 10;    // Must be nearly at top to deactivate
-    
-    window.addEventListener('scroll', () => {
-        const y = window.scrollY;
-        
-        if (!isScrolledState && y > SCROLL_DOWN_THRESHOLD) {
-            // Activate sticky mode
-            isScrolledState = true;
-            document.body.classList.add('scrolled');
-        } else if (isScrolledState && y < SCROLL_UP_THRESHOLD) {
-            // Only deactivate when nearly at top
-            isScrolledState = false;
-            document.body.classList.remove('scrolled');
-        }
-    }, { passive: true });
+    // Scroll Handler removed to prevent flickering
+    // TODO: Re-implement using CSS-only sticky approach or robust Observer
 
 
 

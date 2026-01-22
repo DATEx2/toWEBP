@@ -103,15 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Scroll Handler (Sticky UI) - Intersection Observer to prevent flickering
-    // Monitor when the hero section goes out of view
-    const heroSection = document.querySelector('.hero-section');
+    // Scroll Handler (Sticky UI) - Intersection Observer with fixed sentinel
+    // The sentinel is positioned absolutely at top:200px and doesn't move with layout changes
+    const scrollSentinel = document.getElementById('scroll-sentinel');
     
-    if (heroSection) {
+    if (scrollSentinel) {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach(entry => {
-                    // When hero is NOT intersecting (scrolled past), add 'scrolled' class
+                    // When sentinel is NOT visible (scrolled past 200px), add 'scrolled' class
                     if (!entry.isIntersecting) {
                         document.body.classList.add('scrolled');
                     } else {
@@ -120,13 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             },
             {
-                // Trigger when hero goes completely out of view at the top
-                threshold: 0,
-                rootMargin: '-80px 0px 0px 0px' // Account for header height
+                threshold: 0
             }
         );
         
-        observer.observe(heroSection);
+        observer.observe(scrollSentinel);
     }
 
 

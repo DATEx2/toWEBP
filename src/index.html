@@ -44,14 +44,6 @@
                 <div class="logo-text">
                     <h1 data-i18n="app_name">ToWebP</h1>
                 </div>
-                
-                <!-- Language Burger Menu -->
-                <button id="lang-burger" class="lang-burger" aria-label="Language">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 0 0 20M12 2a15.3 15.3 0 0 1 0 20" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </button>
             </div>
             
             <div id="lang-menu" class="lang-menu hidden">
@@ -102,7 +94,18 @@
                     <input type="range" id="quality" min="0" max="100" value="80" step="5">
                 </div>
             </div>
+            
+            <!-- Language Burger Menu - Moved to far right -->
+            <button id="lang-burger" class="lang-burger" aria-label="Language">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 0 0 20M12 2a15.3 15.3 0 0 1 0 20" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </button>
         </header>
+
+        <!-- Scroll sentinel - invisible fixed element that doesn't move with layout changes -->
+        <div id="scroll-sentinel" style="position: absolute; top: 200px; height: 1px; width: 1px; pointer-events: none;"></div>
 
         <main>
             <div class="hero-section">

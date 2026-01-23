@@ -9,33 +9,10 @@ self.onmessage = async function(e) {
     try {
         // 1. Decode the image
         const bitmap = await createImageBitmap(file);
-        
-        // 2. Create OffscreenCanvas
-        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-        const ctx = canvas.getContext('2d');
-        
-        // 3. Draw image to canvas
-        ctx.drawImage(bitmap, 0, 0);
-        
-        // 4. Convert
-        // Quality mapped from 1-100 to 0.0-1.0 (if supplied via postMessage, or normalize)
-        // Adjust type based on input request
-        const targetFormat = e.data.format || 'image/webp';
-        
-        let conversionOptions = {
-            type: targetFormat,
-        };
 
-        // Quality is only supported for image/jpeg, image/webp and image/avif
-        if (targetFormat === 'image/jpeg' || targetFormat === 'image/webp' || targetFormat === 'image/avif') {
-             conversionOptions.quality = quality; // assumed 0..1 from app.js div by 100
-        }
-
-        const blob = await canvas.convertToBlob(conversionOptions);
-
-        // 5. Generate Thumbnail (Base64)
-        // Max height 120px to match carousel, maintain aspect ratio
-        const thumbHeight = 120;
+        // --- PHASE 1: Fast Thumbnail Generation ---
+        // Max height 480px, but do NOT upscale if smaller
+        const thumbHeight = Math.min(480, bitmap.height);
         const scaleFactor = thumbHeight / bitmap.height;
         const thumbWidth = bitmap.width * scaleFactor;
         
@@ -45,7 +22,7 @@ self.onmessage = async function(e) {
         
         const thumbBlob = await thumbCanvas.convertToBlob({
             type: 'image/webp',
-            quality: 0.5 // Low quality for speed/size
+            quality: 0.65 
         });
         
         // Convert Blob to Base64
@@ -55,15 +32,46 @@ self.onmessage = async function(e) {
             reader.readAsDataURL(thumbBlob);
         });
 
+        // Send Thumbnail IMMEDIATELY
+        self.postMessage({
+            type: 'thumb',
+            id,
+            thumbnail: thumbnailBase64
+        });
+
+        // --- PHASE 2: Main Conversion ---
+        // 2. Create OffscreenCanvas
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const ctx = canvas.getContext('2d');
+        
+        // 3. Draw image to canvas
+        ctx.drawImage(bitmap, 0, 0);
+        
+        // 4. Convert
+        // Adjust type based on input request
+        const targetFormat = e.data.format || 'image/webp';
+        
+        let conversionOptions = {
+            type: targetFormat,
+        };
+
+        // Quality is only supported for image/jpeg, image/webp and image/avif
+        if (targetFormat === 'image/jpeg' || targetFormat === 'image/webp' || targetFormat === 'image/avif') {
+             conversionOptions.quality = quality; // assumed 0..1
+        }
+
+        const blob = await canvas.convertToBlob(conversionOptions);
+
         // 6. Cleanup
         bitmap.close();
 
         // 7. Send back result
         self.postMessage({
+            type: 'result',
             id,
             success: true,
             blob,
-            thumbnail: thumbnailBase64,
+            // thumbnail: thumbnailBase64, // Not needed again
             originalSize: file.size,
             newSize: blob.size
         });

@@ -47,6 +47,22 @@
             </div>
         </div>
         
+        <div id="carousel-section" class="carousel-section hidden">
+            <button class="nav-btn prev" id="prev-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18L9 12L15 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel-track-container" id="carousel-track-container">
+                <div class="carousel-track" id="carousel-track">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
+            <button class="nav-btn next" id="next-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18L15 12L9 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+
+        <div class="header-right-group" style="display: flex; align-items: center; gap: 1rem;">
+        
         <div class="header-sticky-stats">
             <div class="stat-item">
                 <span data-i18n="total_saved_header">Total Saved: </span>
@@ -64,15 +80,12 @@
 
         <div class="header-controls">
             <!-- Format Selection -->
-            <div class="setting-group">
-                <label for="format-select" data-i18n="format">Format</label>
-                <div class="ts-wrapper single">
-                    <select id="format-select">
-                        <option value="webp" selected>WebP</option>
-                        <option value="jpeg">JPEG</option>
-                        <option value="png">PNG</option>
-                    </select>
-                </div>
+            <!-- Format Selection -->
+            <div class="format-tabs" id="format-tabs">
+                <button class="format-tab active" data-format="webp">WebP</button>
+                <button class="format-tab" data-format="jpeg">JPEG</button>
+                <button class="format-tab" data-format="png">PNG</button>
+                <button class="format-tab" data-format="avif">AVIF</button>
             </div>
 
             <!-- Quality Slider -->
@@ -132,13 +145,19 @@
             </div>
         </div>
         
+        </div>
         <!-- Sticky Progress Bar (Initially Hidden) -->
         <div class="sticky-progress-container">
             <div class="sticky-bar-parsing" id="sticky-parsing"></div>
             <div class="sticky-bar-conversion" id="sticky-conversion"></div>
             <div class="sticky-bar-saved" id="sticky-saved"></div>
         </div>
+        </div>
+        
+
     </header>
+
+
 
     <div class="app-container">
         <!-- Scroll sentinel - invisible fixed element that doesn't move with layout changes -->
@@ -213,7 +232,7 @@
                             </div>
                             
                             <!-- Pie Chart (Content) - Relative Overlay -->
-                            <div id="pie-chart" class="pie-chart" style="--p:0deg; position:relative; z-index:20;">
+                            <div id="pie-chart" class="pie-chart" style="--p:0deg;">
                                 <div class="pie-center-text">
                                     <div id="pie-default-content" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;">
                                         <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -227,11 +246,11 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div id="pie-active-content" class="hidden stats-text-container">
-                            <div id="pie-main-text" class="stat-main-text">Processing</div>
-                            <div id="pie-sub-text" class="stat-sub-text">Starting...</div>
+
+                            <div id="pie-active-content" class="hidden stats-text-container">
+                                <div id="pie-main-text" class="stat-main-text">Processing</div>
+                                <div id="pie-sub-text" class="stat-sub-text">Starting...</div>
+                            </div>
                         </div>
                     </div>
                     
@@ -239,19 +258,7 @@
                 </div>
             </div>
 
-            <div id="carousel-section" class="carousel-section hidden">
-                <button class="nav-btn prev" id="prev-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18L9 12L15 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <div class="carousel-track-container" id="carousel-track-container">
-                    <div class="carousel-track" id="carousel-track">
-                        <!-- Cards will be injected here -->
-                    </div>
-                </div>
-                <button class="nav-btn next" id="next-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18L15 12L9 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
+
 
 
 
@@ -342,8 +349,7 @@
     </div>
 
     <script src="translations.js"></script>
-    <script src="app.js"></script>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5b57c5d7410f438ea67d0ccf13d0381d"}'></script><!-- End Cloudflare Web Analytics -->
+    <script type="module" src="app.js"></script>
+    <!-- Cloudflare Web Analytics removed (loaded conditionally in app.js) -->
 </body>
 </html>
- 

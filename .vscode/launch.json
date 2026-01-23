@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug ToWebP (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8787",
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMapPathOverrides": {
+                "webpack:///./*": "${webRoot}/*"
+            },
+            "runtimeArgs": [
+                "--enable-experimental-web-platform-features"
+            ]
+        }
+    ]
+}

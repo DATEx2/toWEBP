@@ -45,6 +45,12 @@
   initial-value: 0deg;
 }
 
+@property --blob-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
 /* 2. Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -80,30 +86,97 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  will-change: transform;
+  will-change: transform, top, left, bottom, right, --blob-color;
 }
 
 .blob-1 {
   top: -10%; left: -10%; width: 50vw; height: 50vw;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, rgba(99, 102, 241, 0) 70%);
+  --blob-color: rgba(99, 102, 241, 0.35); /* Indigo */
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 70%);
+  animation: float-1 20s infinite ease-in-out alternate;
 }
 
 .blob-2 {
   bottom: -10%; right: -10%; width: 60vw; height: 60vw;
-  background: radial-gradient(circle, rgba(13, 148, 136, 0.35) 0%, rgba(13, 148, 136, 0) 70%);
+  --blob-color: rgba(13, 148, 136, 0.35); /* Teal */
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 70%);
+  animation: float-2 25s infinite ease-in-out alternate-reverse;
 }
 
 .blob-3 {
   top: 40%; left: 40%; width: 40vw; height: 40vw;
-  background: radial-gradient(circle, rgba(244, 63, 94, 0.25) 0%, rgba(244, 63, 94, 0) 70%);
+  --blob-color: rgba(244, 63, 94, 0.25); /* Rose */
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 70%);
   opacity: 0.6;
+  animation: float-3 30s infinite ease-in-out alternate;
+}
+
+@keyframes float-1 {
+  0% { 
+    top: -10%; left: -10%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(99, 102, 241, 0.35); 
+  }
+  33% { 
+    top: -5%; left: -15%; scale: 1.1; rotate: 10deg; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    --blob-color: rgba(244, 63, 94, 0.35);
+  }
+  66% { 
+    top: -15%; left: -5%; scale: 0.9; rotate: -5deg; border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    --blob-color: rgba(13, 148, 136, 0.35);
+  }
+  100% { 
+    top: -10%; left: -10%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(99, 102, 241, 0.35);
+  }
+}
+
+@keyframes float-2 {
+  0% { 
+    bottom: -10%; right: -10%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(13, 148, 136, 0.35);
+  }
+  33% { 
+    bottom: -5%; right: -15%; scale: 1.15; rotate: -10deg; border-radius: 70% 30% 50% 50% / 30% 50% 70% 50%;
+    --blob-color: rgba(99, 102, 241, 0.35);
+  }
+  66% { 
+    bottom: -15%; right: -5%; scale: 0.95; rotate: 5deg; border-radius: 40% 60% 40% 60% / 60% 40% 60% 40%;
+    --blob-color: rgba(244, 63, 94, 0.35);
+  }
+  100% { 
+    bottom: -10%; right: -10%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(13, 148, 136, 0.35);
+  }
+}
+
+@keyframes float-3 {
+  0% { 
+    top: 40%; left: 40%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(244, 63, 94, 0.25);
+  }
+  25% { 
+    top: 35%; left: 45%; scale: 1.1; rotate: 15deg; border-radius: 40% 60% 30% 70% / 50% 30% 70% 50%;
+    --blob-color: rgba(13, 148, 136, 0.35);
+  }
+  50% { 
+    top: 45%; left: 35%; scale: 0.9; rotate: 25deg; border-radius: 60% 40% 70% 30% / 30% 70% 50% 50%;
+    --blob-color: rgba(99, 102, 241, 0.35);
+  }
+  75% { 
+    top: 30%; left: 30%; scale: 1.05; rotate: 10deg; border-radius: 30% 70% 50% 50% / 70% 30% 50% 50%;
+    --blob-color: rgba(244, 63, 94, 0.25);
+  }
+  100% { 
+    top: 40%; left: 40%; scale: 1; rotate: 0deg; border-radius: 50%;
+    --blob-color: rgba(244, 63, 94, 0.25);
+  }
 }
 
 /* Container */
 .app-container {
-  max-width: 1000px;
+  max-width: 1140px;
   margin: 100px auto 1rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: #ffffffcc;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius-lg);
@@ -125,46 +198,50 @@ main {
 /* Header */
 header {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 70px;
   padding: 0 1.5rem;
-  
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   align-content: flex-start;
-
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  
   z-index: var(--z-header);
-  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   /* overflow: hidden removed - allows dropdown menus to extend beyond header */
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-md);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 body.expanded header {
   height: 260px;
-  max-width: 95%;
+  max-width: 100%;
   margin: 0 auto; /* Center expanded header if strict width */
   left: 0; right: 0; /* Keep centered */
 }
 
 /* Header Scrolled State */
 body.scrolled header {
-  background: rgba(255, 255, 255, 0.98);
+  background: #ffffffcc;
+  border-radius: 0 !important;
   box-shadow: var(--shadow-md);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  max-width: 1000px;
+  /* border-radius: 0 0 var(--radius-lg) var(--radius-lg); */
+  max-width: 100%;
   margin: 0 auto;
 }
 
 body.expanded.scrolled header {
-  max-width: 95%;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  max-width: 100%;
+  /* border-radius: 0 0 var(--radius-lg) var(--radius-lg); */
 }
 
 /* Logo */
@@ -1034,9 +1111,12 @@ body.scrolled .sticky-progress-container {
 .info-card {
   padding: 2rem 1.5rem;
   text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
-  background: white;
+  background: #ffffffcc;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
@@ -1094,7 +1174,7 @@ body.scrolled .sticky-progress-container {
 
 /* How It Works - Steps */
 .how-it-works {
-  background: white;
+  background: #ffffffcc;
   padding: 3rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -1170,7 +1250,17 @@ body.scrolled .sticky-progress-container {
 
 .seo-col {
   padding: 2rem;
-  background: transparent;
+  background: #ffffffcc;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.seo-col:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
 .seo-col h3 {
@@ -1197,7 +1287,7 @@ body.scrolled .sticky-progress-container {
 
 /* FAQ Section */
 .faq-section {
-  background: #f8fafc;
+  background: #ffffffcc;
   padding: 3rem 2rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -1272,36 +1362,52 @@ body.scrolled .sticky-progress-container {
 
 /* GDPR Section */
 .gdpr-section {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: white;
+  text-align: left;
+  padding: 2rem;
+  background: #ffffffcc;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
 
 .gdpr-badge {
-  width: 80px; height: 80px;
+  width: 64px; height: 64px;
   background: rgba(16, 185, 129, 0.1);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.gdpr-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .gdpr-section h3 {
   color: var(--text-main);
   font-size: 1.5rem;
   font-weight: 700;
+  margin: 0;
 }
 
 .gdpr-section p {
   color: var(--text-muted);
-  max-width: 600px;
+  font-size: 1rem;
   line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .gdpr-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* Utilities */
@@ -1314,15 +1420,15 @@ body.scrolled .sticky-progress-container {
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
   transform: translateY(20px);
 }
-.scroll-reveal.visible {
+.scroll-reveal.visible { 
   opacity: 1 !important;
   transform: translateY(0);
 }
 
 .seo-col.full-width {
     grid-column: 1 / -1;
-    text-align: center;
-    max-width: 800px;
+    text-align: left;
+    width: 1140px;
     margin: 0 auto;
 }
 /* Ensure type targets are invisible until typed, unless we want them to fade in first.

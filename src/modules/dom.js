@@ -1,68 +1,68 @@
 // Cache DOM elements
 export const elements = {
-    dropZone: document.getElementById('drop-zone'),
-    fileInput: document.getElementById('file-input'),
-    fileList: document.getElementById('file-list'),
+    dropZone: $('#drop-zone'),
+    fileInput: $('#file-input'),
+    fileList: $('#file-list'),
     
     // Header Stickies
-    headerStats: document.querySelector('.header-sticky-stats'),
-    headerFilesCount: document.querySelector('.header-sticky-stats .files-count-display'),
-    headerTotalSaved: document.querySelector('.header-sticky-stats .total-saved-pill'),
-    headerDownloadBtn: document.getElementById('header-download-all'),
-    headerClearBtn: document.getElementById('header-clear-all'),
-    headerSizeStats: document.getElementById('header-size-stats'),
+    headerStats: $('.header-sticky-stats'),
+    headerFilesCount: $('.header-sticky-stats .files-count-display'),
+    headerTotalSaved: $('.header-sticky-stats .total-saved-pill'),
+    headerDownloadBtn: $('#header-download-all'),
+    headerClearBtn: $('#header-clear-all'),
+    headerSizeStats: $('#header-size-stats'),
     
     // Main Controls
-    downloadAllBtn: document.getElementById('download-all'), // Backup
-    clearAllBtn: document.getElementById('clear-all'), // Backup
-    qualityInput: document.getElementById('quality-slider'),
-    qualityValue: document.getElementById('quality-value'),
-    formatTabs: document.getElementById('format-tabs'),
-    formatSelect: document.getElementById('format-select'),
+    downloadAllBtn: $('#download-all'), // Backup
+    clearAllBtn: $('#clear-all'), // Backup
+    qualityInput: $('#quality-slider'),
+    qualityValue: $('#quality-value'),
+    formatTabs: $('#format-tabs'),
+    formatSelect: $('#format-select'),
 
     // Stats
-    filesCountSpan: document.getElementById('files-count'),
-    totalSavedSpan: document.getElementById('total-saved'),
+    filesCountSpan: $('#files-count'),
+    totalSavedSpan: $('#total-saved'),
     
     // Pie Chart
-    pieChart: document.getElementById('pie-chart'),
-    progressRing: document.getElementById('progress-ring'),
-    progressCircleOuter: document.getElementById('progress-circle-outer'),
-    progressCircleInner: document.getElementById('progress-circle-inner'),
-    pieMainText: document.getElementById('pie-main-text'),
-    pieSubText: document.getElementById('pie-sub-text'),
-    pieDefaultContent: document.getElementById('pie-default-content'),
-    pieActiveContent: document.getElementById('pie-active-content'),
-    stickyParsing: document.getElementById('sticky-parsing'),
-    stickyConversion: document.getElementById('sticky-conversion'),
-    stickySaved: document.getElementById('sticky-saved'),
+    pieChart: $('#pie-chart'),
+    progressRing: $('#progress-ring'),
+    progressCircleOuter: $('#progress-circle-outer'),
+    progressCircleInner: $('#progress-circle-inner'),
+    pieMainText: $('#pie-main-text'),
+    pieSubText: $('#pie-sub-text'),
+    pieDefaultContent: $('#pie-default-content'),
+    pieActiveContent: $('#pie-active-content'),
+    stickyParsing: $('#sticky-parsing'),
+    stickyConversion: $('#sticky-conversion'),
+    stickySaved: $('#sticky-saved'),
     
     // Stats Bar
-    dropInitial: document.getElementById('drop-initial'),
-    dropStats: document.getElementById('drop-stats'),
+    dropInitial: $('#drop-initial'),
+    dropStats: $('#drop-stats'),
 
     // Carousel
-    carouselSection: document.getElementById('carousel-section'),
-    carouselTrack: document.getElementById('carousel-track'),
-    carouselTrackContainer: document.getElementById('carousel-track-container'),
-    prevBtn: document.getElementById('prev-btn'),
-    nextBtn: document.getElementById('next-btn'),
+    carouselSection: $('#carousel-section'),
+    carouselTrack: $('#carousel-track'),
+    carouselTrackContainer: $('#carousel-track-container'),
+    prevBtn: $('#prev-btn'),
+    nextBtn: $('#next-btn'),
 
     // App Container
-    appContainer: document.querySelector('.app-container'),
-    scrollSentinel: document.getElementById('scroll-sentinel'),
+    appContainer: $('.app-container'),
+    scrollSentinel: $('#scroll-sentinel'),
 
     // Templates
-    fileItemTemplate: document.getElementById('file-item-template'),
-    carouselTemplate: document.getElementById('carousel-card-template'),
+    fileItemTemplate: $('#file-item-template'),
+    carouselTemplate: $('#carousel-card-template'),
     
     // Lightbox
-    lightbox: document.getElementById('lightbox'),
-    lightboxImg: document.getElementById('lightbox-img'),
-    lightboxCaption: document.getElementById('lightbox-caption'),
-    lightboxClose: document.getElementById('lightbox-close'),
-    lightboxNext: document.getElementById('lightbox-next'),
-    lightboxPrev: document.getElementById('lightbox-prev')
+    lightbox: $('#lightbox'),
+    lightboxImg: $('#lightbox-img'),
+    lightboxCaption: $('#lightbox-caption'),
+    lightboxClose: $('#lightbox-close'),
+    lightboxNext: $('#lightbox-next'),
+    lightboxPrev: $('#lightbox-prev')
 };
 
 // Aliases for backup buttons if needed

@@ -106,10 +106,10 @@ export function initTypewriter() {
     if (!h2 || !p) return;
 
     // Clear Header text for typing effect
-    const textH2 = h2.textContent;
-    const textP = p.textContent;
-    h2.textContent = '';
-    p.textContent = '';
+    const textH2 = h2.innerHTML;
+    const textP = p.innerHTML;
+    h2.innerHTML = '';
+    p.innerHTML = '';
     h2.classList.add('typewriter-cursor');
 
     // Pre-clear Info Cards to prevent FOUC
@@ -131,10 +131,25 @@ export function initTypewriter() {
     function typeLinePromise(element, text) {
         return new Promise(resolve => {
             let i = 0;
+            element.innerHTML = ''; // Clear before starting
+            
             function type() {
                 if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
+                    // Check if we are at an HTML tag
+                    if (text.charAt(i) === '<') {
+                        let tagEnd = text.indexOf('>', i);
+                        if (tagEnd !== -1) {
+                            element.innerHTML += text.substring(i, tagEnd + 1);
+                            i = tagEnd + 1;
+                        } else {
+                            element.innerHTML += text.charAt(i);
+                            i++;
+                        }
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                    }
+
                     if (text.charAt(i - 1) === ' ') setTimeout(type, 15);
                     else setTimeout(type, Math.random() * 3 + 2);
                 } else {

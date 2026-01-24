@@ -5,7 +5,8 @@ import { updateVisuals, drawRings, updateQualityDisplay, updateStats, createUiIt
 import { initLanguageSystem } from './modules/i18n.js';
 import { initParallax } from './modules/parallax.js';
 import { initAnalytics } from './modules/analytics.js';
-import { processCarouselBatch, updateCarouselScroll, initCarouselDocs, closeLightbox, nextImage, prevImage, resetCarouselSortFlag } from './modules/carousel.js';
+import { initScrollReveal } from './modules/scroll-reveal.js';
+import { updateCarouselScroll, initCarouselDocs, processCarouselBatch, resetCarouselSortFlag, closeLightbox, nextImage, prevImage } from './modules/carousel.js';
 import { downloadBlob } from './modules/utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,15 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialization
     const WORKER_COUNT = Math.max(2, (navigator.hardwareConcurrency || 4) - 1);
     
-    // Override state.initWorkers to pass message handler
-    // We need to bind the handler logic since it depends on UI Controller updates
-    // Actually worker-manager handles message and imports UI Controller functions.
-    // But we need to attach the event listener to the workers.
-    // In state.js we created workers but didn't attach listeners.
-    
     console.log(`Initializing ${WORKER_COUNT} workers...`);
     for (let i = 0; i < WORKER_COUNT; i++) {
-        // Use URL-based resolution relative to this module (app.js)
         const worker = new Worker(new URL('./worker.js', import.meta.url)); 
         worker.onmessage = (e) => handleWorkerMessage(i, e);
         state.workers.push(worker);
@@ -38,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageSystem();
     initAnalytics();
     initCarouselDocs();
+    initScrollReveal();
 
     // Start UI Loop
     requestAnimationFrame(renderLoop);

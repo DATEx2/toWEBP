@@ -90,22 +90,43 @@ async function detectLanguage() {
 export function initTypewriter() {
     const h2 = document.querySelector('.hero-section h2');
     const p = document.querySelector('.hero-section p');
-
-    if (!h2 || !p) return;
-
+    
+    // Elements to reveal after hero text finishes
     const finalRevealElements = document.querySelectorAll('.drop-zone, .info-section');
-    p.style.opacity = '1'; 
+    
+    // Ensure initial state is hidden to prevent FOUC (though HTML should have opacity:0 too)
+    if (p) p.style.opacity = '1'; 
     finalRevealElements.forEach(e => {
+        // We set this here in case HTML inline style is missing, 
+        // but ideally HTML should have it to avoid any flash.
         e.style.opacity = '0';
         e.style.transition = 'opacity 0.8s ease-out';
     });
 
+    if (!h2 || !p) return;
+
+    // Clear Header text for typing effect
     const textH2 = h2.textContent;
     const textP = p.textContent;
-
     h2.textContent = '';
     p.textContent = '';
     h2.classList.add('typewriter-cursor');
+
+    // Pre-clear Info Cards to prevent FOUC
+    // Store text in dataset to retrieve later
+    const cards = document.querySelectorAll('.info-card');
+    cards.forEach(card => {
+        const h3 = card.querySelector('h3');
+        const p = card.querySelector('p');
+        if(h3) {
+            h3.dataset.text = h3.textContent;
+            h3.textContent = '';
+        }
+        if(p) {
+            p.dataset.text = p.textContent;
+            p.textContent = '';
+        }
+    });
 
     function typeLinePromise(element, text) {
         return new Promise(resolve => {
@@ -128,17 +149,20 @@ export function initTypewriter() {
         h2.classList.add('typewriter-cursor');
         p.classList.add('typewriter-cursor');
 
+        // Reveal Drop Zone
         const dropZone = document.querySelector('.drop-zone');
         if (dropZone) dropZone.style.opacity = '1';
         
+        // Reveal Info Section after a delay
         setTimeout(() => {
             const infoSection = document.querySelector('.info-section');
             if (infoSection) {
-                infoSection.style.opacity = '1';
+                setTimeout(t=>infoSection.style.opacity = '1', 100);
                 startInfoCardsTyping();
             }
-        }, 1000);
+        }, 10);
 
+        // Start typing Header
         Promise.all([
             typeLinePromise(h2, textH2).then(() => h2.classList.remove('typewriter-cursor')),
             typeLinePromise(p, textP).then(() => p.classList.remove('typewriter-cursor'))
@@ -149,22 +173,22 @@ export function initTypewriter() {
         const cards = document.querySelectorAll('.info-card');
         const typeHelper = (element, text) => typeLinePromise(element, text);
 
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                const h3 = card.querySelector('h3');
-                const p = card.querySelector('p');
-                if (!h3 || !p) return;
+        cards.forEach((card) => {
+             // Parallel typing for all cards - no index delay
+            const h3 = card.querySelector('h3');
+            const p = card.querySelector('p');
+            if (!h3 || !p) return;
 
-                const h3Text = h3.textContent;
-                const pText = p.textContent;
+            // Retrieve stored text
+            const h3Text = h3.dataset.text || '';
+            const pText = p.dataset.text || '';
 
-                h3.textContent = '';
-                p.textContent = '';
-                h3.style.visibility = 'visible';
-                p.style.visibility = 'visible';
+            h3.style.visibility = 'visible';
+            p.style.visibility = 'visible';
 
-                typeHelper(h3, h3Text).then(() => typeHelper(p, pText));
-            }, index * 400);
+            // Type title and paragraph in parallel for speed
+            typeHelper(h3, h3Text);
+            typeHelper(p, pText);
         });
     }
 }

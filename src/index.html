@@ -3,10 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToWebP - Client-Side Image Converter to WEBP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ToWebP - Free & Secure Client-Side Image to WebP Converter</title>
+    <meta name="description" content="Convert PNG, JPG, JPEG images to WebP instantly and securely in your browser. 100% private, no file uploads, and free to use.">
+    <meta name="keywords" content="webp converter, image to webp, png to webp, jpg to webp, free image converter, secure image converter, client side converter, privacy focused, offline image converter">
+    <meta name="author" content="ToWebP">
+    <link rel="canonical" href="https://towebp.dev/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://towebp.dev/">
+    <meta property="og:title" content="ToWebP - Free & Secure Client-Side Image to WebP Converter">
+    <meta property="og:description" content="Convert your images to WebP instantly in your browser. 100% privacy maintained—no files are uploaded to any server. Fast, free, and secure.">
+    <meta property="og:image" content="https://towebp.dev/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://towebp.dev/">
+    <meta property="twitter:title" content="ToWebP - Free & Secure Client-Side Image to WebP Converter">
+    <meta property="twitter:description" content="Convert your images to WebP instantly in your browser. 100% privacy maintained—no files are uploaded to any server. Fast, free, and secure.">
+    <meta property="twitter:image" content="https://towebp.dev/og-image.png">
+
+    <!-- Structured Data (JSON-LD) for AI Search -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ToWebP",
+      "url": "https://towebp.dev/",
+      "description": "A secure, client-side image converter that transforms images (PNG, JPG, etc.) to WebP format directly in your browser without uploading files to any server.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any web browser",
+      "browserRequirements": "Requires JavaScript",
+      "softwareVersion": "1.0",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Client-side conversion",
+        "100% Privacy - No uploads",
+        "Batch processing",
+        "WebP, PNG, JPEG, AVIF support",
+        "Offline capable"
+      ],
+      "screenshot": "https://towebp.dev/og-image.png",
+      "author": {
+        "@type": "Organization",
+        "name": "ToWebP"
+      }
+    }
+    </script>
+
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -169,7 +217,7 @@
                 <p data-i18n="hero_subtitle">Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
             </div>
 
-            <div id="drop-zone" class="drop-zone">
+            <div id="drop-zone" class="drop-zone" style="opacity: 0;">
                 <div class="drop-content">
                     <!-- Initial View -->
                     <div id="drop-initial" class="hidden">
@@ -268,27 +316,145 @@
         </main>
     </div>
     
-    <div class="info-section">
+    <div class="info-section" style="opacity: 0;">
         <div class="info-grid">
             <div class="info-card">
-                <h3 data-i18n="feature_1_title">🚀 Fast & Secure</h3>
-                <p data-i18n="feature_1_desc">All conversions happen locally on your device. Your images never leave your computer, ensuring 100% privacy.</p>
+                <div class="icon-wrapper">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 data-i18n="feature_secure_title">100% Secure & Private</h3>
+                <p data-i18n="feature_secure_desc">Unlike towebp.io and others, we run <strong>locally</strong>. Your images strictly never leave your device. No cloud uploads, no server storage, zero privacy risk.</p>
             </div>
             <div class="info-card">
-                <h3 data-i18n="feature_2_title">📉 Smart Compression</h3>
-                <p data-i18n="feature_2_desc">Reduce file size by up to 80% without visible quality loss. WebP is the modern standard for lighter websites.</p>
+                <div class="icon-wrapper">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 data-i18n="feature_fast_title">Blazing Fast</h3>
+                <p data-i18n="feature_fast_desc">Utilize your computer's full power. Batch convert hundreds of JPEG, PNG, or AVIF images to WebP in seconds—faster than any server-side converter.</p>
             </div>
             <div class="info-card">
-                <h3 data-i18n="feature_3_title">⚡ Batch Process</h3>
-                <p data-i18n="feature_3_desc">Convert hundreds of images in seconds using multi-core processing. Drag, drop, and done.</p>
+                <div class="icon-wrapper">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 4L12 14.01l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 data-i18n="feature_smart_title">Smart Optimization</h3>
+                <p data-i18n="feature_smart_desc">Reduce file size by up to 80% while maintaining visual quality. Perfect for improving Core Web Vitals and SEO rankings for your own website.</p>
             </div>
         </div>
-        
-        <div class="seo-description">
-            <h3 data-i18n="why_use_title">Why use ToWebP?</h3>
-            <p data-i18n="why_use_p1">ToWebP is a privacy-first image converter that runs entirely in your browser. Unlike other online converters, we do not upload your images to any server. This means your photos, designs, and documents remain 100% confidential and never leave your device.</p>
-            <p data-i18n="why_use_p2">No Cookies, No Tracking. We believe in a clean and fast web. This site does not use persistent cookies or trackers, so you won't be pestered by consent banners. Just drag, drop, and convert with zero traces left behind.</p>
+
+        <div class="seo-content-block">
+            <div class="how-it-works scroll-reveal">
+                <h2 data-i18n="howto_title" class="type-target">How to Convert Images to WebP</h2>
+                <ol class="steps-list">
+                    <li class="step-item">
+                        <span class="step-number">1</span>
+                        <div class="step-text">
+                            <h3 data-i18n="step_1_title" class="type-target">Upload or Drag & Drop</h3>
+                            <p data-i18n="step_1_desc" class="type-target">Select your PNG, JPEG, or JPG images and drop them into the converter area.</p>
+                        </div>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-number">2</span>
+                        <div class="step-text">
+                            <h3 data-i18n="step_2_title" class="type-target">Automatic Conversion</h3>
+                            <p data-i18n="step_2_desc" class="type-target">ToWebP instantly processes your files locally using advanced browser technology.</p>
+                        </div>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-number">3</span>
+                        <div class="step-text">
+                            <h3 data-i18n="step_3_title" class="type-target">Download & Save</h3>
+                            <p data-i18n="step_3_desc" class="type-target">Download your optimized WebP files individually or as a ZIP archive.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="seo-text-columns scroll-reveal">
+                <div class="seo-col">
+                    <h3 data-i18n="seo_comp_title" class="type-target">Why Choose ToWebP vs Others?</h3>
+                    <p data-i18n="seo_comp_desc" class="type-target">Many converters like towebp.io upload your sensitive photos to a remote server. This creates a privacy risk and slows down the process with upload/download times. <strong>ToWebP</strong> operates differently: it's a Progressive Web App (PWA) that processes images directly in your browser memory. This means military-grade privacy (the data never touches the internet) and instant speeds.</p>
+                </div>
+                <div class="seo-col">
+                    <h3 data-i18n="seo_ranking_title" class="type-target">WebP for Better SEO</h3>
+                    <p data-i18n="seo_ranking_desc" class="type-target">Google explicitly favors fast-loading websites. Converting your PNGs and JPEGs to modern <strong>WebP format</strong> can significantly reduce page weight, improve LCP (Largest Contentful Paint), and boost your site's SEO ranking. ToWebP is the perfect tool for web developers and designers to bulk optimize assets.</p>
+                </div>
+            </div>
+
+            <div class="seo-text-columns scroll-reveal">
+                <div class="seo-col full-width">
+                    <h3 data-i18n="why_use_title" class="type-target">Why use ToWebP?</h3>
+                    <p data-i18n="why_use_p1" class="type-target">ToWebP is a privacy-first image converter that runs entirely in your browser. Unlike other online converters, we do not upload your images to any server. This means your photos, designs, and documents remain 100% confidential and never leave your device.</p>
+                    <p data-i18n="why_use_p2" class="type-target" style="margin-top: 1rem;">No Cookies, No Tracking. We believe in a clean and fast web. This site does not use persistent cookies or trackers, so you won't be pestered by consent banners. Just drag, drop, and convert with zero traces left behind.</p>
+                </div>
+            </div>
+
+            <div class="faq-section scroll-reveal">
+                <h2 data-i18n="faq_title" class="type-target">Frequently Asked Questions</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h4 data-i18n="faq_1_q" class="type-target">Is my data safe?</h4>
+                        <p data-i18n="faq_1_a" class="type-target">Yes, 100%. Unlike other converters, ToWebP runs client-side. Your images never leave your computer.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 data-i18n="faq_2_q" class="type-target">Can I convert images offline?</h4>
+                        <p data-i18n="faq_2_a" class="type-target">Absolutely. ToWebP is PWA-enabled. You can install it and use it without an internet connection.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 data-i18n="faq_3_q" class="type-target">What formats are supported?</h4>
+                        <p data-i18n="faq_3_a" class="type-target">We support converting from JPG, JPEG, PNG, BMP, and GIF (static) to WebP format.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 data-i18n="faq_4_q" class="type-target">Is it free?</h4>
+                        <p data-i18n="faq_4_a" class="type-target">Yes, ToWebP is completely free with no daily limits or watermarks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gdpr-section scroll-reveal">
+                <div class="gdpr-badge">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981"/><path d="M9 12l2 2 4-4" stroke="#10b981"/></svg>
+                </div>
+                <h3 data-i18n="gdpr_title" class="type-target">100% GDPR Compliant & Worry Free</h3>
+                <p data-i18n="gdpr_desc" class="type-target">No Tracing. No Cookies. No Local Storage spying. We respect your User Rights by design. ToWebP is a pure utility tool that does one thing well without collecting a single byte of your data.</p>
+            </div>
         </div>
+
+        <!-- FAQ Structured Data -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [{
+            "@type": "Question",
+            "name": "Is my data safe using ToWebP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, 100%. Unlike other converters, ToWebP runs client-side. Your images never leave your computer."
+            }
+          }, {
+            "@type": "Question",
+            "name": "Can I convert images to WebP offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. ToWebP is PWA-enabled. You can install it and use it without an internet connection."
+            }
+          }, {
+            "@type": "Question",
+            "name": "Is ToWebP free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, ToWebP is completely free with no daily limits, no hidden fees, and no watermarks."
+            }
+          }, {
+            "@type": "Question",
+            "name": "Does ToWebP upload my images?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. All conversions happen locally in your browser to ensure maximum privacy and speed."
+            }
+          }]
+        }
+        </script>
     </div>
     
     <!-- Template for file item -->

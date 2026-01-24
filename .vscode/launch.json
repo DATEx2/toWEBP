@@ -5,7 +5,7 @@
             "name": "Debug ToWebP (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "http://localhost:8787",
+            "url": "https://towebp.datex2.bike",
             "webRoot": "${workspaceFolder}/src",
             "sourceMapPathOverrides": {
                 "webpack:///./*": "${webRoot}/*"

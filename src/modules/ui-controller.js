@@ -154,6 +154,35 @@ export function updateVisuals() {
                 const dlBtn = row.querySelector('.download-btn');
                 dlBtn.disabled = false;
                 dlBtn.onclick = () => downloadBlob(update.blob, update.newName);
+
+                // Update Card Actions - find the card
+                const card = document.getElementById(`carousel-${update.id}`);
+                if (card) {
+                    const acts = card.querySelector('.card-actions');
+                    if (acts) {
+                        // Clear existing (if any) and add Download
+                        acts.innerHTML = '';
+                        const btn = document.createElement('button');
+                        btn.className = 'card-action-btn'; // Use specific class instead of generic
+                        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16L12 8M12 16L9 13M12 16L15 13M19 21H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                        btn.title = (window.i18n && window.i18n.t('download')) || 'Download';
+                        btn.onclick = (e) => {
+                            e.stopPropagation();
+                            downloadBlob(update.blob, update.newName);
+                        };
+                        acts.appendChild(btn);
+                    }
+                    
+                    // Update Status Icon
+                    const overlay = card.querySelector('.card-status-overlay');
+                    const icon = card.querySelector('.status-icon');
+                    if (icon) {
+                         icon.className = 'status-icon success';
+                         icon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17L4 12"/></svg>`;
+                    }
+                    if (overlay) overlay.classList.add('done');
+                    card.classList.remove('pending');
+                }
             } else {
                 row.querySelector('.badge').textContent = 'Error';
             }
@@ -182,30 +211,31 @@ export function updateStats() {
             const totalNew = state.totalNewSize;
             const isDone = state.completed.size === state.totalFilesCount && state.totalFilesCount > 0 && state.queue.length === 0;
 
+            let mainText = '';
+            let subHtml = '';
+
             if (isDone) {
                 // Final completion message
-                elements.pieMainText.textContent = `${formatSize(processedInput)} → ${formatSize(totalNew)}`;
-                if (elements.pieSubText) {
-                    if (savedTotal > 0) {
-                        const savedPercent = Math.round((savedTotal / processedInput) * 100);
-                        elements.pieSubText.innerHTML = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> (${formatSize(savedTotal)} ${t('saved')})`;
-                    } else if (savedTotal < 0) {
-                        // File got bigger - show warning
-                        const increasePercent = Math.round((Math.abs(savedTotal) / processedInput) * 100);
-                        elements.pieSubText.innerHTML = `<span style="color: var(--warning); font-weight: 600;">+${increasePercent}%</span> (${formatSize(Math.abs(savedTotal))} larger)`;
-                    } else {
-                        // Same size
-                        elements.pieSubText.innerHTML = `<span style="color: var(--text-muted);">Same size</span>`;
-                    }
+                mainText = `${formatSize(processedInput)} → ${formatSize(totalNew)}`;
+                
+                if (savedTotal > 0) {
+                    const savedPercent = Math.round((savedTotal / processedInput) * 100);
+                    subHtml = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> (${formatSize(savedTotal)} ${t('saved')})`;
+                } else if (savedTotal < 0) {
+                    // File got bigger - show warning
+                    const increasePercent = Math.round((Math.abs(savedTotal) / processedInput) * 100);
+                    subHtml = `<span style="color: var(--warning); font-weight: 600;">+${increasePercent}%</span> (${formatSize(Math.abs(savedTotal))} larger)`;
+                } else {
+                    // Same size
+                    subHtml = `<span style="color: var(--text-muted);">Same size</span>`;
                 }
-                return; // Don't overwrite with in-progress text
             } else {
                 // In-progress message
-                elements.pieMainText.textContent = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
+                mainText = `${formatSize(processedInput)} / ${formatSize(totalInput)}`;
                 
                 // Sub-text during processing
-                if (state.totalNewSize > 0 && savedTotal > 0 && elements.pieSubText) {
-                    let subHtml = `${t('total_saved_prefix')} ${savedStr}`;
+                if (state.totalNewSize > 0 && savedTotal > 0) {
+                    subHtml = `${t('total_saved_prefix')} ${savedStr}`;
                     if (state.lastRunLookup && state.lastRunLookup.size > 0) {
                         const diffSize = state.sessionDiff || 0;
                         if (diffSize !== 0) {
@@ -215,38 +245,83 @@ export function updateStats() {
                             subHtml += ` <span class="${colorClass}">(${sign}${diffStr})</span>`;
                         }
                     }
-                    elements.pieSubText.innerHTML = subHtml;
-                } else if (state.queue.length > 0 && elements.pieSubText) {
-                    elements.pieSubText.innerHTML = t('starting');
+                } else if (state.queue.length > 0) {
+                    subHtml = t('starting');
                 }
             }
+
+            // ONLY update DOM if changed to prevent DevTools flashing / layout thrashing
+            if (elements.pieMainText.textContent !== mainText) {
+                elements.pieMainText.textContent = mainText;
+            }
+            if (elements.pieSubText && elements.pieSubText.innerHTML !== subHtml) {
+                elements.pieSubText.innerHTML = subHtml;
+            }
+
         } else {
-            elements.pieMainText.textContent = t('processing');
+            const processingText = t('processing');
+            if (elements.pieMainText.textContent !== processingText) {
+                elements.pieMainText.textContent = processingText;
+            }
         }
     }
     
     // Global Labels
     const count = state.completed.size;
-    if (elements.filesCountSpan) elements.filesCountSpan.textContent = `${count} file${count !== 1 ? 's' : ''} converted`;
+    const countText = `${count} file${count !== 1 ? 's' : ''} converted`;
+    if (elements.filesCountSpan && elements.filesCountSpan.textContent !== countText) {
+        elements.filesCountSpan.textContent = countText;
+    }
     
-    if (elements.downloadAllBtn) elements.downloadAllBtn.disabled = count === 0;
+    if (elements.downloadAllBtn) {
+        const shouldDisable = count === 0;
+        if (elements.downloadAllBtn.disabled !== shouldDisable) elements.downloadAllBtn.disabled = shouldDisable;
+    }
 
     const savedTextLabel = savedTotal > 0 ? `Saved ${formatSize(savedTotal)}` : '';
-    if (elements.totalSavedSpan) {
+    if (elements.totalSavedSpan && elements.totalSavedSpan.textContent !== savedTextLabel) {
         elements.totalSavedSpan.textContent = savedTextLabel;
-        elements.totalSavedSpan.style.display = savedTotal > 0 ? 'inline' : 'none';
+        const displayVal = savedTotal > 0 ? 'inline' : 'none';
+        if (elements.totalSavedSpan.style.display !== displayVal) elements.totalSavedSpan.style.display = displayVal;
     }
 
     // Sticky Headers
-    if (elements.headerFilesCount) elements.headerFilesCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
-    if (elements.headerTotalSaved) elements.headerTotalSaved.textContent = savedTextLabel;
-    if (elements.headerSizeStats) elements.headerSizeStats.textContent = `${formatSize(state.totalNewSize)} / ${formatSize(state.totalOriginalSize)}`;
-    if (elements.headerDownloadBtn) elements.headerDownloadBtn.disabled = count === 0;
+    if (elements.headerFilesCount && elements.headerFilesCount.textContent !== (count + (count !== 1 ? ' files' : ' file'))) {
+       // logic above used 'file'/'files' but here simplifying check
+       elements.headerFilesCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
+    }
+    if (elements.headerTotalSaved && elements.headerTotalSaved.textContent !== savedTextLabel) {
+        elements.headerTotalSaved.textContent = savedTextLabel;
+    }
+    
+    const sizeStats = `${formatSize(state.totalNewSize)} / ${formatSize(state.totalOriginalSize)}`;
+    if (elements.headerSizeStats && elements.headerSizeStats.textContent !== sizeStats) {
+        elements.headerSizeStats.textContent = sizeStats;
+    }
+    
+    if (elements.headerDownloadBtn) {
+         const shouldDisable = count === 0;
+         if (elements.headerDownloadBtn.disabled !== shouldDisable) elements.headerDownloadBtn.disabled = shouldDisable;
+    }
 
     if (elements.headerStats) {
         const isDone = state.completed.size > 0 && state.queue.length === 0 && state.processing.size === 0;
-        if (isDone) elements.headerStats.classList.add('visible');
-        else elements.headerStats.classList.remove('visible');
+        
+        if (isDone) {
+            if (!elements.headerStats.classList.contains('visible')) {
+                elements.headerStats.classList.add('visible');
+            }
+            // Show Actions
+            if (elements.headerDownloadBtn) elements.headerDownloadBtn.style.display = 'inline-flex';
+            if (elements.headerClearBtn) elements.headerClearBtn.style.display = 'inline-flex';
+        } else {
+            if (elements.headerStats.classList.contains('visible')) {
+                elements.headerStats.classList.remove('visible');
+            }
+            // Hide Actions
+            if (elements.headerDownloadBtn) elements.headerDownloadBtn.style.display = 'none';
+            if (elements.headerClearBtn) elements.headerClearBtn.style.display = 'none';
+        }
     }
 }
 

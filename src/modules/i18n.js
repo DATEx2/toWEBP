@@ -161,37 +161,53 @@ export function initTypewriter() {
 
     if (!h2 || !p) return;
 
-    // Clear Header text for typing effect
-    const textH2 = h2.innerHTML;
-    const textP = p.innerHTML;
+    function getTranslatedText(element, fallbackKey) {
+        const key = element.getAttribute('data-i18n') || fallbackKey;
+        if (!key) return element.innerHTML;
+
+        if (window.i18n && window.translations) {
+            const currentLang = window.i18n.getCurrentLang ? window.i18n.getCurrentLang() : 'en';
+            const translation = window.translations[currentLang] ? window.translations[currentLang][key] : null;
+            
+            if (translation) {
+                return translation;
+            } else {
+                console.warn(`[i18n] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
+            }
+        }
+        return element.innerHTML;
+    }
+
+    // Capture text from translations (priority) or HTML (fallback)
+    const textH2 = getTranslatedText(h2, 'hero_title');
+    const textP = getTranslatedText(p, 'hero_subtitle');
+    
     h2.innerHTML = '';
     p.innerHTML = '';
     h2.classList.add('typewriter-cursor');
 
-    // Pre-clear Info Cards to prevent FOUC
-    // Store text in dataset to retrieve later
+    // Pre-clear Info Cards and store their translated text
     const cards = document.querySelectorAll('.info-card');
     cards.forEach(card => {
         const h3 = card.querySelector('h3');
-        const p = card.querySelector('p');
+        const pTag = card.querySelector('p');
         if(h3) {
-            h3.dataset.text = h3.textContent;
+            h3.dataset.text = getTranslatedText(h3);
             h3.textContent = '';
         }
-        if(p) {
-            p.dataset.text = p.textContent;
-            p.textContent = '';
+        if(pTag) {
+            pTag.dataset.text = getTranslatedText(pTag);
+            pTag.textContent = '';
         }
     });
 
     function typeLinePromise(element, text) {
         return new Promise(resolve => {
             let i = 0;
-            element.innerHTML = ''; // Clear before starting
+            element.innerHTML = ''; 
             
             function type() {
                 if (i < text.length) {
-                    // Check if we are at an HTML tag
                     if (text.charAt(i) === '<') {
                         let tagEnd = text.indexOf('>', i);
                         if (tagEnd !== -1) {

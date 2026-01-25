@@ -717,7 +717,10 @@ if (typeof module !== 'undefined' && module.exports) {
             currentLang = lang;
             const t = translations[lang];
             
-            // Update all elements with data-i18n attribute
+            // 1. Update HTML lang attribute
+            document.documentElement.lang = lang;
+
+            // 2. Update all elements with data-i18n attribute
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
@@ -725,86 +728,25 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             });
             
-            // Update specific elements by ID or class
-            const updates = {
-                // Hero section
-                '.hero-section h2': t.hero_title,
-                '.hero-section p': t.hero_subtitle,
-                
-                // Drop zone
-                '.drop-zone h3': t.drag_drop,
-                '.drop-zone p': t.click_browse,
-                
-                // Info cards
-                '.info-card:nth-child(1) h3': t.feature_secure_title,
-                '.info-card:nth-child(1) p': t.feature_secure_desc,
-                '.info-card:nth-child(2) h3': t.feature_fast_title,
-                '.info-card:nth-child(2) p': t.feature_fast_desc,
-                '.info-card:nth-child(3) h3': t.feature_smart_title,
-                '.info-card:nth-child(3) p': t.feature_smart_desc,
-                
-                // How-to section
-                '.how-to-section h2': t.howto_title,
-                '.step:nth-child(1) h3': t.step_1_title,
-                '.step:nth-child(1) p': t.step_1_desc,
-                '.step:nth-child(2) h3': t.step_2_title,
-                '.step:nth-child(2) p': t.step_2_desc,
-                '.step:nth-child(3) h3': t.step_3_title,
-                '.step:nth-child(3) p': t.step_3_desc,
-                
-                // SEO sections
-                '.seo-comparison h2': t.seo_comp_title,
-                '.seo-comparison p': t.seo_comp_desc,
-                '.seo-ranking h2': t.seo_ranking_title,
-                '.seo-ranking p': t.seo_ranking_desc,
-                
-                // FAQ
-                '.faq-section h2': t.faq_title,
-                '.faq-item:nth-child(1) .faq-question': t.faq_1_q,
-                '.faq-item:nth-child(1) .faq-answer': t.faq_1_a,
-                '.faq-item:nth-child(2) .faq-question': t.faq_2_q,
-                '.faq-item:nth-child(2) .faq-answer': t.faq_2_a,
-                '.faq-item:nth-child(3) .faq-question': t.faq_3_q,
-                '.faq-item:nth-child(3) .faq-answer': t.faq_3_a,
-                '.faq-item:nth-child(4) .faq-question': t.faq_4_q,
-                '.faq-item:nth-child(4) .faq-answer': t.faq_4_a,
-                
-                // Why use section
-                '.why-use-section h2': t.why_use_title,
-                '.why-use-section p:first-of-type': t.why_use_p1,
-                '.why-use-section p:last-of-type': t.why_use_p2,
-                
-                // GDPR section
-                '.gdpr-section h2': t.gdpr_title,
-                '.gdpr-section p': t.gdpr_desc,
-                
-                // Buttons
-                '#download-zip-btn': t.download_zip,
-                '#clear-btn': t.clear,
-                '.buy-coffee': t.buy_coffee
-            };
-            
-            Object.keys(updates).forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(el => {
-                    if (el && updates[selector]) {
-                        el.innerHTML = updates[selector];
-                    }
-                });
-            });
-            
-            // Update page title
+            // 3. Update page title
             if (t.hero_title) {
                 const titleText = t.hero_title.replace(/<[^>]*>/g, '');
                 document.title = `${titleText} - toWebP.dev`;
             }
             
-            // Update meta description
+            // 4. Update meta description
             const metaDesc = document.querySelector('meta[name="description"]');
             if (metaDesc && t.hero_subtitle) {
                 const descText = t.hero_subtitle.replace(/<[^>]*>/g, '').substring(0, 160);
                 metaDesc.setAttribute('content', descText);
             }
+
+            // 5. Update Open Graph tags for social media
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle && t.hero_title) ogTitle.setAttribute('content', t.hero_title.replace(/<[^>]*>/g, ''));
+            
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc && t.hero_subtitle) ogDesc.setAttribute('content', t.hero_subtitle.replace(/<[^>]*>/g, ''));
         },
         
         t: function(key) {

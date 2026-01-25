@@ -153,7 +153,7 @@
         <div class="header-right-group" style="display: flex; align-items: center; gap: 1rem;">
 
             <div class="header-sticky-stats">
-                <div class="stat-item">
+                <div class="stat-item" style="display: none;">
                     <span data-i18n="total_saved_header">Total Saved: </span>
                     <span class="total-saved-pill">0 B</span>
                 </div>
@@ -254,25 +254,101 @@
         <div id="scroll-sentinel" style="position: absolute; top: 1px; height: 1px; width: 1px; pointer-events: none;"></div>
 
         <main>
+            <div id="drop-zone" class="drop-zone" style="opacity: 0;">
+                <div class="drop-content">
+                    <!-- Initial View -->
+                    <div id="drop-initial" class="hidden">
+                        <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z"
+                                stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        <h2 data-i18n="drag_drop_images">Drag & Drop images here</h2>
+                        <p data-i18n="click_browse_p">or click to browse</p>
+                    </div>
+
+                    <!-- Stats View (Pie Chart) -->
+                    <div id="drop-stats">
+                        <div class="pie-chart-wrapper large" style="position: relative;">
+                            <!-- Progress Rings (Dual SVG Speedometer) -->
+                            <div id="progress-ring" class="progress-ring-svg-container" style="position:absolute; inset:0; z-index:10;">
+                                <svg width="240" height="240" viewBox="0 0 240 240" style="transform: rotate(-90deg); overflow: visible;">
+                                    <!-- Filter applied via CSS class if needed -->
+                                    <defs>
+                                        <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+
+                                    <!-- Outer Track (Processing) -->
+                                    <circle cx="120" cy="120" r="116" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
+                                    <!-- Inner Track (Parsing) -->
+                                    <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
+
+                                    <!-- Outer Ring: Processing (Green) -->
+                                    <!-- Circumference = 2*PI*116 ≈ 729 -->
+                                    <circle id="progress-circle-outer" cx="120" cy="120" r="116" fill="none" stroke="var(--primary)" stroke-width="4"
+                                        stroke-linecap="round" stroke-dasharray="729" stroke-dashoffset="729"
+                                        style="will-change: stroke-dashoffset;" />
+
+                                    <!-- Inner Ring: Parsing (Yellow) -->
+                                    <!-- Circumference = 2*PI*108 ≈ 678 -->
+                                    <circle id="progress-circle-inner" cx="120" cy="120" r="108" fill="none" stroke="#eab308" stroke-width="4"
+                                        stroke-linecap="round" stroke-dasharray="678" stroke-dashoffset="678"
+                                        style="will-change: stroke-dashoffset;" />
+                                </svg>
+                            </div>
+
+                            <!-- Pie Chart (Content) - Relative Overlay -->
+                            <div id="pie-chart" class="pie-chart" style="--p:0deg;">
+                                <div class="pie-center-text">
+                                    <div id="pie-default-content"
+                                        style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;">
+                                        <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path
+                                                d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z"
+                                                stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        <span data-i18n="drag_drop">Drag & Drop</span>
+                                        <small data-i18n="click_browse">or click to browse</small>
+                                    </div>
+
+                                    <!-- Processing State -->
+                                    <div id="pie-processing-content" class="hidden"
+                                        style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                        <div class="stat-main-text" id="pie-main-text">0 / 0</div>
+                                        <div class="stat-sub-text" id="pie-sub-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="file" id="file-input" multiple accept="image/*" hidden>
+                </div>
+            </div>
+
             <div class="hero-section">
                 <h2 data-i18n="hero_title">The best & fastest way to convert your images to WebP</h2>
+                <p data-i18n="hero_subtitle">Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
                 <div class="bmc-container">
                     <a href="https://buymeacoffee.com/towebp.dev" target="_blank" rel="noopener noreferrer" class="bmc-link">
                         <span class="coffee-icon">☕</span>
                         <span data-i18n="buy_coffee" style="font-weight:600; font-size: 0.9rem;">Buy me a coffee</span>
                     </a>
                 </div>
-                <p data-i18n="hero_subtitle">Client side, no upload needed - 100% privacy and 100% saved bandwidth</p>
             </div>
-
-            <div id="drop-zone" class="drop-zone" style="opacity: 0;">
-                <div class="drop-content">
-                    <!-- Initial View -->
-                    <div id="drop-initial" class="hidden">
-                        <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             <path
                                 d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z"
                                 stroke="currentColor" stroke-width="2" />

@@ -1442,6 +1442,7 @@ body.scrolled .sticky-progress-container {
     height: auto !important;
     gap: 0;
     align-items: flex-start;
+    border-radius: 0 !important; /* Fix gap artifact */
   }
 
   .logo { 

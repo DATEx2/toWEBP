@@ -184,7 +184,7 @@ body {
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255, 255, 255, 0.5);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
+  width: calc(100% - 2rem);
 }
 
 body.expanded .app-container {
@@ -264,9 +264,10 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  min-height: 70px;
+  height: auto;
   padding: 0 1.5rem;
-  max-width: 1200px;
+  max-width: 1240px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -1421,8 +1422,8 @@ body.scrolled .sticky-progress-container {
   .lang-menu-list { grid-template-columns: 1fr 1fr; }
   .info-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   
-  .app-container { margin-top: 100px; }
-  body.expanded .app-container { margin-top: 360px; }
+  .app-container { margin-top: 80px; width: calc(100% - 1rem); }
+  body.expanded .app-container { margin-top: 380px; }
   
   main { padding: 1.5rem; }
   .drop-zone { padding: 1.5rem; }
@@ -1433,40 +1434,45 @@ body.scrolled .sticky-progress-container {
 }
 
 @media (max-width: 640px) {
-  header { flex-direction: column; gap: 0.75rem; height: auto !important; padding: 0.75rem 1rem; }
+  header { flex-direction: column; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0; }
   .header-right-group { margin-left: 0; width: 100%; justify-content: center; flex-direction: column; gap: 0.75rem; }
-  .header-controls { justify-content: center; flex-wrap: wrap; width: 100%; }
+  .header-controls { justify-content: center; flex-wrap: wrap; width: 100%; gap: 0.5rem; }
   .logo { height: 40px; justify-content: center; width: 100%; }
-  body.expanded header { min-height: 320px; padding-top: 0.5rem; }
+  body.expanded header { min-height: 360px; padding-bottom: 1rem; }
   
-  .header-sticky-stats { width: 100%; justify-content: center; order: 2; padding: 0.25rem 0; }
+  .header-sticky-stats { width: 100%; justify-content: center; order: 2; padding: 0.5rem 0; flex-direction: column; opacity: 1; display: flex; transform: none; pointer-events: auto; }
+  body.scrolled .header-sticky-stats { transform: none; }
   
-  .format-tabs { height: 38px; }
-  .setting-group { height: 38px; padding: 0 0.75rem; }
-  input[type="range"] { width: 60px; }
+  .format-tabs { height: 38px; width: 100%; justify-content: center; }
+  .setting-group { height: 38px; padding: 0 0.75rem; width: 100%; justify-content: center; }
+  input[type="range"] { width: 100px; }
   
   .hero-section h2 { font-size: 1.5rem; }
   .hero-section h2::before, .hero-section h2::after { width: 10px; height: 10px; }
   
-  body.expanded .app-container { margin-top: 420px; }
+  .app-container { width: 100%; border-radius: 0; margin-top: 250px; }
+  body.expanded .app-container { margin-top: 500px; }
 }
 
 @media (max-width: 480px) {
-  .lang-menu { width: calc(100vw - 40px); right: -10px; }
+  .lang-menu { width: calc(100vw - 20px); right: -10px; position: fixed; top: 10px; left: 10px; height: calc(100vh - 20px); }
   .lang-menu-list { grid-template-columns: 1fr; }
   
-  .format-tab { padding: 0 8px; font-size: 0.75rem; }
+  .format-tab { padding: 0 4px; font-size: 0.7rem; }
   .setting-group label { font-size: 0.75rem; }
   
-  #progress-ring svg { width: 200px; height: 200px; }
-  .pie-chart { width: 160px; height: 160px; }
-  .pie-chart-wrapper.large { width: 200px; height: 200px; }
+  #progress-ring svg { width: 180px; height: 180px; }
+  .pie-chart { width: 140px; height: 140px; }
+  .pie-chart-wrapper.large { width: 180px; height: 180px; }
   
-  .stat-main-text { font-size: 1rem; }
-  .stat-sub-text { font-size: 0.75rem; }
+  .stat-main-text { font-size: 0.9rem; }
+  .stat-sub-text { font-size: 0.7rem; }
   
   .faq-grid { grid-template-columns: 1fr; }
   .seo-text-columns { grid-template-columns: 1fr; }
+  
+  .app-container { margin-top: 260px; }
+  body.expanded .app-container { margin-top: 520px; }
 }
 
 
@@ -1538,7 +1544,8 @@ body.scrolled .sticky-progress-container {
 .seo-col.full-width {
     grid-column: 1 / -1;
     text-align: left;
-    width: 1140px;
+    max-width: 1140px;
+    width: 100%;
     margin: 0 auto;
 }
 /* Ensure type targets are invisible until typed, unless we want them to fade in first.

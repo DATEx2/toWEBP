@@ -72,7 +72,7 @@
 </head>
 
 <body>
-    <svg style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; background: rgb(41, 5, 86);" xmlns="http://www.w3.org/2000/svg"
+    <svg class="bg" xmlns="http://www.w3.org/2000/svg"
         width="100%" height="100%" viewBox="292 108 1436 764" data-app="Xyris">
         <defs>
             <radialGradient id="radialGradient-f7bed18d-5a4b-43ba-b897-b04ef0a2390e">
@@ -130,18 +130,109 @@
             <div class="logo-text">
                 <h1 data-i18n="app_name">toWeb<span>P</span>.dev</h1>
             </div>
-            
-            <!-- Download Button in Header (near Logo) -->
-            <button id="header-download-all" class="btn-primary" style="display: none; margin-left: 1rem; padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+
+
+        </div>
+
+        <!-- Action Buttons Group (Direct Child for better mobile layout) -->
+        <div class="header-actions">
+            <!-- Download / Clear Buttons -->
+            <button id="header-clear-all" class="btn-text" style="display: none;">
+                <span data-i18n="clear">Clear</span>
+            </button>
+            <button id="header-download-all" class="btn-primary" style="display: none;">
                 <span data-i18n="download_zip">Download ZIP</span>
             </button>
-            <div id="clear-area" style="display: flex; justify-content: flex-start; padding: 1rem 0; max-width: 800px; margin: 0 auto; width: 100%;">
-                 <button id="header-clear-all" class="btn-text" style="display: none;">
-                    <span data-i18n="clear">Clear</span>
+            
+            <!-- Language Dropdown (Moved here) -->
+            <div class="lang-dropdown-wrapper">
+                <button id="lang-burger" class="lang-burger" aria-label="Select Language">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
                 </button>
+
+                <div id="lang-menu" class="lang-menu hidden">
+                    <div class="lang-menu-top">
+                        <h3 class="lang-menu-header" data-i18n="select_language">Select Language</h3>
+                        <button id="close-lang-menu-btn" class="lang-close-btn" aria-label="Close">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    <div class="lang-menu-list">
+                        <button class="lang-option" data-lang="en"><span class="fi fi-us"></span> English</button>
+                        <button class="lang-option" data-lang="ro"><span class="fi fi-ro"></span> Română</button>
+                        <button class="lang-option" data-lang="es"><span class="fi fi-es"></span> Español</button>
+                        <button class="lang-option" data-lang="fr"><span class="fi fi-fr"></span> Français</button>
+                        <button class="lang-option" data-lang="de"><span class="fi fi-de"></span> Deutsch</button>
+                        <button class="lang-option" data-lang="it"><span class="fi fi-it"></span> Italiano</button>
+                        <button class="lang-option" data-lang="pt"><span class="fi fi-pt"></span> Português</button>
+                        <button class="lang-option" data-lang="nl"><span class="fi fi-nl"></span> Nederlands</button>
+                        <button class="lang-option" data-lang="pl"><span class="fi fi-pl"></span> Polski</button>
+                        <button class="lang-option" data-lang="uk"><span class="fi fi-ua"></span> Українська</button>
+                        <button class="lang-option" data-lang="bg"><span class="fi fi-bg"></span> Български</button>
+                        <button class="lang-option" data-lang="el"><span class="fi fi-gr"></span> Ελληνικά</button>
+                        <button class="lang-option" data-lang="hu"><span class="fi fi-hu"></span> Magyar</button>
+                        <button class="lang-option" data-lang="ja"><span class="fi fi-jp"></span> 日本語</button>
+                        <button class="lang-option" data-lang="zh"><span class="fi fi-cn"></span> 中文</button>
+                        <button class="lang-option" data-lang="cs"><span class="fi fi-cz"></span> Čeština</button>
+                        <button class="lang-option" data-lang="da"><span class="fi fi-dk"></span> Dansk</button>
+                        <button class="lang-option" data-lang="sv"><span class="fi fi-se"></span> Svenska</button>
+                        <button class="lang-option" data-lang="fi"><span class="fi fi-fi"></span> Suomi</button>
+                        <button class="lang-option" data-lang="ru"><span class="fi fi-ru"></span> Русский</button>
+                        <button class="lang-option" data-lang="tr"><span class="fi fi-tr"></span> Türkçe</button>
+                        <button class="lang-option" data-lang="et"><span class="fi fi-ee"></span> Eesti</button>
+                        <button class="lang-option" data-lang="hr"><span class="fi fi-hr"></span> Hrvatski</button>
+                        <button class="lang-option" data-lang="is"><span class="fi fi-is"></span> Íslenska</button>
+                        <button class="lang-option" data-lang="lt"><span class="fi fi-lt"></span> Lietuvių</button>
+                        <button class="lang-option" data-lang="lv"><span class="fi fi-lv"></span> Latviešu</button>
+                        <button class="lang-option" data-lang="no"><span class="fi fi-no"></span> Norsk</button>
+                        <button class="lang-option" data-lang="sk"><span class="fi fi-sk"></span> Slovenčina</button>
+                        <button class="lang-option" data-lang="sl"><span class="fi fi-si"></span> Slovenščina</button>
+                        <button class="lang-option" data-lang="uk"><span class="fi fi-ua"></span> Українська</button>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="header-right-group">
+
+            <div class="header-controls">
+                <!-- Format Selection -->
+                <div class="format-tabs" id="format-tabs">
+                    <button class="format-tab active" data-format="webp">WebP</button>
+                    <button class="format-tab" data-format="jpeg">JPEG</button>
+                    <button class="format-tab" data-format="png">PNG</button>
+                    <button class="format-tab" data-format="avif">AVIF</button>
+                </div>
+
+                <!-- Quality Slider -->
+                <div class="setting-group">
+                    <label for="quality-slider" data-i18n="quality">Quality</label>
+                    <div class="range-wrapper">
+                        <input type="range" id="quality-slider" min="1" max="100" value="80">
+                        <span id="quality-value">80%</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="header-sticky-stats">
+            <div class="stat-item" style="display: none;">
+                <span data-i18n="total_saved_header">Total Saved: </span>
+                <span class="total-saved-pill">0 B</span>
+            </div>
+        </div>
+        <!-- Sticky Progress Bar (Initially Hidden) -->
+        <div class="sticky-progress-container">
+            <div class="sticky-bar-parsing" id="sticky-parsing"></div>
+            <div class="sticky-bar-conversion" id="sticky-conversion"></div>
+            <div class="sticky-bar-saved" id="sticky-saved"></div>
+            <div class="sticky-bar-saved-bg"></div>
+        </div>
         <div id="carousel-section" class="carousel-section hidden">
             <button class="nav-btn prev" id="prev-btn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -160,93 +251,6 @@
             </button>
         </div>
 
-        <div class="header-right-group" style="display: flex; align-items: center; gap: 1rem;">
-
-            <div class="header-sticky-stats">
-                <div class="stat-item" style="display: none;">
-                    <span data-i18n="total_saved_header">Total Saved: </span>
-                    <span class="total-saved-pill">0 B</span>
-                </div>
-                <!-- Actions moved -->
-            </div>
-
-            <div class="header-controls">
-                <!-- Format Selection -->
-                <!-- Format Selection -->
-                <div class="format-tabs" id="format-tabs">
-                    <button class="format-tab active" data-format="webp">WebP</button>
-                    <button class="format-tab" data-format="jpeg">JPEG</button>
-                    <button class="format-tab" data-format="png">PNG</button>
-                    <button class="format-tab" data-format="avif">AVIF</button>
-                </div>
-
-                <!-- Quality Slider -->
-                <div class="setting-group">
-                    <label for="quality-slider" data-i18n="quality">Quality</label>
-                    <div class="range-wrapper">
-                        <input type="range" id="quality-slider" min="1" max="100" value="80">
-                        <span id="quality-value">80%</span>
-                    </div>
-                </div>
-
-                <!-- Language Dropdown -->
-                <div class="lang-dropdown-wrapper">
-                    <button id="lang-burger" class="lang-burger" aria-label="Select Language">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                        </svg>
-                    </button>
-
-                    <div id="lang-menu" class="lang-menu hidden">
-                        <h3 class="lang-menu-header" data-i18n="select_language">Select Language</h3>
-                        <div class="lang-menu-list">
-                            <button class="lang-option" data-lang="en"><span class="fi fi-us"></span> English</button>
-                            <button class="lang-option" data-lang="ro"><span class="fi fi-ro"></span> Română</button>
-                            <button class="lang-option" data-lang="es"><span class="fi fi-es"></span> Español</button>
-                            <button class="lang-option" data-lang="fr"><span class="fi fi-fr"></span> Français</button>
-                            <button class="lang-option" data-lang="de"><span class="fi fi-de"></span> Deutsch</button>
-                            <button class="lang-option" data-lang="it"><span class="fi fi-it"></span> Italiano</button>
-                            <button class="lang-option" data-lang="pt"><span class="fi fi-pt"></span> Português</button>
-                            <button class="lang-option" data-lang="nl"><span class="fi fi-nl"></span> Nederlands</button>
-                            <button class="lang-option" data-lang="pl"><span class="fi fi-pl"></span> Polski</button>
-                            <button class="lang-option" data-lang="uk"><span class="fi fi-ua"></span> Українська</button>
-                            <button class="lang-option" data-lang="bg"><span class="fi fi-bg"></span> Български</button>
-                            <button class="lang-option" data-lang="el"><span class="fi fi-gr"></span> Ελληνικά</button>
-                            <button class="lang-option" data-lang="hu"><span class="fi fi-hu"></span> Magyar</button>
-                            <button class="lang-option" data-lang="ja"><span class="fi fi-jp"></span> 日本語</button>
-                            <button class="lang-option" data-lang="zh"><span class="fi fi-cn"></span> 中文</button>
-                            <button class="lang-option" data-lang="cs"><span class="fi fi-cz"></span> Čeština</button>
-                            <button class="lang-option" data-lang="da"><span class="fi fi-dk"></span> Dansk</button>
-                            <button class="lang-option" data-lang="sv"><span class="fi fi-se"></span> Svenska</button>
-                            <button class="lang-option" data-lang="fi"><span class="fi fi-fi"></span> Suomi</button>
-                            <button class="lang-option" data-lang="ru"><span class="fi fi-ru"></span> Русский</button>
-                            <button class="lang-option" data-lang="tr"><span class="fi fi-tr"></span> Türkçe</button>
-                            <button class="lang-option" data-lang="et"><span class="fi fi-ee"></span> Eesti</button>
-                            <button class="lang-option" data-lang="hr"><span class="fi fi-hr"></span> Hrvatski</button>
-                            <button class="lang-option" data-lang="is"><span class="fi fi-is"></span> Íslenska</button>
-                            <button class="lang-option" data-lang="lt"><span class="fi fi-lt"></span> Lietuvių</button>
-                            <button class="lang-option" data-lang="lv"><span class="fi fi-lv"></span> Latviešu</button>
-                            <button class="lang-option" data-lang="no"><span class="fi fi-no"></span> Norsk</button>
-                            <button class="lang-option" data-lang="sk"><span class="fi fi-sk"></span> Slovenčina</button>
-                            <button class="lang-option" data-lang="sl"><span class="fi fi-si"></span> Slovenščina</button>
-                            <button class="lang-option" data-lang="uk"><span class="fi fi-ua"></span> Українська</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <!-- Sticky Progress Bar (Initially Hidden) -->
-        <div class="sticky-progress-container">
-            <div class="sticky-bar-parsing" id="sticky-parsing"></div>
-            <div class="sticky-bar-conversion" id="sticky-conversion"></div>
-            <div class="sticky-bar-saved" id="sticky-saved"></div>
-        </div>
-        </div>
-
 
     </header>
 
@@ -261,7 +265,7 @@
 
             <div class="hero-section">
                 <h1 data-i18n="hero_title" class="type-target">The best & fastest way to convert your images to WebP</h1>
-                
+
                 <div id="drop-zone" class="drop-zone">
                     <div class="drop-content">
                         <!-- Stats View (Pie Chart) -->
@@ -288,8 +292,8 @@
 
                                         <!-- Outer Ring: Processing (Green) -->
                                         <!-- Circumference = 2*PI*116 ≈ 729 -->
-                                        <circle id="progress-circle-outer" cx="120" cy="120" r="116" fill="none" stroke="var(--primary)" stroke-width="4"
-                                            stroke-linecap="round" stroke-dasharray="729" stroke-dashoffset="729"
+                                        <circle id="progress-circle-outer" cx="120" cy="120" r="116" fill="none" stroke="var(--primary)"
+                                            stroke-width="4" stroke-linecap="round" stroke-dasharray="729" stroke-dashoffset="729"
                                             style="will-change: stroke-dashoffset;" />
 
                                         <!-- Inner Ring: Parsing (Yellow) -->
@@ -320,39 +324,42 @@
                                             <span style="font-weight: 600; color: var(--text-main);" data-i18n="drag_drop">Drag & Drop</span>
                                             <small style="color: var(--text-muted);" data-i18n="click_browse">or click to browse</small>
                                         </div>
-                                        </div>
-                                        
-                                        <div id="pie-active-content" class="hidden stats-text-container">
-                                            <div id="pie-main-text" class="stat-main-text">Processing</div>
-                                            <div id="pie-sub-text" class="stat-sub-text">Starting...</div>
-                                        </div>
+                                    </div>
+
+                                    <div id="pie-active-content" class="hidden stats-text-container">
+                                        <div id="pie-main-text" class="stat-main-text">Processing</div>
+                                        <div id="pie-sub-text" class="stat-sub-text">Starting...</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <input type="file" id="file-input" multiple accept="image/*" hidden>
                     </div>
-                </div>
 
-                <p data-i18n="hero_subtitle" class="hero_subtitle type-target">Client side batch convert JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF to WEBP.<br/><strong>100% free</strong>, <strong>instant</strong> - leveraging all your cores, unlimited in your browser.<br/><span class='secondary-text'>No uploads - <strong>Your files stay Private</strong> and no bandwidth needed</span><br/><span class='secondary-text'>No cookies - No tracking!</span></p>
-                <div class="bmc-container">
-                    <a href="https://buymeacoffee.com/ToWebP.dev" target="_blank" rel="noopener noreferrer" class="bmc-link">
-                        <span class="coffee-icon">☕</span>
-                        <span data-i18n="buy_coffee" style="font-weight:600; font-size: 0.9rem;">Buy me a coffee</span>
-                    </a>
+                    <input type="file" id="file-input" multiple accept="image/*" hidden>
                 </div>
             </div>
 
-
-
-
-
-            <div id="file-list" class="file-list">
-                <!-- File items will be injected here -->
+            <p data-i18n="hero_subtitle" class="hero_subtitle type-target">Client side batch convert JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF to
+                WEBP.<br /><strong>100% free</strong>, <strong>instant</strong> - leveraging all your cores, unlimited in your browser.<br /><span
+                    class='secondary-text'>No uploads - <strong>Your files stay Private</strong> and no bandwidth needed</span><br /><span
+                    class='secondary-text'>No cookies - No tracking!</span></p>
+            <div class="bmc-container">
+                <a href="https://buymeacoffee.com/ToWebP.dev" target="_blank" rel="noopener noreferrer" class="bmc-link">
+                    <span class="coffee-icon">☕</span>
+                    <span data-i18n="buy_coffee" style="font-weight:600; font-size: 0.9rem;">Buy me a coffee</span>
+                </a>
             </div>
-            
-        </main>
+    </div>
+
+
+
+
+
+    <div id="file-list" class="file-list">
+        <!-- File items will be injected here -->
+    </div>
+
+    </main>
     </div>
 
     <div class="info-section scroll-reveal">
@@ -409,7 +416,8 @@
                         <span class="step-number">2</span>
                         <div class="step-text">
                             <h3 data-i18n="step_2_title" class="type-target">Automatic Conversion</h3>
-                            <p data-i18n="step_2_desc" class="type-target"><strong>ToWebP.dev</strong> instantly processes your files locally using advanced browser
+                            <p data-i18n="step_2_desc" class="type-target"><strong>ToWebP.dev</strong> instantly processes your files locally using
+                                advanced browser
                                 technology.</p>
                         </div>
                     </li>
@@ -435,16 +443,19 @@
                     <h3 data-i18n="seo_ranking_title" class="type-target">WebP for Better SEO</h3>
                     <p data-i18n="seo_ranking_desc" class="type-target">Google explicitly favors fast-loading websites. Converting your PNGs and JPEGs
                         to modern <strong>WebP format</strong> can significantly reduce page weight, improve LCP (Largest Contentful Paint), and boost
-                        your site's SEO ranking. <strong>ToWebP.dev</strong> is the perfect tool for web developers and designers to bulk optimize assets.</p>
+                        your site's SEO ranking. <strong>ToWebP.dev</strong> is the perfect tool for web developers and designers to bulk optimize
+                        assets.</p>
                 </div>
             </div>
 
             <div class="seo-text-columns scroll-reveal">
                 <div class="seo-col full-width">
                     <h3 data-i18n="why_use_title" class="type-target">Why use <strong>ToWebP.dev</strong>?</h3>
-                    <p data-i18n="why_use_p1" class="type-target">Because it is a privacy-first image converter that runs entirely in your browser.</p>
+                    <p data-i18n="why_use_p1" class="type-target">Because it is a privacy-first image converter that runs entirely in your browser.
+                    </p>
                     <p data-i18n="why_use_p2" class="type-target" style="margin-top: 1rem;">No Cookies, No Tracking. We believe in a clean and fast
-                        web. <br/>This site does not use persistent cookies or trackers, so you won't be pestered by consent banners. <br/>Just drag, drop, and
+                        web. <br />This site does not use persistent cookies or trackers, so you won't be pestered by consent banners. <br />Just
+                        drag, drop, and
                         convert with zero traces left behind.</p>
                 </div>
             </div>
@@ -454,22 +465,26 @@
                 <div class="faq-grid">
                     <div class="faq-item">
                         <h4 data-i18n="faq_1_q" class="type-target">Is my data safe?</h4>
-                        <p data-i18n="faq_1_a" class="type-target">Yes, 100%. Unlike other converters, <strong>ToWebP.dev</strong> runs client-side. Your images never
+                        <p data-i18n="faq_1_a" class="type-target">Yes, 100%. Unlike other converters, <strong>ToWebP.dev</strong> runs client-side.
+                            Your images never
                             leave your computer.</p>
                     </div>
                     <div class="faq-item">
                         <h4 data-i18n="faq_2_q" class="type-target">Can I convert images offline?</h4>
-                        <p data-i18n="faq_2_a" class="type-target">Absolutely. <strong>ToWebP.dev</strong> is PWA-enabled. You can install it and use it without an
+                        <p data-i18n="faq_2_a" class="type-target">Absolutely. <strong>ToWebP.dev</strong> is PWA-enabled. You can install it and use
+                            it without an
                             internet connection.</p>
                     </div>
                     <div class="faq-item">
                         <h4 data-i18n="faq_3_q" class="type-target">What formats are supported?</h4>
-                        <p data-i18n="faq_3_a" class="type-target">We support converting from JPG, JPEG, PNG, BMP, and GIF (static) to <strong>WebP</strong> format.
+                        <p data-i18n="faq_3_a" class="type-target">We support converting from JPG, JPEG, PNG, BMP, and GIF (static) to
+                            <strong>WebP</strong> format.
                         </p>
                     </div>
                     <div class="faq-item">
                         <h4 data-i18n="faq_4_q" class="type-target">Is it free?</h4>
-                        <p data-i18n="faq_4_a" class="type-target">Yes, <strong>ToWebP.dev</strong> is completely free with no daily limits or watermarks.</p>
+                        <p data-i18n="faq_4_a" class="type-target">Yes, <strong>ToWebP.dev</strong> is completely free with no daily limits or
+                            watermarks.</p>
                     </div>
                 </div>
             </div>
@@ -483,8 +498,10 @@
                 </div>
                 <div class="gdpr-content">
                     <h3 data-i18n="gdpr_title" class="type-target">100% GDPR Compliant & Worry Free</h3>
-                    <p data-i18n="gdpr_desc" class="type-target">No Tracing. No Cookies. <br/> No Local Storage spying!<br/> We respect your User Rights by
-                        design. <br/><strong>ToWebP.dev</strong> is a pure utility tool that does one thing well without collecting a single byte of your data.</p>
+                    <p data-i18n="gdpr_desc" class="type-target">No Tracing. No Cookies. <br /> No Local Storage spying!<br /> We respect your User
+                        Rights by
+                        design. <br /><strong>ToWebP.dev</strong> is a pure utility tool that does one thing well without collecting a single byte of
+                        your data.</p>
                 </div>
             </div>
         </div>
@@ -586,7 +603,7 @@
         <button id="lightbox-close" class="lightbox-close" aria-label="Close"></button>
         <button id="lightbox-download" class="lightbox-download" aria-label="Download">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 16L12 8M12 16L9 13M12 16L15 13M19 21H5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 16L12 8M12 16L9 13M12 16L15 13M19 21H5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
         <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"></button>

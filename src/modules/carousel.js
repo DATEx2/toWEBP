@@ -302,7 +302,7 @@ export function updateCarouselScroll() {
         if (state.totalFilesCount > 0 && doneCount === state.totalFilesCount) {
             // Sort carousel cards to original order when fully complete
             sortCarouselByOriginalOrder();
-            return;
+           // Allow scrolling to continue to the end
         }
 
         const cardWidth = 146; // 130px card + 16px gap (1rem)

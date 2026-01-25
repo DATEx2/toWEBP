@@ -272,12 +272,55 @@ export function updateStats() {
        elements.headerFilesCount.text(`${count} file${count !== 1 ? 's' : ''}`);
     }
     if (elements.headerTotalSaved.length) {
-        if (savedTotal > 0) {
-            const savedTextLabel = `${t('total_saved_prefix')} ${formatSize(savedTotal)}`;
-            elements.headerTotalSaved.text(savedTextLabel);
-            elements.headerTotalSaved.css('display', 'inline');
+        if (state.completed.size > 0) {
+            const percent = Math.round((savedTotal / state.totalOriginalSize) * 100);
+            const $parent = elements.headerTotalSaved.parent();
+            
+            // Hide the static label sibling if present, so we control the full content
+            $parent.find('span[data-i18n]').not(elements.headerTotalSaved).hide();
+
+            const html = `
+                <span style="font-weight: 700; margin-right: 0.5rem; color: var(--text-main);">${formatSize(state.totalNewSize)}</span>
+                <span style="opacity: 0.8;">${t('total_saved_prefix')} ${formatSize(savedTotal)}</span>
+                <span style="color: var(--success); font-weight: 700; margin-left: 0.35rem;">(-${percent}%)</span>
+            `;
+
+            elements.headerTotalSaved.html(html);
+            elements.headerTotalSaved.css({
+                'display': 'inline-flex',
+                'align-items': 'center'
+            });
+            $parent.css({
+                'display': 'flex',
+                'align-items': 'center',
+                'gap': '0',
+                'visibility': 'visible'
+            });
+        } else if (state.totalFilesCount > 0) {
+            // Processing state - show "Processing..."
+            const $parent = elements.headerTotalSaved.parent();
+            // Hide the static label sibling if present
+            $parent.find('span[data-i18n]').not(elements.headerTotalSaved).hide();
+            
+            const processingText = (typeof t === 'function' ? t('processing') : (i18n && i18n.t('processing')) || 'Processing...');
+            elements.headerTotalSaved.html(`<span class="processing-text pulse">${processingText}</span>`);
+            
+            elements.headerTotalSaved.css({
+                'display': 'inline-flex',
+                'align-items': 'center'
+            });
+            $parent.css({
+                'display': 'flex',
+                'align-items': 'center',
+                'gap': '0',
+                'visibility': 'visible'
+            });        
         } else {
-            elements.headerTotalSaved.css('display', 'none');
+            // Reserve space to avoid layout shift/flicker
+            elements.headerTotalSaved.parent().css({
+                'display': 'flex',
+                'visibility': 'hidden'
+            });
         }
     }
     
@@ -292,15 +335,42 @@ export function updateStats() {
     }
 
     if (elements.headerStats.length) {
-        const isDone = state.completed.size > 0 && state.queue.length === 0 && state.processing.size === 0;
+        const hasFiles = state.totalFilesCount > 0;
+        const isDone = state.completed.size > 0 && 
+                       state.completed.size === state.totalFilesCount && 
+                       state.queue.length === 0 && 
+                       state.processing.size === 0;
         
-        if (isDone) {
+        if (hasFiles) {
             if (!elements.headerStats.hasClass('visible')) {
                 elements.headerStats.addClass('visible');
             }
-            // Show Actions
-            elements.headerDownloadBtn.css('display', 'inline-flex');
-            elements.headerClearBtn.css('display', 'inline-flex');
+            // Show Actions only when done
+            if (isDone) {
+                elements.headerDownloadBtn.css({
+                    'display': 'inline-flex',
+                    'visibility': 'visible'
+                });
+                elements.headerClearBtn.css({
+                    'display': 'inline-flex',
+                    'visibility': 'visible'
+                });
+            } else {
+                // Hide but keep space? 
+                // However, on mobile space is tight. If we reserve space, the header top row is always tall.
+                // The user complained about layout CHANGING. So fixed height is better.
+                // We set .header-actions min-height in CSS.
+                // We should make buttons take space.
+                
+                elements.headerDownloadBtn.css({
+                    'display': 'inline-flex',
+                    'visibility': 'hidden'
+                });
+                elements.headerClearBtn.css({
+                    'display': 'inline-flex',
+                    'visibility': 'hidden'
+                });
+            }
         } else {
             if (elements.headerStats.hasClass('visible')) {
                 elements.headerStats.removeClass('visible');
@@ -344,12 +414,31 @@ export function drawRings() {
     if (elements.stickyConversion.length) elements.stickyConversion.css('width', (state.visual.outerProgress * 100) + '%');
     
     if (elements.stickySaved.length) {
-        let savedRatio = 0;
+        let sizeRatio = 0;
+        let isError = false;
+        
+        const $bg = elements.stickySaved.next('.sticky-bar-saved-bg');
+
         if (state.totalOriginalSize > 0) {
-            const saved = state.totalOriginalSize - state.totalNewSize;
-            savedRatio = saved / state.totalOriginalSize;
+            // Visualize relative size of the new files (New Size)
+            sizeRatio = state.totalNewSize / state.totalOriginalSize;
+            if (sizeRatio > 1) {
+                sizeRatio = 1; // Cap at 100%
+                isError = true; // Turn red
+            }
+            // Ensure visible
+            elements.stickySaved.css('display', 'block');
+            if ($bg.length) $bg.css('display', 'block');
+        } else {
+            // Hide if no stats
+            elements.stickySaved.css('display', 'none');
+            if ($bg.length) $bg.css('display', 'none');
         }
-        elements.stickySaved.css('transform', `scaleY(${savedRatio})`);
+
+        elements.stickySaved.css('width', (sizeRatio * 100) + '%');
+        
+        if (isError) elements.stickySaved.addClass('bar-error');
+        else elements.stickySaved.removeClass('bar-error');
     }
 
     // Logic Update for Targets
@@ -361,20 +450,32 @@ export function drawRings() {
             state.visual.innerTarget = state.totalFilesCount / state.parsingTarget;
             if (elements.progressCircleInner.length) elements.progressCircleInner.css('opacity', '1');
             state.visual.outerTarget = count / state.parsingTarget; 
+            
+            // Ensure parsing bar is visible during parsing
+            if (elements.stickyParsing.length) elements.stickyParsing.removeClass('bar-hidden');
         }
     } else if (state.totalFilesCount > 0) {
         state.visual.innerTarget = 1;
 
         if (!state.parsingCompleteTime) state.parsingCompleteTime = Date.now();
         
+        const timeSinceParsing = Date.now() - state.parsingCompleteTime;
+        
         if (elements.progressCircleInner.length) {
-            if (Date.now() - state.parsingCompleteTime > 300) {
+            if (timeSinceParsing > 300) {
                 elements.progressCircleInner.css('opacity', '0');
                 elements.progressCircleInner.css('visibility', 'hidden');
             } else {
                 elements.progressCircleInner.css('opacity', '1');
                 elements.progressCircleInner.css('visibility', 'visible');
             }
+        }
+        
+        // Sticky Parsing Bar - Hide after 1s
+        if (elements.stickyParsing.length) {
+             if (timeSinceParsing > 1000) {
+                 elements.stickyParsing.addClass('bar-hidden');
+             }
         }
 
         state.visual.outerTarget = count / state.totalFilesCount;
@@ -389,8 +490,41 @@ export function drawRings() {
         // Reset
         state.visual.innerTarget = 0;
         state.visual.outerTarget = 0;
+        state.visual.conversionCompleteTime = null; // Reset timer
+        state.parsingCompleteTime = null; // Reset parsing timer
+        
+        // Reset visibility
+        if (elements.stickyParsing.length) elements.stickyParsing.removeClass('bar-hidden');
+        if (elements.stickyConversion.length) elements.stickyConversion.removeClass('bar-hidden');
         if (elements.pieDefaultContent.length) elements.pieDefaultContent.removeClass('hidden');
         if (elements.pieActiveContent.length) elements.pieActiveContent.addClass('hidden');
+    }
+
+    // Conversion Bar Auto-hide (Saved bar stays)
+    if (state.totalFilesCount > 0 && 
+        state.completed.size === state.totalFilesCount && 
+        state.queue.length === 0) {
+            
+        if (!state.visual.conversionCompleteTime) {
+            state.visual.conversionCompleteTime = Date.now();
+        } else if (Date.now() - state.visual.conversionCompleteTime > 1000) {
+            // Hide only conversion bar after 1s
+            if (elements.stickyConversion.length) elements.stickyConversion.addClass('bar-hidden');
+        }
+    } else {
+        // We are processing or idle with no files
+        if (state.totalFilesCount > 0 || state.visual.innerProgress > 0) {
+             state.visual.conversionCompleteTime = null;
+             
+             // Ensure conversion bar visible
+             if (elements.stickyConversion.length) elements.stickyConversion.removeClass('bar-hidden');
+             
+             // Cleanup old parent logic if present in DOM (safety)
+             if (elements.stickyParsing.length) {
+                 elements.stickyParsing.parent().removeClass('auto-hide');
+                 elements.stickyParsing.parent().css('opacity', '');
+             }
+        }
     }
 }
 

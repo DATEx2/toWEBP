@@ -71,6 +71,7 @@ window.translations = translations;
 export async function initLanguageSystem() {
     const langBurger = document.getElementById('lang-burger');
     const langMenu = document.getElementById('lang-menu');
+    const closeBtn = document.getElementById('close-lang-menu-btn');
     const langOptions = document.querySelectorAll('.lang-option');
 
     let detectedLang = await detectLanguage();
@@ -81,8 +82,26 @@ export async function initLanguageSystem() {
     initTypewriter();
 
     if (!langBurger || !langMenu) {
-        console.error("Critical: Lang elements missing", { langBurger, langMenu });
         return;
+    }
+
+    // Close on backdrop click (Mobile Bottom Sheet)
+    langMenu.addEventListener('click', (e) => {
+        if (e.target === langMenu) {
+             langMenu.classList.add('hidden');
+             document.documentElement.style.overflow = '';
+             document.body.style.overflow = '';
+        }
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            langMenu.classList.add('hidden');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        });
     }
 
     langBurger.addEventListener('click', (e) => {
@@ -91,8 +110,12 @@ export async function initLanguageSystem() {
         const isHidden = langMenu.classList.contains('hidden');
         if (isHidden) {
             langMenu.classList.remove('hidden');
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
         } else {
             langMenu.classList.add('hidden');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
         }
     });
 
@@ -100,6 +123,8 @@ export async function initLanguageSystem() {
         if (langMenu && !langMenu.classList.contains('hidden')) {
             if (!langMenu.contains(e.target) && !langBurger.contains(e.target)) {
                 langMenu.classList.add('hidden');
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
             }
         }
     });
@@ -154,6 +179,8 @@ export async function initLanguageSystem() {
             updateSEOTags(lang); // Update SEO tags
 
             langMenu.classList.add('hidden');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
         });
     });
 

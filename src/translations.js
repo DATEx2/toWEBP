@@ -1,6 +1,6 @@
 const translations = {
     "en": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "files", "total_saved_header": "Total Saved: ", "download_zip": "Download ZIP", "clear": "Clear", "format": "Format", "quality": "Quality",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "files", "total_saved_header": "Total Saved: ", "download_zip": "ZIP", "clear": "Clear", "format": "Format", "quality": "Quality",
         "hero_title": "The best & fastest way to convert your images to WebP",
         "hero_subtitle": "Client side batch convert JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF to WEBP.<br/><strong>100% free</strong>, <strong>instant</strong> - leveraging all your cores, unlimited in your browser.<br/><span class='secondary-text'>No uploads - <strong>Your files stay Private</strong> and no bandwidth needed</span><br/><span class='secondary-text'>No cookies - No tracking!</span>",
         "drag_drop": "Drag & Drop", "click_browse": "or click to browse",
@@ -24,7 +24,7 @@ const translations = {
         "processing": "Processing...", "parsing_files": "Parsing files...", "waiting": "Waiting...", "total_saved_prefix": "Total Saved:", "saved": "saved", "starting": "Starting...", "select_language": "Select Language"
     },
     "ro": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fișiere", "total_saved_header": "Total Salvat: ", "download_zip": "Descarcă ZIP", "clear": "Șterge", "format": "Format", "quality": "Calitate",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fișiere", "total_saved_header": "Total Salvat: ", "download_zip": "ZIP", "clear": "Șterge", "format": "Format", "quality": "Calitate",
         "hero_title": "Cea mai bună și rapidă modalitate de a converti imaginile în WebP",
         "hero_subtitle": "Conversie locală în masă din JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF în WEBP.<br/><strong>100% gratuit</strong>, <strong>instantaneu</strong> - folosind toate nucleele tale, nelimitat în browser.<br/><span class='secondary-text'>Fără încărcări - <strong>Fișierele tale rămân private</strong> și nu consumă bandă</span><br/><span class='secondary-text'>Fără cookie-uri - Fără urmărire!</span>",
         "drag_drop": "Trage și plasează", "click_browse": "sau click pentru a selecta",
@@ -48,7 +48,7 @@ const translations = {
         "processing": "Procesare...", "parsing_files": "Citire fișiere...", "waiting": "În așteptare...", "total_saved_prefix": "Total Salvat:", "saved": "salvat", "starting": "Se pornește...", "select_language": "Selectează Limba"
     },
     "es": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "archivos", "total_saved_header": "Total Ahorrado: ", "download_zip": "Descargar ZIP", "clear": "Limpiar", "format": "Formato", "quality": "Calidad",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "archivos", "total_saved_header": "Total Ahorrado: ", "download_zip": "ZIP", "clear": "Limpiar", "format": "Formato", "quality": "Calidad",
         "hero_title": "La mejor y más rápida forma de convertir tus imágenes a WebP",
         "hero_subtitle": "Conversión por lotes del lado del cliente de JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF a WEBP.<br/><strong>100% gratis</strong>, <strong>instantáneo</strong> - aprovechando todos tus núcleos, ilimitado en tu navegador.<br/><span class='secondary-text'>Sin cargas - <strong>Tus archivos permanecen privados</strong> y no se necesita ancho de banda</span><br/><span class='secondary-text'>Sin cookies - ¡Sin rastreo!</span>",
         "drag_drop": "Arrastra y suelta", "click_browse": "o haz clic para navegar",
@@ -72,7 +72,7 @@ const translations = {
         "processing": "Procesando...", "parsing_files": "Analizando archivos...", "waiting": "Esperando...", "total_saved_prefix": "Total Ahorrado:", "saved": "ahorrado", "starting": "Iniciando...", "select_language": "Seleccionar Idioma"
     },
     "fr": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fichiers", "total_saved_header": "Total Économisé : ", "download_zip": "Télécharger ZIP", "clear": "Effacer", "format": "Format", "quality": "Qualité",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fichiers", "total_saved_header": "Total Économisé : ", "download_zip": "ZIP", "clear": "Effacer", "format": "Format", "quality": "Qualité",
         "hero_title": "La meilleure et la plus rapide façon de convertir vos images en WebP",
         "hero_subtitle": "Conversion par lots côté client de JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF vers WEBP.<br/><strong>100% gratuit</strong>, <strong>instantané</strong> - utilisant tous vos cœurs, illimité dans votre navigateur.<br/><span class='secondary-text'>Pas de téléchargements - <strong>Vos fichiers restent privés</strong> et aucune bande passante nécessaire</span><br/><span class='secondary-text'>Pas de cookies - Pas de suivi !</span>",
         "drag_drop": "Glisser-déposer", "click_browse": "ou cliquer pour parcourir",
@@ -96,7 +96,7 @@ const translations = {
         "processing": "Traitement...", "parsing_files": "Analyse des fichiers...", "waiting": "En attente...", "total_saved_prefix": "Total Économisé :", "saved": "économisé", "starting": "Démarrage...", "select_language": "Sélectionner la Langue"
     },
     "de": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "Dateien", "total_saved_header": "Gesamt Gespart: ", "download_zip": "ZIP Herunterladen", "clear": "Löschen", "format": "Format", "quality": "Qualität",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "Dateien", "total_saved_header": "Gesamt Gespart: ", "download_zip": "ZIP", "clear": "Löschen", "format": "Format", "quality": "Qualität",
         "hero_title": "Der beste und schnellste Weg, Ihre Bilder in WebP zu konvertieren",
         "hero_subtitle": "Clientseitige Stapelkonvertierung von JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF zu WEBP.<br/><strong>100% kostenlos</strong>, <strong>sofort</strong> - nutzt alle Ihre Kerne, unbegrenzt in Ihrem Browser.<br/><span class='secondary-text'>Keine Uploads - <strong>Ihre Dateien bleiben privat</strong> und keine Bandbreite erforderlich</span><br/><span class='secondary-text'>Keine Cookies - Kein Tracking!</span>",
         "drag_drop": "Drag & Drop", "click_browse": "oder klicken zum Durchsuchen",
@@ -120,7 +120,7 @@ const translations = {
         "processing": "Verarbeitung...", "parsing_files": "Dateien analysieren...", "waiting": "Warten...", "total_saved_prefix": "Gesamt Gespart:", "saved": "gespart", "starting": "Starten...", "select_language": "Sprache Auswählen"
     },
     "it": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "file", "total_saved_header": "Totale Risparmiato: ", "download_zip": "Scarica ZIP", "clear": "Cancella", "format": "Formato", "quality": "Qualità",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "file", "total_saved_header": "Totale Risparmiato: ", "download_zip": "ZIP", "clear": "Cancella", "format": "Formato", "quality": "Qualità",
         "hero_title": "Il modo migliore e più veloce per convertire le tue immagini in WebP",
         "hero_subtitle": "Conversione batch lato client da JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF a WEBP.<br/><strong>100% gratuito</strong>, <strong>istantaneo</strong> - sfruttando tutti i tuoi core, illimitato nel tuo browser.<br/><span class='secondary-text'>Nessun caricamento - <strong>I tuoi file rimangono privati</strong> e nessuna larghezza di banda necessaria</span><br/><span class='secondary-text'>Nessun cookie - Nessun tracciamento!</span>",
         "drag_drop": "Trascina e rilascia", "click_browse": "o clicca per sfogliare",
@@ -144,7 +144,7 @@ const translations = {
         "processing": "Elaborazione...", "parsing_files": "Analisi file...", "waiting": "In attesa...", "total_saved_prefix": "Totale Risparmiato:", "saved": "risparmiato", "starting": "Avvio...", "select_language": "Seleziona Lingua"
     },
     "pt": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "arquivos", "total_saved_header": "Total Economizado: ", "download_zip": "Baixar ZIP", "clear": "Limpar", "format": "Formato", "quality": "Qualidade",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "arquivos", "total_saved_header": "Total Economizado: ", "download_zip": "ZIP", "clear": "Limpar", "format": "Formato", "quality": "Qualidade",
         "hero_title": "A melhor e mais rápida maneira de converter suas imagens para WebP",
         "hero_subtitle": "Conversão em lote do lado do cliente de JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF para WEBP.<br/><strong>100% grátis</strong>, <strong>instantâneo</strong> - aproveitando todos os seus núcleos, ilimitado no seu navegador.<br/><span class='secondary-text'>Sem uploads - <strong>Seus arquivos permanecem privados</strong> e nenhuma largura de banda necessária</span><br/><span class='secondary-text'>Sem cookies - Sem rastreamento!</span>",
         "drag_drop": "Arrastar e soltar", "click_browse": "ou clique para navegar",
@@ -168,7 +168,7 @@ const translations = {
         "processing": "Processando...", "parsing_files": "Analisando arquivos...", "waiting": "Aguardando...", "total_saved_prefix": "Total Economizado:", "saved": "economizado", "starting": "Iniciando...", "select_language": "Selecionar Idioma"
     },
     "nl": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "bestanden", "total_saved_header": "Totaal Bespaard: ", "download_zip": "Download ZIP", "clear": "Wissen", "format": "Formaat", "quality": "Kwaliteit",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "bestanden", "total_saved_header": "Totaal Bespaard: ", "download_zip": "ZIP", "clear": "Wissen", "format": "Formaat", "quality": "Kwaliteit",
         "hero_title": "De beste en snelste manier om je afbeeldingen naar WebP te converteren",
         "hero_subtitle": "Client-side batchconversie van JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF naar WEBP.<br/><strong>100% gratis</strong>, <strong>instant</strong> - gebruik makend van al je cores, onbeperkt in je browser.<br/><span class='secondary-text'>Geen uploads - <strong>Je bestanden blijven privé</strong> en geen bandbreedte nodig</span><br/><span class='secondary-text'>Geen cookies - Geen tracking!</span>",
         "drag_drop": "Slepen en neerzetten", "click_browse": "of klik om te bladeren",
@@ -192,7 +192,7 @@ const translations = {
         "processing": "Verwerken...", "parsing_files": "Bestanden analyseren...", "waiting": "Wachten...", "total_saved_prefix": "Totaal Bespaard:", "saved": "bespaard", "starting": "Starten...", "select_language": "Selecteer Taal"
     },
     "pl": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "pliki", "total_saved_header": "Całkowicie Zaoszczędzone: ", "download_zip": "Pobierz ZIP", "clear": "Wyczyść", "format": "Format", "quality": "Jakość",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "pliki", "total_saved_header": "Całkowicie Zaoszczędzone: ", "download_zip": "ZIP", "clear": "Wyczyść", "format": "Format", "quality": "Jakość",
         "hero_title": "Najlepszy i najszybszy sposób na konwersję obrazów do WebP",
         "hero_subtitle": "Konwersja wsadowa po stronie klienta z JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF do WEBP.<br/><strong>100% za darmo</strong>, <strong>natychmiastowo</strong> - wykorzystując wszystkie rdzenie, nieograniczone w przeglądarce.<br/><span class='secondary-text'>Bez przesyłania - <strong>Twoje pliki pozostają prywatne</strong> i nie potrzeba przepustowości</span><br/><span class='secondary-text'>Bez ciasteczek - Bez śledzenia!</span>",
         "drag_drop": "Przeciągnij i upuść", "click_browse": "lub kliknij, aby przeglądać",
@@ -216,7 +216,7 @@ const translations = {
         "processing": "Przetwarzanie...", "parsing_files": "Analiza plików...", "waiting": "Oczekiwanie...", "total_saved_prefix": "Całkowicie Zaoszczędzone:", "saved": "zaoszczędzone", "starting": "Uruchamianie...", "select_language": "Wybierz Język"
     },
     "uk": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файли", "total_saved_header": "Всього Збережено: ", "download_zip": "Завантажити ZIP", "clear": "Очистити", "format": "Формат", "quality": "Якість",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файли", "total_saved_header": "Всього Збережено: ", "download_zip": "ZIP", "clear": "Очистити", "format": "Формат", "quality": "Якість",
         "hero_title": "Найкращий і найшвидший спосіб конвертувати зображення в WebP",
         "hero_subtitle": "Пакетна конвертація на стороні клієнта з JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF в WEBP.<br/><strong>100% безкоштовно</strong>, <strong>миттєво</strong> - використовуючи всі ядра, необмежено в браузері.<br/><span class='secondary-text'>Без завантажень - <strong>Ваші файли залишаються приватними</strong> і не потрібна пропускна здатність</span><br/><span class='secondary-text'>Без cookies - Без відстеження!</span>",
         "drag_drop": "Перетягніть і відпустіть", "click_browse": "або натисніть для перегляду",
@@ -240,7 +240,7 @@ const translations = {
         "processing": "Обробка...", "parsing_files": "Аналіз файлів...", "waiting": "Очікування...", "total_saved_prefix": "Всього Збережено:", "saved": "збережено", "starting": "Запуск...", "select_language": "Вибрати Мову"
     },
     "bg": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файлове", "total_saved_header": "Общо Спестено: ", "download_zip": "Изтегли ZIP", "clear": "Изчисти", "format": "Формат", "quality": "Качество",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файлове", "total_saved_header": "Общо Спестено: ", "download_zip": "ZIP", "clear": "Изчисти", "format": "Формат", "quality": "Качество",
         "hero_title": "Най-добрият и най-бърз начин да конвертирате изображенията си в WebP",
         "hero_subtitle": "Пакетна конвертация от страна на клиента от JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF към WEBP.<br/><strong>100% безплатно</strong>, <strong>моментално</strong> - използвайки всички ядра, неограничено във вашия браузър.<br/><span class='secondary-text'>Без качвания - <strong>Вашите файлове остават поверителни</strong> и не е необходима честотна лента</span><br/><span class='secondary-text'>Без бисквитки - Без проследяване!</span>",
         "drag_drop": "Плъзнете и пуснете", "click_browse": "или кликнете за преглед",
@@ -264,7 +264,7 @@ const translations = {
         "processing": "Обработка...", "parsing_files": "Анализ на файлове...", "waiting": "Изчакване...", "total_saved_prefix": "Общо Спестено:", "saved": "спестено", "starting": "Стартиране...", "select_language": "Изберете Език"
     },
     "cs": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "soubory", "total_saved_header": "Celkem Ušetřeno: ", "download_zip": "Stáhnout ZIP", "clear": "Vymazat", "format": "Formát", "quality": "Kvalita",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "soubory", "total_saved_header": "Celkem Ušetřeno: ", "download_zip": "ZIP", "clear": "Vymazat", "format": "Formát", "quality": "Kvalita",
         "hero_title": "Nejlepší a nejrychlejší způsob, jak převést obrázky do WebP",
         "hero_subtitle": "Dávková konverze na straně klienta z JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF do WEBP.<br/><strong>100% zdarma</strong>, <strong>okamžitě</strong> - využívá všechna jádra, neomezené v prohlížeči.<br/><span class='secondary-text'>Bez nahrávání - <strong>Vaše soubory zůstávají soukromé</strong> a není potřeba šířka pásma</span><br/><span class='secondary-text'>Bez cookies - Bez sledování!</span>",
         "drag_drop": "Přetáhnout a pustit", "click_browse": "nebo klikněte pro procházení",
@@ -288,7 +288,7 @@ const translations = {
         "processing": "Zpracování...", "parsing_files": "Analýza souborů...", "waiting": "Čekání...", "total_saved_prefix": "Celkem Ušetřeno:", "saved": "ušetřeno", "starting": "Spouštění...", "select_language": "Vyberte Jazyk"
     },
     "hr": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "datoteke", "total_saved_header": "Ukupno Ušteđeno: ", "download_zip": "Preuzmi ZIP", "clear": "Obriši", "format": "Format", "quality": "Kvaliteta",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "datoteke", "total_saved_header": "Ukupno Ušteđeno: ", "download_zip": "ZIP", "clear": "Obriši", "format": "Format", "quality": "Kvaliteta",
         "hero_title": "Najbolji i najbrži način za pretvaranje slika u WebP",
         "hero_subtitle": "Grupna konverzija na strani klijenta iz JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF u WEBP.<br/><strong>100% besplatno</strong>, <strong>trenutno</strong> - koristi sve jezgre, neograničeno u pregledniku.<br/><span class='secondary-text'>Bez prijenosa - <strong>Vaše datoteke ostaju privatne</strong> i nije potrebna propusnost</span><br/><span class='secondary-text'>Bez kolačića - Bez praćenja!</span>",
         "drag_drop": "Povuci i ispusti", "click_browse": "ili kliknite za pregled",
@@ -312,7 +312,7 @@ const translations = {
         "processing": "Obrada...", "parsing_files": "Analiza datoteka...", "waiting": "Čekanje...", "total_saved_prefix": "Ukupno Ušteđeno:", "saved": "ušteđeno", "starting": "Pokretanje...", "select_language": "Odaberite Jezik"
     },
     "ru": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файлы", "total_saved_header": "Всего Сохранено: ", "download_zip": "Скачать ZIP", "clear": "Очистить", "format": "Формат", "quality": "Качество",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "файлы", "total_saved_header": "Всего Сохранено: ", "download_zip": "ZIP", "clear": "Очистить", "format": "Формат", "quality": "Качество",
         "hero_title": "Лучший и самый быстрый способ конвертировать изображения в WebP",
         "hero_subtitle": "Пакетная конвертация на стороне клиента из JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF в WEBP.<br/><strong>100% бесплатно</strong>, <strong>мгновенно</strong> - используя все ядра, неограниченно в браузере.<br/><span class='secondary-text'>Без загрузок - <strong>Ваши файлы остаются приватными</strong> и не требуется пропускная способность</span><br/><span class='secondary-text'>Без cookies - Без отслеживания!</span>",
         "drag_drop": "Перетащите", "click_browse": "или нажмите для просмотра",
@@ -336,7 +336,7 @@ const translations = {
         "processing": "Обработка...", "parsing_files": "Анализ файлов...", "waiting": "Ожидание...", "total_saved_prefix": "Всего Сохранено:", "saved": "сохранено", "starting": "Запуск...", "select_language": "Выбрать Язык"
     },
     "sk": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "súbory", "total_saved_header": "Celkom Ušetrené: ", "download_zip": "Stiahnuť ZIP", "clear": "Vymazať", "format": "Formát", "quality": "Kvalita",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "súbory", "total_saved_header": "Celkom Ušetrené: ", "download_zip": "ZIP", "clear": "Vymazať", "format": "Formát", "quality": "Kvalita",
         "hero_title": "Najlepší a najrýchlejší spôsob, ako previesť obrázky do WebP",
         "hero_subtitle": "Dávková konverzia na strane klienta z JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF do WEBP.<br/><strong>100% zadarmo</strong>, <strong>okamžite</strong> - využíva všetky jadrá, neobmedzené v prehliadači.<br/><span class='secondary-text'>Bez nahrávania - <strong>Vaše súbory zostávajú súkromné</strong> a nie je potrebná šírka pásma</span><br/><span class='secondary-text'>Bez cookies - Bez sledovania!</span>",
         "drag_drop": "Pretiahnuť a pustiť", "click_browse": "alebo kliknite na prehliadanie",
@@ -360,7 +360,7 @@ const translations = {
         "processing": "Spracovanie...", "parsing_files": "Analýza súborov...", "waiting": "Čakanie...", "total_saved_prefix": "Celkom Ušetrené:", "saved": "ušetrené", "starting": "Spúšťanie...", "select_language": "Vyberte Jazyk"
     },
     "sl": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "datoteke", "total_saved_header": "Skupaj Prihranjen o: ", "download_zip": "Prenesi ZIP", "clear": "Počisti", "format": "Format", "quality": "Kakovost",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "datoteke", "total_saved_header": "Skupaj Prihranjen o: ", "download_zip": "ZIP", "clear": "Počisti", "format": "Format", "quality": "Kakovost",
         "hero_title": "Najboljši in najhitrejši način za pretvorbo slik v WebP",
         "hero_subtitle": "Paketna pretvorba na strani odjemalca iz JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF v WEBP.<br/><strong>100% brezplačno</strong>, <strong>takojšnje</strong> - izkorišča vsa jedra, neomejeno v brskalniku.<br/><span class='secondary-text'>Brez nalaganja - <strong>Vaše datoteke ostanejo zasebne</strong> in ni potrebna pasovna širina</span><br/><span class='secondary-text'>Brez piškotkov - Brez sledenja!</span>",
         "drag_drop": "Povleci in spusti", "click_browse": "ali kliknite za brskanje",
@@ -384,7 +384,7 @@ const translations = {
         "processing": "Obdelava...", "parsing_files": "Analiza datotek...", "waiting": "Čakanje...", "total_saved_prefix": "Skupaj Prihranjen o:", "saved": "prihranjen o", "starting": "Zagon...", "select_language": "Izberite Jezik"
     },
     "da": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Total Sparet: ", "download_zip": "Download ZIP", "clear": "Ryd", "format": "Format", "quality": "Kvalitet",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Total Sparet: ", "download_zip": "ZIP", "clear": "Ryd", "format": "Format", "quality": "Kvalitet",
         "hero_title": "Den bedste og hurtigste måde at konvertere dine billeder til WebP",
         "hero_subtitle": "Klientside batch-konvertering fra JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF til WEBP.<br/><strong>100% gratis</strong>, <strong>øjeblikkelig</strong> - udnytter alle dine kerner, ubegrænset i din browser.<br/><span class='secondary-text'>Ingen uploads - <strong>Dine filer forbliver private</strong> og ingen båndbredde nødvendig</span><br/><span class='secondary-text'>Ingen cookies - Ingen sporing!</span>",
         "drag_drop": "Træk og slip", "click_browse": "eller klik for at gennemse",
@@ -408,7 +408,7 @@ const translations = {
         "processing": "Behandler...", "parsing_files": "Analyserer filer...", "waiting": "Venter...", "total_saved_prefix": "Total Sparet:", "saved": "sparet", "starting": "Starter...", "select_language": "Vælg Sprog"
     },
     "sv": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Totalt Sparat: ", "download_zip": "Ladda ner ZIP", "clear": "Rensa", "format": "Format", "quality": "Kvalitet",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Totalt Sparat: ", "download_zip": "ZIP", "clear": "Rensa", "format": "Format", "quality": "Kvalitet",
         "hero_title": "Det bästa och snabbaste sättet att konvertera dina bilder till WebP",
         "hero_subtitle": "Klientsidans batch-konvertering från JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF till WEBP.<br/><strong>100% gratis</strong>, <strong>omedelbart</strong> - utnyttjar alla dina kärnor, obegränsat i din webbläsare.<br/><span class='secondary-text'>Inga uppladdningar - <strong>Dina filer förblir privata</strong> och ingen bandbredd behövs</span><br/><span class='secondary-text'>Inga cookies - Ingen spårning!</span>",
         "drag_drop": "Dra och släpp", "click_browse": "eller klicka för att bläddra",
@@ -432,7 +432,7 @@ const translations = {
         "processing": "Bearbetar...", "parsing_files": "Analyserar filer...", "waiting": "Väntar...", "total_saved_prefix": "Totalt Sparat:", "saved": "sparat", "starting": "Startar...", "select_language": "Välj Språk"
     },
     "fi": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "tiedostot", "total_saved_header": "Yhteensä Säästetty: ", "download_zip": "Lataa ZIP", "clear": "Tyhjennä", "format": "Muoto", "quality": "Laatu",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "tiedostot", "total_saved_header": "Yhteensä Säästetty: ", "download_zip": "ZIP", "clear": "Tyhjennä", "format": "Muoto", "quality": "Laatu",
         "hero_title": "Paras ja nopein tapa muuntaa kuvasi WebP-muotoon",
         "hero_subtitle": "Asiakaspuolen erämuunnos JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF WEBP-muotoon.<br/><strong>100% ilmainen</strong>, <strong>välitön</strong> - hyödyntää kaikkia ytimiäsi, rajoittamaton selaimessasi.<br/><span class='secondary-text'>Ei latauksia - <strong>Tiedostosi pysyvät yksityisinä</strong> eikä kaistanleveyttä tarvita</span><br/><span class='secondary-text'>Ei evästeitä - Ei seurantaa!</span>",
         "drag_drop": "Vedä ja pudota", "click_browse": "tai napsauta selataksesi",
@@ -456,7 +456,7 @@ const translations = {
         "processing": "Käsitellään...", "parsing_files": "Analysoidaan tiedostoja...", "waiting": "Odotetaan...", "total_saved_prefix": "Yhteensä Säästetty:", "saved": "säästetty", "starting": "Käynnistetään...", "select_language": "Valitse Kieli"
     },
     "no": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Totalt Spart: ", "download_zip": "Last ned ZIP", "clear": "Tøm", "format": "Format", "quality": "Kvalitet",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "filer", "total_saved_header": "Totalt Spart: ", "download_zip": "ZIP", "clear": "Tøm", "format": "Format", "quality": "Kvalitet",
         "hero_title": "Den beste og raskeste måten å konvertere bildene dine til WebP",
         "hero_subtitle": "Klientsidebatch-konvertering fra JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF til WEBP.<br/><strong>100% gratis</strong>, <strong>øyeblikkelig</strong> - utnytter alle kjernene dine, ubegrenset i nettleseren din.<br/><span class='secondary-text'>Ingen opplastinger - <strong>Filene dine forblir private</strong> og ingen båndbredde nødvendig</span><br/><span class='secondary-text'>Ingen informasjonskapsler - Ingen sporing!</span>",
         "drag_drop": "Dra og slipp", "click_browse": "eller klikk for å bla gjennom",
@@ -480,7 +480,7 @@ const translations = {
         "processing": "Behandler...", "parsing_files": "Analyserer filer...", "waiting": "Venter...", "total_saved_prefix": "Totalt Spart:", "saved": "spart", "starting": "Starter...", "select_language": "Velg Språk"
     },
     "el": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "αρχεία", "total_saved_header": "Σύνολο Εξοικονόμησης: ", "download_zip": "Λήψη ZIP", "clear": "Εκκαθάριση", "format": "Μορφή", "quality": "Ποιότητα",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "αρχεία", "total_saved_header": "Σύνολο Εξοικονόμησης: ", "download_zip": "ZIP", "clear": "Εκκαθάριση", "format": "Μορφή", "quality": "Ποιότητα",
         "hero_title": "Ο καλύτερος και ταχύτερος τρόπος για να μετατρέψετε τις εικόνες σας σε WebP",
         "hero_subtitle": "Μαζική μετατροπή από την πλευρά του πελάτη από JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF σε WEBP.<br/><strong>100% δωρεάν</strong>, <strong>άμεσα</strong> - αξιοποιώντας όλους τους πυρήνες σας, απεριόριστα στο πρόγραμμα περιήγησής σας.<br/><span class='secondary-text'>Χωρίς μεταφορτώσεις - <strong>Τα αρχεία σας παραμένουν ιδιωτικά</strong> και δεν απαιτείται εύρος ζώνης</span><br/><span class='secondary-text'>Χωρίς cookies - Χωρίς παρακολούθηση!</span>",
         "drag_drop": "Σύρετε και αποθέστε", "click_browse": "ή κάντε κλικ για περιήγηση",
@@ -504,7 +504,7 @@ const translations = {
         "processing": "Επεξεργασία...", "parsing_files": "Ανάλυση αρχείων...", "waiting": "Αναμονή...", "total_saved_prefix": "Σύνολο Εξοικονόμησης:", "saved": "εξοικονομήθηκε", "starting": "Εκκίνηση...", "select_language": "Επιλέξτε Γλώσσα"
     },
     "hu": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fájlok", "total_saved_header": "Összesen Megtakarítva: ", "download_zip": "ZIP Letöltése", "clear": "Törlés", "format": "Formátum", "quality": "Minőség",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "fájlok", "total_saved_header": "Összesen Megtakarítva: ", "download_zip": "ZIP", "clear": "Törlés", "format": "Formátum", "quality": "Minőség",
         "hero_title": "A legjobb és leggyorsabb módja a képek WebP formátumba konvertálásának",
         "hero_subtitle": "Kliens oldali kötegelt konverzió JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF formátumból WEBP-be.<br/><strong>100% ingyenes</strong>, <strong>azonnali</strong> - kihasználva az összes magot, korlátlan a böngészőben.<br/><span class='secondary-text'>Nincs feltöltés - <strong>A fájlok privátak maradnak</strong> és nincs szükség sávszélességre</span><br/><span class='secondary-text'>Nincs süti - Nincs követés!</span>",
         "drag_drop": "Húzd és ejtsd", "click_browse": "vagy kattints a böngészéshez",
@@ -528,7 +528,7 @@ const translations = {
         "processing": "Feldolgozás...", "parsing_files": "Fájlok elemzése...", "waiting": "Várakozás...", "total_saved_prefix": "Összesen Megtakarítva:", "saved": "megtakarítva", "starting": "Indítás...", "select_language": "Nyelv Kiválasztása"
     },
     "tr": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "dosyalar", "total_saved_header": "Toplam Tasarruf: ", "download_zip": "ZIP İndir", "clear": "Temizle", "format": "Format", "quality": "Kalite",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "dosyalar", "total_saved_header": "Toplam Tasarruf: ", "download_zip": "ZIP", "clear": "Temizle", "format": "Format", "quality": "Kalite",
         "hero_title": "Görsellerinizi WebP'ye dönüştürmenin en iyi ve en hızlı yolu",
         "hero_subtitle": "JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF'den WEBP'ye istemci tarafı toplu dönüştürme.<br/><strong>%100 ücretsiz</strong>, <strong>anında</strong> - tüm çekirdeklerinizi kullanarak, tarayıcınızda sınırsız.<br/><span class='secondary-text'>Yükleme yok - <strong>Dosyalarınız gizli kalır</strong> ve bant genişliği gerekmez</span><br/><span class='secondary-text'>Çerez yok - İzleme yok!</span>",
         "drag_drop": "Sürükle ve bırak", "click_browse": "veya göz atmak için tıklayın",
@@ -552,7 +552,7 @@ const translations = {
         "processing": "İşleniyor...", "parsing_files": "Dosyalar analiz ediliyor...", "waiting": "Bekleniyor...", "total_saved_prefix": "Toplam Tasarruf:", "saved": "tasarruf edildi", "starting": "Başlatılıyor...", "select_language": "Dil Seçin"
     },
     "et": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "failid", "total_saved_header": "Kokku Säästetud: ", "download_zip": "Laadi alla ZIP", "clear": "Tühjenda", "format": "Formaat", "quality": "Kvaliteet",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "failid", "total_saved_header": "Kokku Säästetud: ", "download_zip": "ZIP", "clear": "Tühjenda", "format": "Formaat", "quality": "Kvaliteet",
         "hero_title": "Parim ja kiireim viis piltide teisendamiseks WebP-ks",
         "hero_subtitle": "Kliendipoolne partiiteisendus JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF-ist WEBP-ks.<br/><strong>100% tasuta</strong>, <strong>kohene</strong> - kasutades kõiki tuumasid, piiramatu brauseris.<br/><span class='secondary-text'>Üleslaadimisi pole - <strong>Teie failid jäävad privaatseks</strong> ega vaja ribalaiust</span><br/><span class='secondary-text'>Küpsiseid pole - Jälgimist pole!</span>",
         "drag_drop": "Lohista ja kukuta", "click_browse": "või klõpsake sirvimiseks",
@@ -576,7 +576,7 @@ const translations = {
         "processing": "Töötlemine...", "parsing_files": "Failide analüüsimine...", "waiting": "Ootan...", "total_saved_prefix": "Kokku Säästetud:", "saved": "säästetud", "starting": "Käivitamine...", "select_language": "Vali Keel"
     },
     "is": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "skrár", "total_saved_header": "Samtals Sparað: ", "download_zip": "Sækja ZIP", "clear": "Hreinsa", "format": "Snið", "quality": "Gæði",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "skrár", "total_saved_header": "Samtals Sparað: ", "download_zip": "ZIP", "clear": "Hreinsa", "format": "Snið", "quality": "Gæði",
         "hero_title": "Besta og hraðasta leiðin til að umbreyta myndunum þínum í WebP",
         "hero_subtitle": "Magnumbreyting á biðlarahlið úr JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF í WEBP.<br/><strong>100% ókeypis</strong>, <strong>samstundis</strong> - nýtir alla kjarna þína, ótakmarkað í vafranum þínum.<br/><span class='secondary-text'>Engar upphleðslur - <strong>Skrárnar þínar haldast einkareknar</strong> og engin bandbreidd þörf</span><br/><span class='secondary-text'>Engin vafrakökur - Engin eftirlit!</span>",
         "drag_drop": "Draga og sleppa", "click_browse": "eða smelltu til að vafra",
@@ -600,7 +600,7 @@ const translations = {
         "processing": "Vinnsla...", "parsing_files": "Greining skráa...", "waiting": "Bíð...", "total_saved_prefix": "Samtals Sparað:", "saved": "sparað", "starting": "Ræsir...", "select_language": "Veldu Tungumál"
     },
     "lt": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "failai", "total_saved_header": "Iš viso Sutaupyta: ", "download_zip": "Atsisiųsti ZIP", "clear": "Išvalyti", "format": "Formatas", "quality": "Kokybė",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "failai", "total_saved_header": "Iš viso Sutaupyta: ", "download_zip": "ZIP", "clear": "Išvalyti", "format": "Formatas", "quality": "Kokybė",
         "hero_title": "Geriausias ir greičiausias būdas konvertuoti vaizdus į WebP",
         "hero_subtitle": "Kliento pusės paketinė konversija iš JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF į WEBP.<br/><strong>100% nemokama</strong>, <strong>akimirksniu</strong> - naudojant visus branduolius, neribotai naršyklėje.<br/><span class='secondary-text'>Jokių įkėlimų - <strong>Jūsų failai lieka privatūs</strong> ir nereikia pralaidumo</span><br/><span class='secondary-text'>Jokių slapukų - Jokio sekimo!</span>",
         "drag_drop": "Vilkti ir mesti", "click_browse": "arba spustelėkite naršyti",
@@ -624,7 +624,7 @@ const translations = {
         "processing": "Apdorojama...", "parsing_files": "Analizuojami failai...", "waiting": "Laukiama...", "total_saved_prefix": "Iš viso Sutaupyta:", "saved": "sutaupyta", "starting": "Paleidžiama...", "select_language": "Pasirinkite Kalbą"
     },
     "lv": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "faili", "total_saved_header": "Kopā Ietaupīts: ", "download_zip": "Lejupielādēt ZIP", "clear": "Notīrīt", "format": "Formāts", "quality": "Kvalitāte",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "faili", "total_saved_header": "Kopā Ietaupīts: ", "download_zip": "ZIP", "clear": "Notīrīt", "format": "Formāts", "quality": "Kvalitāte",
         "hero_title": "Labākais un ātrākais veids, kā pārveidot attēlus WebP formātā",
         "hero_subtitle": "Klienta puses pakešu pārveidošana no JPG, PNG, GIF, SVG, ICO, BMP, TIFF, HEIC, AVIF uz WEBP.<br/><strong>100% bez maksas</strong>, <strong>tūlītēji</strong> - izmantojot visus kodolus, neierobežoti pārlūkprogrammā.<br/><span class='secondary-text'>Nav augšupielāžu - <strong>Jūsu faili paliek privāti</strong> un nav nepieciešams joslas platums</span><br/><span class='secondary-text'>Nav sīkdatņu - Nav izsekošanas!</span>",
         "drag_drop": "Velciet un nometiet", "click_browse": "vai noklikšķiniet, lai pārlūkotu",
@@ -648,7 +648,7 @@ const translations = {
         "processing": "Apstrādā...", "parsing_files": "Analizē failus...", "waiting": "Gaida...", "total_saved_prefix": "Kopā Ietaupīts:", "saved": "ietaupīts", "starting": "Sāk...", "select_language": "Izvēlieties Valodu"
     },
     "ja": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "ファイル", "total_saved_header": "合計節約: ", "download_zip": "ZIPをダウンロード", "clear": "クリア", "format": "形式", "quality": "品質",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "ファイル", "total_saved_header": "合計節約: ", "download_zip": "ZIP", "clear": "クリア", "format": "形式", "quality": "品質",
         "hero_title": "画像をWebPに変換する最高かつ最速の方法",
         "hero_subtitle": "JPG、PNG、GIF、SVG、ICO、BMP、TIFF、HEIC、AVIFからWEBPへのクライアント側一括変換。<br/><strong>100%無料</strong>、<strong>即座</strong> - すべてのコアを活用し、ブラウザで無制限。<br/><span class='secondary-text'>アップロードなし - <strong>ファイルはプライベートのまま</strong>で帯域幅不要</span><br/><span class='secondary-text'>Cookieなし - 追跡なし！</span>",
         "drag_drop": "ドラッグ＆ドロップ", "click_browse": "またはクリックして参照",
@@ -672,7 +672,7 @@ const translations = {
         "processing": "処理中...", "parsing_files": "ファイル解析中...", "waiting": "待機中...", "total_saved_prefix": "合計節約:", "saved": "節約", "starting": "開始中...", "select_language": "言語を選択"
     },
     "zh": {
-        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "文件", "total_saved_header": "总共节省: ", "download_zip": "下载ZIP", "clear": "清除", "format": "格式", "quality": "质量",
+        "app_name": "<span class='notranslate'>toWeb<span>P</span>.dev</span>", "files": "文件", "total_saved_header": "总共节省: ", "download_zip": "ZIP", "clear": "清除", "format": "格式", "quality": "质量",
         "hero_title": "将图像转换为WebP的最佳和最快方式",
         "hero_subtitle": "客户端批量转换JPG、PNG、GIF、SVG、ICO、BMP、TIFF、HEIC、AVIF到WEBP。<br/><strong>100%免费</strong>，<strong>即时</strong> - 利用所有核心，在浏览器中无限制。<br/><span class='secondary-text'>无上传 - <strong>您的文件保持私密</strong>且无需带宽</span><br/><span class='secondary-text'>无Cookie - 无跟踪！</span>",
         "drag_drop": "拖放", "click_browse": "或点击浏览",

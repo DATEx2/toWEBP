@@ -4,6 +4,7 @@
 
 /* 1. Variables & Design Tokens */
 :root {
+  --padding: clamp(1rem, 5vw, 2rem);
   /* Colors */
   --primary: #0d9488;
   --primary-hover: #0f766e;
@@ -70,7 +71,6 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   min-height: 100vh;
-  margin-bottom: 90%;
 }
 
 @font-face {
@@ -197,6 +197,16 @@ body.expanded .app-container {
 main {
   padding: 2rem;
 }
+.bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background: rgb(41, 5, 86);
+    max-width: 100dvw;
+}
 
 /* Hero Section */
 .hero-section {
@@ -206,14 +216,13 @@ main {
 }
 
 .hero-section h2 {
-  font-size: 2.5rem;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--padding);
   line-height: 1.2;
   position: relative;
   display: inline-block;
-  padding: 0.5rem 1.5rem;
+  padding: 0.5rem var(--padding);
 }
 
 /* Corner Decorations like toWebP.io */
@@ -268,7 +277,7 @@ header {
   right: 0;
   min-height: 70px;
   height: auto;
-  padding: 0 1.5rem;
+  padding: 0 var(--padding);
   max-width: 1240px;
   width: 100%;
   margin: 0 auto;
@@ -322,9 +331,27 @@ body.expanded.scrolled header {
   height: 70px;
   flex-shrink: 0;
 }
+h1 {
+    font-size: clamp(var(--padding), 8dvw, 2rem);
+}
+h2 {
+    font-size: clamp(1.4rem, 7.5dvw, 1.8rem);
+}
+h3 {
+    font-size: clamp(1.3rem, 7dvw, 1.6rem);
+}
+h4 {
+    font-size: clamp(1.2rem, 4.5dvw, 1.4rem);
+}
+h5 {
+    font-size: clamp(1.1rem, 4dvw, 1.2rem);
+}
+h6 {
+    font-size: clamp(1rem, 3.5dvw, 1rem);
+}
 
 .logo h1 {
-  font-size: 1.5rem;
+  font-size: var(--padding);
   font-weight: 800;
   letter-spacing: -0.025em;
   color: var(--text-main);
@@ -332,8 +359,22 @@ body.expanded.scrolled header {
 }
 
 /* Header Controls */
+/* Header Controls */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto; /* Pushes everything to the right */
+  margin-right: 1rem;
+}
+
+#header-download-all {
+    padding: 0.35rem 1rem;
+    font-size: 0.9rem;
+}
+
 .header-right-group {
-  margin-left: auto;
+  /* margin-left: auto; removed */
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -357,9 +398,25 @@ body.expanded.scrolled header {
   transition: all 0.3s ease;
   flex: 1;
   justify-content: center;
+  height: 44px; /* Fixed height to prevent jumps */
+  overflow: hidden; /* Ensure content doesn't spill */
 }
 
-body.scrolled .header-sticky-stats,
+/* Ensure header actions take space but are hidden initially to prevent layout shift */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px; /* Reserve height */
+}
+
+.header-actions button {
+  /* visibility handled by JS, but ensuring they don't collapse parent if hidden */
+}
+
+.header-sticky-stats.visible .stat-item {
+  display: flex !important;
+}
 .header-sticky-stats.visible {
   display: flex;
   opacity: 1;
@@ -374,7 +431,7 @@ body.scrolled .header-sticky-stats,
   background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: white;
   border: none;
-  padding: 0.625rem 1.5rem;
+  padding: 0.625rem var(--padding);
   border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
@@ -382,6 +439,7 @@ body.scrolled .header-sticky-stats,
   box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2);
   flex-wrap: nowrap;
   white-space: nowrap;
+  align-items: center;
 }
 
 .btn-primary:hover {
@@ -569,6 +627,37 @@ input[type="range"] {
   pointer-events: auto;
 }
 
+.lang-menu-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.lang-menu-header {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.lang-close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+
+.lang-close-btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-main);
+}
+
 .lang-menu-list {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -644,7 +733,6 @@ input[type="range"] {
 }
 
 .drop-zone h2 {
-  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -757,10 +845,9 @@ input[type="range"] {
 
 .carousel-section.open {
   max-height: 220px; /* Increased for taller cards + padding */
-  padding: 0.5rem 1.5rem 1rem 1.5rem;
+  padding: 0.5rem var(--padding) 1rem var(--padding);
   opacity: 1;
   transform: translateY(0);
-  border-bottom: 1px solid var(--border); /* Reveal border */
 }
 
 .carousel-section.hidden {
@@ -1057,47 +1144,78 @@ input[type="range"] {
 /* Sticky Progress Bar */
 .sticky-progress-container {
   position: absolute;
-  bottom: 0; left: 0;
-  width: 100%; height: 4px;
-  background: rgba(0,0,0,0.05);
-  opacity: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 12px; /* Increased to fit 3 bars */
+  /* background: rgba(0,0,0,0.05); */
+  opacity: 1;
   transition: opacity 0.3s ease;
   pointer-events: none;
   overflow: hidden;
   z-index: var(--z-sticky);
 }
 
-body.scrolled .sticky-progress-container {
-  opacity: 1;
+/* .sticky-progress-container.auto-hide removed */
+
+.bar-hidden {
+    opacity: 0 !important;
 }
 
 .sticky-bar-parsing {
-  position: absolute; top: 0; left: 0; height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
   background: rgba(250, 204, 21, 0.5);
   width: 0%;
-  transition: width 0.2s linear;
+  transition: width 0.2s linear, opacity 0.3s ease;
   z-index: 1;
 }
 
 .sticky-bar-conversion {
-  position: absolute; top: 0; left: 0; height: 100%;
+  position: absolute;
+  top: 4px; /* Moved down */
+  left: 0;
+  height: 4px;
   width: 0%;
-  transition: width 0.1s linear;
+  transition: width 0.1s linear, opacity 0.3s ease;
   z-index: 2;
-  background: rgba(13, 148, 136, 0.35);
+  background: rgba(13, 148, 136, 0.55); /* Increased visibility slightly */
 }
 
 .sticky-bar-saved {
-  position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
-  background: var(--primary);
-  transform-origin: bottom center;
-  transform: scaleY(0);
-  transition: transform 0.3s ease;
+  position: absolute;
+  bottom: 0; /* Align to bottom (8-12px range effectively) */
+  left: 0;
+  width: 0;
+  height: 4px !important;
+  background: var(--success); /* Changed from primary */
+  transition: width 0.3s ease, background-color 0.3s ease; 
+  z-index: 4;
+}
+
+.sticky-bar-saved.bar-error {
+    background-color: var(--error) !important;
+}
+
+.sticky-bar-saved.bar-error + .sticky-bar-saved-bg {
+    background-color: var(--error);
+}
+
+.sticky-bar-saved-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--success); /* Changed from primary to success */
+  opacity: 0.5;
   z-index: 3;
 }
 
 /* Modals / Lightbox */
-.lightbox {
+.lightbox { 
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
@@ -1128,7 +1246,7 @@ body.scrolled .sticky-progress-container {
   width: 44px; height: 44px;
   background: rgba(255,255,255,0.1);
   border: none; border-radius: 50%;
-  cursor: pointer; z-index: 1001;
+  cursor: pointer; z-index: 10001; /* Increased to ensure it's on top */
 }
 
 .lightbox-close::before, .lightbox-close::after {
@@ -1143,7 +1261,7 @@ body.scrolled .sticky-progress-container {
   width: 44px; height: 44px;
   background: rgba(255,255,255,0.1);
   border: none; border-radius: 50%;
-  cursor: pointer; z-index: 1001;
+  cursor: pointer; z-index: 10001; /* Increased */
   display: flex; align-items: center; justify-content: center;
   color: white;
   transition: background 0.2s;
@@ -1157,8 +1275,10 @@ body.scrolled .sticky-progress-container {
 .lightbox-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: transparent; color: rgba(255,255,255,0.6);
-  border: none; width: 60px; height: 100%;
-  cursor: pointer; z-index: 1001; font-size: 3rem;
+  border: none; width: 60px; 
+  height: calc(100% - 160px); /* Reduced height to avoid overlap with top buttons */
+  cursor: pointer; z-index: 10001; /* Increased */
+  font-size: 3rem;
   display: flex; align-items: center; justify-content: center;
 }
 .lightbox-nav:hover { color: white; background: rgba(255,255,255,0.05); }
@@ -1195,9 +1315,9 @@ body.scrolled .sticky-progress-container {
 
 /* Info Section */
 .info-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
+  max-width: min(1200px, 100vw);
+  margin: 0 auto 100dvh auto;
+  padding: var(--padding) var(--padding);
   transition: opacity 0.3s ease-out;
 }
 
@@ -1209,7 +1329,7 @@ body.scrolled .sticky-progress-container {
 }
 
 .info-card {
-  padding: 2rem 1.5rem;
+  padding: 2rem var(--padding);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1276,7 +1396,6 @@ body.scrolled .sticky-progress-container {
 }
 
 .seo-content-block h2 {
-  font-size: 2rem;
   font-weight: 800;
   text-align: center;
   margin-bottom: 2.5rem;
@@ -1296,10 +1415,11 @@ body.scrolled .sticky-progress-container {
 .steps-list {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 3rem;
   padding: 0;
   counter-reset: step-counter;
+  max-width: 100%;
 }
 
 .step-item {
@@ -1309,6 +1429,7 @@ body.scrolled .sticky-progress-container {
   text-align: center;
   gap: 1.5rem;
   position: relative;
+  max-width: 100% !important;
 }
 
 /* Add connecting lines between steps on large screens */
@@ -1342,7 +1463,6 @@ body.scrolled .sticky-progress-container {
 }
 
 .step-text h3 {
-  font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--text-main);
@@ -1376,19 +1496,23 @@ body.scrolled .sticky-progress-container {
 }
 
 .seo-col h3 {
-  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: var(--text-main);
-  display: flex; align-items: center; gap: 0.75rem;
+  display: block;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .seo-col h3::before {
   content: '';
   display: block;
-  width: 4px; height: 1.5rem;
+  width: 4px;
+  height: var(--padding);
   background: var(--primary);
   border-radius: 2px;
+  position: absolute;
+  top: 1.3em;
 }
 
 .seo-col p {
@@ -1413,7 +1537,7 @@ body.scrolled .sticky-progress-container {
 
 .faq-item {
   background: white;
-  padding: 1.5rem;
+  padding: var(--padding);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
@@ -1426,7 +1550,6 @@ body.scrolled .sticky-progress-container {
 }
 
 .faq-item h4 {
-  font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--text-main);
@@ -1454,12 +1577,12 @@ body.scrolled .sticky-progress-container {
 @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
 /* Responsive */
-@media (max-width: 1024px) {
+/* @media (max-width: 1024px) {
   .hero-section h2 { font-size: 2.2rem; }
-}
+} */
 
 @media (max-width: 768px) {
-  .hero-section h2 { font-size: 1.8rem; padding: 0.5rem 1rem; margin-bottom: 1rem; }
+  .hero-section h2 { padding: 0.5rem 1rem; margin-bottom: 1rem; }
   .hero-section p { font-size: 1rem; line-height: 1.6; }
   .hero-section p span.secondary-text { font-size: 0.9rem; }
   
@@ -1470,12 +1593,12 @@ body.scrolled .sticky-progress-container {
   .app-container { margin-top: 80px; width: calc(100% - 1rem); }
   body.expanded .app-container { margin-top: 380px; }
   
-  main { padding: 1.5rem; }
-  .drop-zone { padding: 1.5rem; }
+  main { padding: var(--padding); }
+  .drop-zone { padding: var(--padding); }
   
   .seo-content-block { gap: 2.5rem; }
-  .how-it-works { padding: 1.5rem; }
-  .seo-col { padding: 1.5rem; }
+  .how-it-works { padding: var(--padding); }
+  .seo-col { padding: var(--padding); }
 }
 
 @media (max-width: 640px) {
@@ -1483,7 +1606,7 @@ body.scrolled .sticky-progress-container {
   header { 
     flex-direction: row; 
     flex-wrap: wrap; 
-    padding: 0.75rem 1rem; 
+    padding: 0.75rem var(--padding); /* Increased right padding */
     height: auto !important;
     gap: 0;
     align-items: flex-start;
@@ -1503,7 +1626,7 @@ body.scrolled .sticky-progress-container {
     padding: 0.2rem 0.6rem !important;
     font-size: 0.75rem !important;
     white-space: nowrap;
-    height: 32px;
+    height: 30px;
   }
 
   /* Carousel: Show 2.5 items to indicate scroll, Remove excess padding */
@@ -1511,7 +1634,7 @@ body.scrolled .sticky-progress-container {
   .card-preview { object-fit: contain !important; padding: 4px; background: #fff; }
   .nav-btn { display: none !important; }
   
-  .carousel-section.open { padding: 0.5rem 0.5rem 1rem 0.5rem; }
+  .carousel-section.open { padding: 0; }/*0.5rem 0.5rem 1rem 0.5rem; */
   .carousel-track-container { margin: 0; }
 
   /* Lang Menu Button - Move to top right */
@@ -1519,12 +1642,12 @@ body.scrolled .sticky-progress-container {
     position: relative;
     margin-left: auto;
     display: flex; align-items: center;
+    margin-right: 1rem; /* Force distance from edge */
   }
   
   /* Group Controls in a new row width 100% */
   .header-right-group {
     width: 100%;
-    margin-top: 0.5rem;
     flex-direction: column;
     gap: 0.5rem;
     align-items: stretch;
@@ -1560,14 +1683,11 @@ body.scrolled .sticky-progress-container {
   .header-sticky-stats { 
     display: none; 
     width: 100%; 
-    padding: 0.5rem 0; 
-    border-top: 1px solid var(--border);
-    margin-top: 0.5rem;
+    /* padding: 0.5rem 0;  */
+    /* border-top: 1px solid var(--border); */
     order: 10;
   }
-  
-  body.expanded .header-sticky-stats, 
-  body.scrolled .header-sticky-stats {
+  body.expanded .header-sticky-stats {
     display: flex;
   }
 
@@ -1584,12 +1704,59 @@ body.scrolled .sticky-progress-container {
     margin-top: 200px;
   }
   
-  .hero-section h2 { font-size: 1.6rem; }
+  /* .hero-section h2 { font-size: 1.6rem; } */
 }
 
 @media (max-width: 480px) {
-  .lang-menu { width: calc(100vw - 20px); right: -10px; position: fixed; top: 10px; left: 10px; height: calc(100vh - 20px); }
-  .lang-menu-list { grid-template-columns: 1fr; }
+  .lang-menu { 
+      width: 100vw; 
+      height: 100vh !important;
+      top: 0 !important;
+      left: 0;
+      right: 0;
+      bottom: 0 !important;
+      
+      position: fixed; 
+      border-radius: 0;
+      
+      overflow-y: auto;
+      z-index: 20000;
+      margin: 0;
+      transform: none !important;
+      
+      display: flex; /* Keep flex for sticky header capability */
+      flex-direction: column;
+      justify-content: flex-start; /* Start from top */
+      padding: 0;
+      
+      background: #fff; /* Solid white background */
+      box-shadow: none;
+  }
+  
+  .lang-menu::before { display: none; }
+
+  .lang-menu-top {
+      background: #fff;
+      border-radius: 0;
+      position: sticky; /* Sticky header */
+      top: 0;
+      z-index: 10;
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+      width: 100%;
+  }
+
+  .lang-menu-list {
+      background: #fff;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      padding: 0 1rem;
+      gap: 0.5rem;
+      padding-bottom: 4rem; /* Valid padding for scrolling past content */
+      overflow-y: visible;
+      max-height: none;
+      width: 100%;
+  }
   
   .format-tab { padding: 0 4px; font-size: 0.7rem; }
   .setting-group label { font-size: 0.75rem; }
@@ -1644,7 +1811,6 @@ body.scrolled .sticky-progress-container {
 
 .gdpr-section h3 {
   color: var(--text-main);
-  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
 }
@@ -1696,7 +1862,7 @@ body.scrolled .sticky-progress-container {
 .bmc-container {
     display: flex;
     justify-content: center;
-    margin: 0.5rem 0 1.5rem 0;
+    margin: 0.5rem 0 var(--padding) 0;
 }
 
 .bmc-link {
@@ -1723,3 +1889,42 @@ body.scrolled .sticky-progress-container {
     font-size: 1.2rem;
 }
 @media (max-width: 480px) { .pie-chart::after { top: 6px; left: 6px; right: 6px; bottom: 6px; } }
+
+/* Mobile Header Optimization */
+@media (max-width: 900px) {
+    header {
+        flex-wrap: wrap;
+        height: auto !important;
+        gap: 0;
+    }
+    
+    .logo {
+        margin-right: auto;
+        height: 30px;
+    }
+
+    .header-actions {
+        margin-left: 0 !important; 
+        margin-right: 0 !important;
+        order: 2;
+    }
+
+    .header-right-group {
+        width: 100%;
+        order: 3;
+        padding-top: 0;
+        border-top: 1px dashed var(--border);
+        justify-content: center;
+    }
+    
+    .header-controls {
+        width: 100%;
+        justify-content: center !important;
+        gap: 0;
+        flex-wrap: wrap;
+    }
+    
+    .format-tabs, .setting-group, .lang-dropdown-wrapper {
+        margin: 2px;
+    }
+}

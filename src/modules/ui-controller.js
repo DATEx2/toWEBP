@@ -273,16 +273,27 @@ export function updateStats() {
     }
     if (elements.headerTotalSaved.length) {
         if (state.completed.size > 0) {
-            const percent = Math.round((savedTotal / state.totalOriginalSize) * 100);
+            const rawPercent = Math.round((savedTotal / state.totalOriginalSize) * 100);
+            const isSaving = savedTotal >= 0;
+            const absPercent = Math.abs(rawPercent);
+            
             const $parent = elements.headerTotalSaved.parent();
             
-            // Hide the static label sibling if present, so we control the full content
+            // Hide the static label sibling if present
             $parent.find('span[data-i18n]').not(elements.headerTotalSaved).hide();
+            
+            // Determine styles and labels based on outcome
+            const labelKey = isSaving ? 'total_saved_prefix' : 'total_added_prefix'; // Ensure 'total_added_prefix' exists in generic fallbacks or use hardcoded
+            const labelText = isSaving ? (t('total_saved_prefix') || 'Total Saved:') : 'Total Added:';
+            
+            const colorClass = isSaving ? 'var(--success)' : 'var(--error)';
+            const sign = isSaving ? '-' : '+';
+            const valStr = formatSize(Math.abs(savedTotal));
 
             const html = `
                 <span style="font-weight: 700; margin-right: 0.5rem; color: var(--text-main);">${formatSize(state.totalNewSize)}</span>
-                <span style="opacity: 0.8;">${t('total_saved_prefix')} ${formatSize(savedTotal)}</span>
-                <span style="color: var(--success); font-weight: 700; margin-left: 0.35rem;">(-${percent}%)</span>
+                <span style="opacity: 0.8; color: ${isSaving ? 'inherit' : 'var(--error)'};">${labelText} ${valStr}</span>
+                <span style="color: ${colorClass}; font-weight: 700; margin-left: 0.35rem;">(${sign}${absPercent}%)</span>
             `;
 
             elements.headerTotalSaved.html(html);
@@ -422,23 +433,53 @@ export function drawRings() {
         if (state.totalOriginalSize > 0) {
             // Visualize relative size of the new files (New Size)
             sizeRatio = state.totalNewSize / state.totalOriginalSize;
-            if (sizeRatio > 1) {
-                sizeRatio = 1; // Cap at 100%
-                isError = true; // Turn red
-            }
+            
             // Ensure visible
             elements.stickySaved.css('display', 'block');
             if ($bg.length) $bg.css('display', 'block');
+
+            if (sizeRatio <= 1) {
+                // SAVED (Normal Case)
+                elements.stickySaved.css({
+                    'width': (sizeRatio * 100) + '%',
+                    'background-color': '' // Reset
+                });
+                elements.stickySaved.removeClass('bar-error');
+                
+                // Reset BG to standard (Faint Green)
+                if ($bg.length) {
+                    $bg.css({
+                        'background-color': '',
+                        'opacity': '' // Use CSS default (0.5)
+                    });
+                }
+            } else {
+                // LOST (Increase Case)
+                // User wants Red line representing the EXCESS percentage
+                // "Over the green line" -> Red on top of Green
+                const excessRatio = sizeRatio - 1;
+                let excessPct = excessRatio * 100;
+                if (excessPct > 100) excessPct = 100;
+
+                elements.stickySaved.css({
+                    'width': excessPct + '%',
+                    'background-color': 'var(--error)' // Explicit Red
+                });
+                elements.stickySaved.addClass('bar-error');
+
+                // Make BG Solid Green to represent "Original Size" baseline
+                if ($bg.length) {
+                    $bg.css({
+                        'background-color': 'var(--success)',
+                        'opacity': '1'
+                    });
+                }
+            }
         } else {
             // Hide if no stats
             elements.stickySaved.css('display', 'none');
             if ($bg.length) $bg.css('display', 'none');
         }
-
-        elements.stickySaved.css('width', (sizeRatio * 100) + '%');
-        
-        if (isError) elements.stickySaved.addClass('bar-error');
-        else elements.stickySaved.removeClass('bar-error');
     }
 
     // Logic Update for Targets

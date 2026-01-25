@@ -84,12 +84,15 @@ export function initScrollReveal() {
         // Scale: <10: 6, <20: 5, <30: 4, <40: 3, <60: 2, >=60: 1
         const textLen = htmlContent.replace(/<[^>]*>/g, '').length;
         let speedFactor = 1;
-        if (textLen < 10) speedFactor = 6;
-        else if (textLen < 20) speedFactor = 5;
-        else if (textLen < 30) speedFactor = 4;
-        else if (textLen < 40) speedFactor = 3;
-        else if (textLen < 60) speedFactor = 2;
-        
+        if (textLen < 20) speedFactor = 8;
+        else if (textLen < 30) speedFactor = 7;
+        else if (textLen < 40) speedFactor = 6;
+        else if (textLen < 50) speedFactor = 5;
+        else if (textLen < 60) speedFactor = 4;
+        else if (textLen < 70) speedFactor = 3;
+        else if (textLen < 80) speedFactor = 2.5;
+        else if (textLen < 90) speedFactor = 2;
+        else if (textLen < 100) speedFactor = 1.5;
         // Typing logic
         let i = 0;
         let currentHtml = '';

@@ -613,7 +613,10 @@ input[type="range"] {
 
 /* Ensure hero text is centered */
 .hero-section p {
-  text-align: center;
+  text-align: center !important;
+  display: block;
+  width: 100%;
+  margin-top: 2rem; /* Spacing from drop zone */
 }
 
 .drop-zone:hover, .drop-zone.drag-over {

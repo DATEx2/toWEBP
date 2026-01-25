@@ -88,12 +88,73 @@ export function handleWorkerMessage(workerIndex, e) {
         return; 
     }
 
+    // --- CASE 1.5: FALLBACK (SVG/Encoding Error) ---
+    if (type === 'fallback') {
+        // 1. Free up the worker immediately
+        if (workerIndex >= 0) {
+            state.workerStatus[workerIndex] = false;
+            processQueue();
+        }
+
+        const job = state.processing.get(id);
+        if (!job) return;
+
+        // 2. Main Thread Conversion (for SVGs or tricky files)
+        const img = new Image();
+        const url = URL.createObjectURL(job.file);
+
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            // Determine format/quality
+            const fmt = state.format === 'png' || state.format === 'jpeg' || state.format === 'webp' 
+                        ? `image/${state.format}` : 'image/webp';
+            const quality = state.quality / 100;
+
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    // Success: Recursively handle as a result (pass -1 as workerIndex)
+                    handleWorkerMessage(-1, {
+                         data: {
+                             type: 'result',
+                             id,
+                             success: true,
+                             blob,
+                             originalSize: job.file.size,
+                             newSize: blob.size
+                         }
+                    });
+                } else {
+                    // Blob generation failed
+                    handleWorkerMessage(-1, {
+                        data: { type: 'result', id, success: false, error: "Canvas toBlob failed" }
+                    });
+                }
+            }, fmt, quality);
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            handleWorkerMessage(-1, {
+                data: { type: 'result', id, success: false, error: "Image load failed (SVG?)" }
+            });
+        };
+
+        img.src = url;
+        return;
+    }
+
     // --- CASE 2: CONVERSION COMPLETE ---
     if (type === 'result') {
         const { success, blob, originalSize, newSize, error } = e.data;
 
         // Mark worker as idle
-        state.workerStatus[workerIndex] = false;
+        if (workerIndex >= 0) state.workerStatus[workerIndex] = false;
 
         // Retrieve job data
         const job = state.processing.get(id);

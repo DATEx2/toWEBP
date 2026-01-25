@@ -608,6 +608,12 @@ input[type="range"] {
   text-align: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 2rem;
+  opacity: 1 !important; /* Force visibility */
+}
+
+/* Ensure hero text is centered */
+.hero-section p {
+  text-align: center;
 }
 
 .drop-zone:hover, .drop-zone.drag-over {

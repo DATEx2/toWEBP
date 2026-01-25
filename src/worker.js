@@ -77,11 +77,13 @@ self.onmessage = async function(e) {
         });
 
     } catch (error) {
-        console.error('Worker conversion failed:', error);
+        console.warn('Worker conversion failed, attempting fallback:', error);
+        
+        // If it's an encoding error or specific SVG issue, request main thread fallback
         self.postMessage({
+            type: 'fallback',
             id,
-            success: false,
-            error: error.message
+            error: error.toString()
         });
     }
 };

@@ -248,7 +248,7 @@ main {
   font-weight: 400;
 }
 
-.hero-section p strong {
+strong {
   color: var(--primary);
   font-weight: 700;
 }

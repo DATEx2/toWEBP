@@ -6,17 +6,17 @@
 export function initScrollReveal() {
     const observerOptions = {
         root: null,
-        rootMargin: '1px', // Trigger slightly before element enters viewport
+        rootMargin: '-10px', // Trigger slightly before element enters viewport
         threshold: 0.1
     };
 
     // Pre-process elements: Hide text content immediately to prevent "already typed" flash
-    // We store the original text in a data attribute for retrieval
+    // We store the original HTML in a data attribute for retrieval
     $('.scroll-reveal .type-target').each(function() {
         const $el = $(this);
-        if (!$el.data('originalText')) {
-            $el.data('originalText', $el.text());
-            $el.text('');
+        if (!$el.data('originalHtml')) {
+            $el.data('originalHtml', $el.html());
+            $el.html('');
             $el.css('visibility', 'hidden'); // Hide until typing starts
         }
     });
@@ -33,11 +33,11 @@ export function initScrollReveal() {
                     if ($typeTargets.length > 0) {
                         $typeTargets.each(function() {
                             const $target = $(this);
-                            $target.text(''); 
+                            $target.html(''); 
                             $target.css('visibility', 'visible');
-                            // Use stored text if available, fallback to current (should be empty but safety first)
-                            const text = $target.data('originalText') || $target.text();
-                            startTyping($target, text, 20);
+                            // Use stored html if available
+                            const content = $target.data('originalHtml') || $target.html();
+                            startTyping($target, content, Math.random() * 5 + 1);
                         });
                     }
                     setTimeout(t => {
@@ -53,26 +53,52 @@ export function initScrollReveal() {
         observer.observe(this);
     });
 
-    function startTyping($element, text, baseSpeed = 0) {
+    function startTyping($element, htmlContent, baseSpeed = 0) {
         // Add cursor
         $element.addClass('typewriter-cursor');
 
         // Typing logic
         let i = 0;
-        function type() {
-            if (i < text.length) {
-                // Type 3 characters at once for very fast effect
-                const chunk = text.slice(i, i + 3);
-                $element.text($element.text() + chunk);
-                i += 3;
+        let currentHtml = '';
 
-                // Super fast random speed
+        function type() {
+            if (i < htmlContent.length) {
+                const char = htmlContent[i];
+                
+                if (char === '<') {
+                    // Tag detection: append full tag
+                    const tagEnd = htmlContent.indexOf('>', i);
+                    if (tagEnd !== -1) {
+                        currentHtml += htmlContent.slice(i, tagEnd + 1);
+                        i = tagEnd + 1;
+                    } else {
+                        currentHtml += char;
+                        i++;
+                    }
+                } else if (char === '&') {
+                    // Entity detection
+                    const entityEnd = htmlContent.indexOf(';', i);
+                    if (entityEnd !== -1 && entityEnd - i < 10) {
+                        currentHtml += htmlContent.slice(i, entityEnd + 1);
+                        i = entityEnd + 1;
+                    } else {
+                        currentHtml += char;
+                        i++;
+                    }
+                } else {
+                    // Regular char
+                    currentHtml += char;
+                    i++;
+                }
+
+                $element.html(currentHtml);
+
                 const speed = Math.random() * 5 + 1 + baseSpeed;
                 setTimeout(type, speed);
             } else {
                 $element.removeClass('typewriter-cursor');
-                if ($element.text() !== text) {
-                    $element.text(text);
+                if ($element.html() !== htmlContent) {
+                    $element.html(htmlContent);
                 }
             }
         }

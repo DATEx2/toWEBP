@@ -1434,24 +1434,94 @@ body.scrolled .sticky-progress-container {
 }
 
 @media (max-width: 640px) {
-  header { flex-direction: column; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0; }
-  .header-right-group { margin-left: 0; width: 100%; justify-content: center; flex-direction: column; gap: 0.75rem; }
-  .header-controls { justify-content: center; flex-wrap: wrap; width: 100%; gap: 0.5rem; }
-  .logo { height: 40px; justify-content: center; width: 100%; }
-  body.expanded header { min-height: 360px; padding-bottom: 1rem; }
+  /* Header Layout: Logo Left, Burger Right. Controls below. */
+  header { 
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    padding: 0.75rem 1rem; 
+    height: auto !important;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  .logo { 
+    width: auto; 
+    height: 42px; 
+    justify-content: flex-start; 
+    flex-grow: 1;
+  }
+
+  /* Lang Menu Button - Move to top right */
+  .lang-dropdown-wrapper {
+    position: relative;
+    margin-left: auto;
+    display: flex; align-items: center;
+  }
   
-  .header-sticky-stats { width: 100%; justify-content: center; order: 2; padding: 0.5rem 0; flex-direction: column; opacity: 1; display: flex; transform: none; pointer-events: auto; }
-  body.scrolled .header-sticky-stats { transform: none; }
+  /* Group Controls in a new row width 100% */
+  .header-right-group {
+    width: 100%;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .header-controls {
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .format-tabs { 
+    flex: 1; 
+    height: 40px; 
+    justify-content: space-between; 
+    background: #f8fafc;
+  }
   
-  .format-tabs { height: 38px; width: 100%; justify-content: center; }
-  .setting-group { height: 38px; padding: 0 0.75rem; width: 100%; justify-content: center; }
-  input[type="range"] { width: 100px; }
+  .format-tab { 
+    padding: 0 4px; 
+    flex: 1; 
+    font-size: 13px;
+  }
+
+  .setting-group { 
+    flex: 1; 
+    height: 40px; 
+    justify-content: center;
+    background: #f8fafc;
+  }
+
+  /* Hide stats initially on mobile to save space, show in scroll/expanded */
+  .header-sticky-stats { 
+    display: none; 
+    width: 100%; 
+    padding: 0.5rem 0; 
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+    order: 10;
+  }
   
-  .hero-section h2 { font-size: 1.5rem; }
-  .hero-section h2::before, .hero-section h2::after { width: 10px; height: 10px; }
+  body.expanded .header-sticky-stats, 
+  body.scrolled .header-sticky-stats {
+    display: flex;
+  }
+
+  /* Adjust Main Content Spacing */
+  .app-container { 
+    width: 100%; 
+    border-radius: 0; 
+    /* Header is approx 70px + 50px controls = 120px */
+    margin-top: 140px; 
+  }
   
-  .app-container { width: 100%; border-radius: 0; margin-top: 250px; }
-  body.expanded .app-container { margin-top: 500px; }
+  body.expanded .app-container {
+    /* Header grows with stats */
+    margin-top: 200px;
+  }
+  
+  .hero-section h2 { font-size: 1.6rem; }
 }
 
 @media (max-width: 480px) {

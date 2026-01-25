@@ -1531,9 +1531,12 @@ body.scrolled .sticky-progress-container {
   .format-tab { padding: 0 4px; font-size: 0.7rem; }
   .setting-group label { font-size: 0.75rem; }
   
-  #progress-ring svg { width: 180px; height: 180px; }
-  .pie-chart { width: 140px; height: 140px; }
-  .pie-chart-wrapper.large { width: 180px; height: 180px; }
+  #progress-ring svg { width: 220px; height: 220px; }
+  .pie-chart { width: 180px; height: 180px; }
+  .pie-chart-wrapper.large { width: 220px; height: 220px; }
+  
+  .pie-center-text span { font-size: 0.9rem; }
+  .pie-center-text small { font-size: 0.75rem; }
   
   .stat-main-text { font-size: 0.9rem; }
   .stat-sub-text { font-size: 0.7rem; }
@@ -1541,8 +1544,9 @@ body.scrolled .sticky-progress-container {
   .faq-grid { grid-template-columns: 1fr; }
   .seo-text-columns { grid-template-columns: 1fr; }
   
-  .app-container { margin-top: 260px; }
-  body.expanded .app-container { margin-top: 520px; }
+  /* Reset margin to match the new compact header */
+  .app-container { margin-top: 150px; }
+  body.expanded .app-container { margin-top: 220px; }
 }
 
 

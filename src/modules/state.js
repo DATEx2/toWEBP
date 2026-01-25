@@ -51,12 +51,13 @@ export const state = {
 };
 
 // Worker Initialization
-export function initWorkers(workerCount) {
+export function initWorkers(workerCount, handleWorkerMessage) {
     console.log(`Initializing ${workerCount} workers...`);
     for (let i = 0; i < workerCount; i++) {
-        const worker = new Worker('src/worker.js'); // Path relative to index.html
+        const worker = new Worker('worker.js'); // Relative to index.html
+        worker.onmessage = (e) => handleWorkerMessage(i, e);
         state.workers.push(worker);
-        state.workerStatus.push(false); // Idle
+        state.workerStatus.push(false);
     }
 }
 

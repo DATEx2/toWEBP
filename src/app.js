@@ -20,13 +20,7 @@ $(function() {
     // Initialization
     const WORKER_COUNT = Math.max(2, (navigator.hardwareConcurrency || 4) - 1);
     
-    console.log(`Initializing ${WORKER_COUNT} workers...`);
-    for (let i = 0; i < WORKER_COUNT; i++) {
-        const worker = new Worker(new URL('./worker.js', import.meta.url)); 
-        worker.onmessage = (e) => handleWorkerMessage(i, e);
-        state.workers.push(worker);
-        state.workerStatus.push(false);
-    }
+    initWorkers(WORKER_COUNT, handleWorkerMessage);
 
     updateQualityDisplay();
     initParallax();
@@ -91,8 +85,17 @@ $(function() {
 
     // Quality Input
     if (elements.qualityInput.length) {
+        // Initialize quality from localStorage
+        const savedQuality = localStorage.getItem('towebp_quality');
+        if (savedQuality) {
+            state.quality = parseInt(savedQuality, 10);
+            elements.qualityInput.val(state.quality);
+            updateQualityDisplay();
+        }
+
         elements.qualityInput.on('input', function(e) {
             state.quality = parseInt($(this).val(), 10);
+            localStorage.setItem('towebp_quality', state.quality);
             updateQualityDisplay();
         });
 
@@ -112,19 +115,18 @@ $(function() {
             state.workers = [];
             state.workerStatus = [];
             
-            // Re-init workers
-            for (let i = 0; i < WORKER_COUNT; i++) {
-                const worker = new Worker('src/worker.js'); 
-                worker.onmessage = (e) => handleWorkerMessage(i, e);
-                state.workers.push(worker);
-                state.workerStatus.push(false);
-            }
+            initWorkers(WORKER_COUNT, handleWorkerMessage);
 
-            // 3. Reset State but keep Files
+            // 3. Reset State but keep Files & Order
+            const savedFiles = [...state.loadedFiles];
+            const savedOrder = new Map(state.originalOrder);
+            
             resetState();
             
-            // Restore file list from loadedFiles
+            state.loadedFiles = savedFiles;
+            state.originalOrder = savedOrder;
             state.parsingTarget = state.loadedFiles.length;
+            state.grandTotalInputSize = state.loadedFiles.reduce((acc, f) => acc + f.size, 0);
 
             // 4. Reset UI
             // Carousel pending
@@ -139,7 +141,7 @@ $(function() {
             elements.fileList.children().each(function(i) {
                  const $row = $(this);
                  
-                 const id = $row.attr('id').replace('file-', '');
+                 const id = parseInt($row.attr('id').replace('file-', ''), 10);
                  
                  const $sizeNewEl = $row.find('.size-new');
                  const $badge = $row.find('.badge');

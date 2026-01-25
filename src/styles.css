@@ -1456,17 +1456,20 @@ body.scrolled .sticky-progress-container {
   }
   
   #header-download-all {
-    margin-left: 0.5rem !important;
+    margin-left: auto !important;
     padding: 0.2rem 0.6rem !important;
     font-size: 0.75rem !important;
     white-space: nowrap;
     height: 32px;
   }
 
-  /* Carousel: Show 2.5 items to indicate scroll */
+  /* Carousel: Show 2.5 items to indicate scroll, Remove excess padding */
   .carousel-card { flex: 0 0 40%; max-width: 40%; }
   .card-preview { object-fit: contain !important; padding: 4px; background: #fff; }
   .nav-btn { display: none !important; }
+  
+  .carousel-section.open { padding: 0.5rem 0.5rem 1rem 0.5rem; }
+  .carousel-track-container { margin: 0; }
 
   /* Lang Menu Button - Move to top right */
   .lang-dropdown-wrapper {

@@ -8,7 +8,7 @@ import { i18n } from './i18n.js';
 export function initScrollReveal() {
     const observerOptions = {
         root: null,
-        rootMargin: '-10px', // Trigger slightly before element enters viewport
+        rootMargin: '10px', // Trigger slightly before element enters viewport
         threshold: 0.1
     };
 
@@ -46,23 +46,23 @@ export function initScrollReveal() {
                 const el = entry.target;
                 const $el = $(el);
                 observer.unobserve(el);
-                setTimeout(t => { 
-                    // Find elements to type in this section
-                    const $typeTargets = $el.find('.type-target');
+                const $typeTargets = $el.find('.type-target');
+                setTimeout(t => {
                     if ($typeTargets.length > 0) {
                         $typeTargets.each(function() {
                             const $target = $(this);
                             $target.html(''); 
                             $target.css('visibility', 'visible');
-                            // Always try to get fresh translation first
-                            const content = getTranslatedText($target[0]);
-                            startTyping($target, content, Math.random() * 2 + 1);
                         });
                     }
+                    $el.addClass('visible');
                     setTimeout(t => {
-                        $el.addClass('visible');
-                    }, 0);
-                }, 200);
+                        $typeTargets.each(function() {
+                            const content = getTranslatedText(this);
+                            startTyping($(this), content, Math.random() * 2 + 1);
+                        });
+                    }, 200);
+                }, 50);
 
             }
         });

@@ -356,6 +356,7 @@ h6 {
   letter-spacing: -0.025em;
   color: var(--text-main);
   line-height: 1;
+  order: 1;
 }
 
 /* Header Controls */
@@ -364,8 +365,8 @@ h6 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: auto; /* Pushes everything to the right */
-  margin-right: 1rem;
+  order: 4;
+  margin-left: 1rem;
 }
 
 #header-download-all {
@@ -378,6 +379,8 @@ h6 {
   display: flex;
   align-items: center;
   gap: 1rem;
+  order: 3;
+  margin-left: auto;
 }
 
 .header-controls {
@@ -400,6 +403,7 @@ h6 {
   justify-content: center;
   height: 44px; /* Fixed height to prevent jumps */
   overflow: hidden; /* Ensure content doesn't spill */
+  order: 2;
 }
 
 /* Ensure header actions take space but are hidden initially to prevent layout shift */

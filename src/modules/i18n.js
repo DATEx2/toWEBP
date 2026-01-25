@@ -333,7 +333,7 @@ export function initTypewriter() {
             const infoSection = document.querySelector('.info-section');
             if (infoSection) {
                 setTimeout(t=>infoSection.style.opacity = '1', 100);
-                startInfoCardsTyping();
+                setupInfoCardsObserver();
             }
         }, 10);
 
@@ -344,26 +344,37 @@ export function initTypewriter() {
         ]);
     }, 5);
 
-    function startInfoCardsTyping() {
+    function setupInfoCardsObserver() {
         const cards = document.querySelectorAll('.info-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    typeCard(card);
+                    observer.unobserve(card);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        cards.forEach(card => observer.observe(card));
+    }
+
+    function typeCard(card) {
         const typeHelper = (element, text) => typeLinePromise(element, text);
+        
+        const h3 = card.querySelector('h3');
+        const p = card.querySelector('p');
+        if (!h3 || !p) return;
 
-        cards.forEach((card) => {
-             // Parallel typing for all cards - no index delay
-            const h3 = card.querySelector('h3');
-            const p = card.querySelector('p');
-            if (!h3 || !p) return;
+        // Retrieve stored text
+        const h3Text = h3.dataset.text || '';
+        const pText = p.dataset.text || '';
 
-            // Retrieve stored text
-            const h3Text = h3.dataset.text || '';
-            const pText = p.dataset.text || '';
+        h3.style.visibility = 'visible';
+        p.style.visibility = 'visible';
 
-            h3.style.visibility = 'visible';
-            p.style.visibility = 'visible';
-
-            // Type title and paragraph in parallel for speed
-            typeHelper(h3, h3Text);
-            typeHelper(p, pText);
-        });
+        // Type title and paragraph in parallel for speed
+        typeHelper(h3, h3Text);
+        typeHelper(p, pText);
     }
 }

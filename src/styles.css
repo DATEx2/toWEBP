@@ -1142,8 +1142,8 @@ body.scrolled .sticky-progress-container {
   display: flex; align-items: center; justify-content: center;
 }
 .lightbox-nav:hover { color: white; background: rgba(255,255,255,0.05); }
-.lightbox-nav.prev { left: 0; } .lightbox-nav.prev::after { content: '‹'; }
-.lightbox-nav.next { right: 0; } .lightbox-nav.next::after { content: '›'; }
+.lightbox-nav.prev { left: 0; } .lightbox-nav.prev::after { content: 'â€¹'; }
+.lightbox-nav.next { right: 0; } .lightbox-nav.next::after { content: 'â€º'; }
 
 #lightbox-caption {
   margin-top: 1rem;
@@ -1605,6 +1605,7 @@ body.scrolled .sticky-progress-container {
   flex-direction: row;
   align-items: flex-start;
   gap: 1.5rem;
+  justify-content: center;
 }
 
 .gdpr-badge {

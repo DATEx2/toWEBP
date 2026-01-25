@@ -7,6 +7,13 @@ self.onmessage = async function(e) {
     const { id, file, quality } = e.data;
 
     try {
+        // 0. Special Handling for SVG
+        // Workers have poor support for SVG rasterization (createImageBitmap often fails).
+        // Skip directly to main thread fallback for highest reliability.
+        if (file.type === 'image/svg+xml') {
+            throw new Error('SVG detected - requesting main thread conversion');
+        }
+
         // 1. Decode the image
         const bitmap = await createImageBitmap(file);
 
@@ -77,7 +84,8 @@ self.onmessage = async function(e) {
         });
 
     } catch (error) {
-        console.warn('Worker conversion failed, attempting fallback:', error);
+        // Log as debug, since fallback is a valid recovery strategy
+        console.debug('Worker conversion skipped/failed, requesting fallback:', error.message);
         
         // If it's an encoding error or specific SVG issue, request main thread fallback
         self.postMessage({

@@ -8,7 +8,7 @@ import { i18n } from './i18n.js';
 export function initScrollReveal() {
     const observerOptions = {
         root: null,
-        rootMargin: '10px', // Trigger slightly before element enters viewport
+        rootMargin: '-100px', // Trigger slightly before element enters viewport
         threshold: 0.1
     };
 
@@ -51,20 +51,24 @@ export function initScrollReveal() {
                     if ($typeTargets.length > 0) {
                         $typeTargets.each(function() {
                             const $target = $(this);
+                            // Lock height to prevent collapse
+                            const currentHeight = $target.outerHeight();
+                            $target.css('min-height', currentHeight + 'px');
+                            
                             $target.html(''); 
                             $target.css('visibility', 'visible');
                         });
-                    }
+                    } 
                     $el.addClass('visible');
                     setTimeout(t => {
                         $typeTargets.each(function() {
                             const content = getTranslatedText(this);
-                            startTyping($(this), content, Math.random() * 2 + 1);
+                            startTyping($(this), content, Math.random() * 1 + 1);
                         });
                     }, 200);
                 }, 50);
 
-            }
+            } 
         });
     }, observerOptions);
 
@@ -76,6 +80,16 @@ export function initScrollReveal() {
         // Add cursor
         $element.addClass('typewriter-cursor');
 
+        // Calculate Speed Factor based on length
+        // Scale: <10: 6, <20: 5, <30: 4, <40: 3, <60: 2, >=60: 1
+        const textLen = htmlContent.replace(/<[^>]*>/g, '').length;
+        let speedFactor = 1;
+        if (textLen < 10) speedFactor = 6;
+        else if (textLen < 20) speedFactor = 5;
+        else if (textLen < 30) speedFactor = 4;
+        else if (textLen < 40) speedFactor = 3;
+        else if (textLen < 60) speedFactor = 2;
+        
         // Typing logic
         let i = 0;
         let currentHtml = '';
@@ -129,13 +143,21 @@ export function initScrollReveal() {
 
                 $element.html(currentHtml);
 
-                const speed = Math.random() * 5 + 1 + baseSpeed;
+                // Calculate delay using speedFactor
+                // Base: 1-6ms. Multiplied by factor (1-6).
+                // Factor 1 (Fast): 1-6ms
+                // Factor 6 (Slow): 6-36ms
+                const variance = Math.random() * 5 + 1;
+                const speed = (variance + baseSpeed) * speedFactor;
+                
                 setTimeout(type, speed);
             } else {
                 $element.removeClass('typewriter-cursor');
                 if ($element.html() !== htmlContent) {
                     $element.html(htmlContent);
                 }
+                // Unlock height
+                $element.css('min-height', '');
             }
         }
         type();

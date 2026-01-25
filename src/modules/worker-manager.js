@@ -38,8 +38,45 @@ export function processQueue() {
                 // Free up worker immediately
                 state.workerStatus[i] = false;
                 
-                // Process on main thread
-                processOnMainThread(job.id, job.file);
+                // Generate thumbnail for SVG first
+                const img = new Image();
+                const url = URL.createObjectURL(job.file);
+                
+                img.onload = () => {
+                    // Create thumbnail
+                    const thumbCanvas = document.createElement('canvas');
+                    const thumbSize = 200;
+                    const aspectRatio = img.width / img.height;
+                    
+                    if (aspectRatio > 1) {
+                        thumbCanvas.width = thumbSize;
+                        thumbCanvas.height = thumbSize / aspectRatio;
+                    } else {
+                        thumbCanvas.width = thumbSize * aspectRatio;
+                        thumbCanvas.height = thumbSize;
+                    }
+                    
+                    const thumbCtx = thumbCanvas.getContext('2d');
+                    thumbCtx.drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
+                    const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.8);
+                    
+                    URL.revokeObjectURL(url);
+                    
+                    // Create carousel card with thumbnail
+                    createCarouselCard(job.id, thumbnail, job.file.name);
+                    
+                    // Now process the conversion
+                    processOnMainThread(job.id, job.file);
+                };
+                
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    console.error('Failed to load SVG for thumbnail generation');
+                    // Still try to process
+                    processOnMainThread(job.id, job.file);
+                };
+                
+                img.src = url;
             } else {
                 // Map format select values to MIME types
                 const formatMap = {

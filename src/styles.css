@@ -380,6 +380,8 @@ body.scrolled .header-sticky-stats,
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2);
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .btn-primary:hover {
@@ -605,10 +607,10 @@ input[type="range"] {
 .drop-zone {
   border: none;
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  /* padding: 2rem; */
   text-align: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   opacity: 1 !important; /* Force visibility */
 }
 
@@ -942,6 +944,8 @@ input[type="range"] {
   contain: content;
   content-visibility: auto;
   contain-intrinsic-size: 80px;
+  width: 1140px;
+  margin: 0 auto;
 }
 
 .file-preview-wrapper {

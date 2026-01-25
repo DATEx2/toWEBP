@@ -172,7 +172,14 @@ export function updateStats() {
     if (!state.parsingTarget) return;
     
     // Check if i18n is ready, otherwise use fallbacks
-    const t = (key) => (window.i18n && window.i18n.t(key)) || key;
+    const fallbacks = {
+        'files': 'files',
+        'saved': 'saved',
+        'starting': 'Starting...',
+        'processing': 'Processing',
+        'total_saved_prefix': 'Total Saved:'
+    };
+    const t = (key) => (window.i18n && window.i18n.t(key)) || fallbacks[key] || key;
 
     const savedTotal = (state.totalOriginalSize - state.totalNewSize);
     const savedStr = formatSize(savedTotal);

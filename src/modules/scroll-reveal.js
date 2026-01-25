@@ -37,7 +37,7 @@ export function initScrollReveal() {
                             $target.css('visibility', 'visible');
                             // Use stored html if available
                             const content = $target.data('originalHtml') || $target.html();
-                            startTyping($target, content, Math.random() * 5 + 1);
+                            startTyping($target, content, Math.random() * 2 + 1);
                         });
                     }
                     setTimeout(t => {

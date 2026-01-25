@@ -261,11 +261,17 @@ export function updateStats() {
     }
 
     // Sticky Headers
-    if (elements.headerFilesCount.length && elements.headerFilesCount.text() !== (count + (count !== 1 ? ' files' : ' file'))) {
+    if (elements.headerFilesCount.length) {
        elements.headerFilesCount.text(`${count} file${count !== 1 ? 's' : ''}`);
     }
-    if (elements.headerTotalSaved.length && elements.headerTotalSaved.text() !== savedTextLabel) {
-        elements.headerTotalSaved.text(savedTextLabel);
+    if (elements.headerTotalSaved.length) {
+        if (savedTotal > 0) {
+            const savedTextLabel = `${t('total_saved_prefix')} ${formatSize(savedTotal)}`;
+            elements.headerTotalSaved.text(savedTextLabel);
+            elements.headerTotalSaved.css('display', 'inline');
+        } else {
+            elements.headerTotalSaved.css('display', 'none');
+        }
     }
     
     const sizeStats = `${formatSize(state.totalNewSize)} / ${formatSize(state.totalOriginalSize)}`;

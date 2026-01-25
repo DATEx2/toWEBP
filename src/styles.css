@@ -1627,3 +1627,35 @@ body.scrolled .sticky-progress-container {
    Let's make them opacity 1 once the section is visible, but textContent empty initially if typing.
    Handled by JS.
 */
+
+/* Buy Me A Coffee Widget */
+.bmc-container {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0 1.5rem 0;
+}
+
+.bmc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #FFDD00;
+    color: #000000;
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    text-decoration: none;
+    font-family: 'Figtree', sans-serif;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.bmc-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.coffee-icon {
+    font-size: 1.2rem;
+}
+@media (max-width: 480px) { .pie-chart::after { top: 6px; left: 6px; right: 6px; bottom: 6px; } }

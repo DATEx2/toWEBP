@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://towebp.dev/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://towebp.dev/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://towebp.dev/?lang=ro"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://towebp.dev/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://towebp.dev/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://towebp.dev/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://towebp.dev/?lang=it"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://towebp.dev/?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://towebp.dev/?lang=nl"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://towebp.dev/?lang=el"/>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://towebp.dev/?lang=hu"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://towebp.dev/?lang=pl"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://towebp.dev/?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="bg" href="https://towebp.dev/?lang=bg"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://towebp.dev/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://towebp.dev/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="cs" href="https://towebp.dev/?lang=cs"/>
+    <xhtml:link rel="alternate" hreflang="da" href="https://towebp.dev/?lang=da"/>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://towebp.dev/?lang=sv"/>
+    <xhtml:link rel="alternate" hreflang="fi" href="https://towebp.dev/?lang=fi"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://towebp.dev/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://towebp.dev/?lang=tr"/>
+    <xhtml:link rel="alternate" hreflang="et" href="https://towebp.dev/?lang=et"/>
+    <xhtml:link rel="alternate" hreflang="hr" href="https://towebp.dev/?lang=hr"/>
+    <xhtml:link rel="alternate" hreflang="is" href="https://towebp.dev/?lang=is"/>
+    <xhtml:link rel="alternate" hreflang="lt" href="https://towebp.dev/?lang=lt"/>
+    <xhtml:link rel="alternate" hreflang="lv" href="https://towebp.dev/?lang=lv"/>
+    <xhtml:link rel="alternate" hreflang="no" href="https://towebp.dev/?lang=no"/>
+    <xhtml:link rel="alternate" hreflang="sk" href="https://towebp.dev/?lang=sk"/>
+    <xhtml:link rel="alternate" hreflang="sl" href="https://towebp.dev/?lang=sl"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://towebp.dev/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://towebp.dev/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

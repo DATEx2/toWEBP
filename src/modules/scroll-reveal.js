@@ -1,3 +1,5 @@
+import { translations } from '../translations.js';
+import { i18n } from './i18n.js';
 
 /**
  * Handles Scroll Reveal and Typewriter effects for SEO content
@@ -14,15 +16,13 @@ export function initScrollReveal() {
         const key = el.getAttribute('data-i18n');
         if (!key) return el.innerHTML;
 
-        if (window.i18n && window.translations) {
-            const currentLang = window.i18n.getCurrentLang ? window.i18n.getCurrentLang() : 'en';
-            const translation = window.translations[currentLang] ? window.translations[currentLang][key] : null;
-            
-            if (translation) {
-                return translation;
-            } else {
-                console.warn(`[ScrollReveal] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
-            }
+        const currentLang = i18n.getCurrentLang();
+        const translation = translations[currentLang] ? translations[currentLang][key] : null;
+        
+        if (translation) {
+            return translation;
+        } else {
+            console.warn(`[ScrollReveal] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
         }
         return el.innerHTML;
     }

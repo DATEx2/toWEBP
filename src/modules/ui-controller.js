@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { elements } from './dom.js';
 import { formatSize, downloadBlob } from './utils.js';
 import { openLightbox } from './carousel.js';
+import { i18n } from './i18n.js';
 
 export function createCarouselCard(id, thumbnail, filename) {
     if (!elements.carouselTrack.length || !id) return;
@@ -98,7 +99,7 @@ export function createUiItem(id, file) {
 
     // Status
     $el.addClass('converting');
-    $el.find('.badge').text((window.i18n && window.i18n.t('waiting')) || 'Waiting');
+    $el.find('.badge').text((i18n && i18n.t('waiting')) || 'Waiting');
 
     return $el;
 }
@@ -138,7 +139,7 @@ export function updateVisuals() {
                         const $btn = $('<button>', {
                             class: 'card-action-btn',
                             html: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16L12 8M12 16L9 13M12 16L15 13M19 21H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-                            title: (window.i18n && window.i18n.t('download')) || 'Download',
+                            title: (i18n && i18n.t('download')) || 'Download',
                             click: (e) => {
                                 e.stopPropagation();
                                 downloadBlob(update.blob, update.newName);
@@ -179,7 +180,7 @@ export function updateStats() {
         'processing': 'Processing',
         'total_saved_prefix': 'Total Saved:'
     };
-    const t = (key) => (window.i18n && window.i18n.t(key)) || fallbacks[key] || key;
+    const t = (key) => (i18n && i18n.t(key)) || fallbacks[key] || key;
 
     const savedTotal = (state.totalOriginalSize - state.totalNewSize);
     const savedStr = formatSize(savedTotal);

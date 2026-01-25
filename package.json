@@ -1,0 +1,27 @@
+{
+  "name": "towebp",
+  "version": "1.0.0",
+  "description": "Convert multiple images as WEBP in parallel, leaveraging all the CPU/CORES. No uploads, all secure in the browser",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DATEx2/toWEBP.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DATEx2/toWEBP/issues"
+  },
+  "homepage": "https://github.com/DATEx2/toWEBP#readme"
+}

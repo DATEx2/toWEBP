@@ -1,3 +1,72 @@
+import { translations } from '../translations.js';
+
+let currentLang = 'en';
+
+export const i18n = {
+    apply: function(lang) {
+        if (!translations[lang]) {
+            console.warn(`Language '${lang}' not found, falling back to 'en'`);
+            lang = 'en';
+        }
+        
+        currentLang = lang;
+        const t = translations[lang];
+        
+        // 1. Update HTML lang attribute
+        document.documentElement.lang = lang;
+
+        // 2. Update all elements with data-i18n attribute
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) {
+                el.innerHTML = t[key];
+            }
+        });
+        
+        // 3. Update page title
+        if (t.hero_title) {
+            const titleText = t.hero_title.replace(/<[^>]*>/g, '');
+            document.title = `${titleText} - toWebP.dev`;
+        }
+        
+        // 4. Update meta description
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc && t.hero_subtitle) {
+            const descText = t.hero_subtitle.replace(/<[^>]*>/g, '').substring(0, 160);
+            metaDesc.setAttribute('content', descText);
+        }
+
+        // 5. Update Open Graph tags for social media
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle && t.hero_title) ogTitle.setAttribute('content', t.hero_title.replace(/<[^>]*>/g, ''));
+        
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc && t.hero_subtitle) ogDesc.setAttribute('content', t.hero_subtitle.replace(/<[^>]*>/g, ''));
+    },
+    
+    t: function(key) {
+        const t = translations[currentLang];
+        return t && t[key] ? t[key] : key;
+    },
+    
+    getLang: function() {
+        // Get browser language
+        const browserLang = navigator.language || navigator.userLanguage;
+        const langCode = browserLang.split('-')[0].toLowerCase();
+        return translations[langCode] ? langCode : 'en';
+    },
+    
+    getCurrentLang: function() {
+        return currentLang;
+    }
+};
+
+// Create a window fallback for compatibility if needed, 
+// though we aim to remove this dependency
+window.i18n = i18n;
+window.translations = translations;
+
+
 export async function initLanguageSystem() {
     const langBurger = document.getElementById('lang-burger');
     const langMenu = document.getElementById('lang-menu');
@@ -5,9 +74,7 @@ export async function initLanguageSystem() {
 
     let detectedLang = await detectLanguage();
     
-    if (window.i18n) {
-        window.i18n.apply(detectedLang);
-    }
+    i18n.apply(detectedLang);
     updateActiveLang(detectedLang);
 
     initTypewriter();
@@ -55,28 +122,26 @@ export async function initLanguageSystem() {
         // Remove existing alternates to avoid dupes
         document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
         
-        if (window.translations) {
-            const baseUrl = window.location.origin + window.location.pathname;
-            Object.keys(window.translations).forEach(code => {
-                const link = document.createElement('link');
-                link.rel = 'alternate';
-                link.hreflang = code;
-                link.href = `${baseUrl}?lang=${code}`;
-                document.head.appendChild(link);
-            });
-            // x-default
-            const xDefault = document.createElement('link');
-            xDefault.rel = 'alternate';
-            xDefault.hreflang = 'x-default';
-            xDefault.href = baseUrl; // Default to English/Root without param
-            document.head.appendChild(xDefault);
-        }
+        const baseUrl = window.location.origin + window.location.pathname;
+        Object.keys(translations).forEach(code => {
+            const link = document.createElement('link');
+            link.rel = 'alternate';
+            link.hreflang = code;
+            link.href = `${baseUrl}?lang=${code}`;
+            document.head.appendChild(link);
+        });
+        // x-default
+        const xDefault = document.createElement('link');
+        xDefault.rel = 'alternate';
+        xDefault.hreflang = 'x-default';
+        xDefault.href = baseUrl; // Default to English/Root without param
+        document.head.appendChild(xDefault);
     }
 
     langOptions.forEach(option => {
         option.addEventListener('click', () => {
             const lang = option.dataset.lang;
-            if (window.i18n) window.i18n.apply(lang);
+            i18n.apply(lang);
             localStorage.setItem('towebp_language', lang);
             updateActiveLang(lang);
             
@@ -106,13 +171,13 @@ async function detectLanguage() {
     // 1. Check URL param (Highest Priority for SEO/Sharing)
     const urlParams = new URLSearchParams(window.location.search);
     const urlLang = urlParams.get('lang');
-    if (urlLang && window.translations && window.translations[urlLang]) {
+    if (urlLang && translations && translations[urlLang]) {
         return urlLang;
     }
 
     // 2. Check LocalStorage
     const savedLang = localStorage.getItem('towebp_language');
-    if (savedLang && window.translations && window.translations[savedLang]) {
+    if (savedLang && translations && translations[savedLang]) {
         return savedLang;
     }
 
@@ -133,13 +198,12 @@ async function detectLanguage() {
             'bg': 'bg', 'jp': 'ja', 'cn': 'zh', 'tw': 'zh'
         };
         const detected = countryToLang[countryCode];
-        if (detected && window.translations && window.translations[detected]) return detected;
+        if (detected && translations && translations[detected]) return detected;
     } catch (e) {}
 
-    if (window.i18n) {
-        const browserLang = window.i18n.getLang();
-        if (window.translations && window.translations[browserLang]) return browserLang;
-    }
+    const browserLang = i18n.getLang();
+    if (translations && translations[browserLang]) return browserLang;
+
     return 'en';
 }
 
@@ -153,8 +217,6 @@ export function initTypewriter() {
     // Ensure initial state is hidden to prevent FOUC (though HTML should have opacity:0 too)
     if (p) p.style.opacity = '1'; 
     finalRevealElements.forEach(e => {
-        // We set this here in case HTML inline style is missing, 
-        // but ideally HTML should have it to avoid any flash.
         e.style.opacity = '0';
         e.style.transition = 'opacity 0.8s ease-out';
     });
@@ -165,15 +227,13 @@ export function initTypewriter() {
         const key = element.getAttribute('data-i18n') || fallbackKey;
         if (!key) return element.innerHTML;
 
-        if (window.i18n && window.translations) {
-            const currentLang = window.i18n.getCurrentLang ? window.i18n.getCurrentLang() : 'en';
-            const translation = window.translations[currentLang] ? window.translations[currentLang][key] : null;
-            
-            if (translation) {
-                return translation;
-            } else {
-                console.warn(`[i18n] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
-            }
+        const currentLang = i18n.getCurrentLang();
+        const translation = translations[currentLang] ? translations[currentLang][key] : null;
+        
+        if (translation) {
+            return translation;
+        } else {
+            console.warn(`[i18n] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
         }
         return element.innerHTML;
     }

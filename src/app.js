@@ -2,7 +2,7 @@ import { state, initWorkers, resetState } from './modules/state.js';
 import { elements } from './modules/dom.js';
 import { processQueue, handleWorkerMessage } from './modules/worker-manager.js';
 import { updateVisuals, drawRings, updateQualityDisplay, updateStats, createUiItem, createCarouselCard } from './modules/ui-controller.js';
-import { initLanguageSystem } from './modules/i18n.js';
+import { initLanguageSystem, i18n } from './modules/i18n.js';
 import { initParallax } from './modules/parallax.js';
 import { initAnalytics } from './modules/analytics.js';
 import { initScrollReveal } from './modules/scroll-reveal.js';
@@ -146,7 +146,7 @@ $(function() {
                  const $sizeNewEl = $row.find('.size-new');
                  const $badge = $row.find('.badge');
                  if ($sizeNewEl.length) {
-                     $sizeNewEl.text((window.i18n && window.i18n.t('waiting')) || 'Waiting...');
+                     $sizeNewEl.text((i18n && i18n.t('waiting')) || 'Waiting...');
                      $sizeNewEl.attr('class', 'size-new text-muted');
                  }
                  if ($badge.length) {
@@ -270,7 +270,7 @@ $(function() {
         
         const content = await zip.generateAsync({ type: "blob" });
         downloadBlob(content, "converted_images.zip");
-        if ($btn.length) $btn.text((window.i18n && window.i18n.t('download_zip')) || 'Download ZIP');
+        if ($btn.length) $btn.text((i18n && i18n.t('download_zip')) || 'Download ZIP');
     };
 
     if (elements.downloadAllBtn.length) elements.downloadAllBtn.on('click', performDownloadAll);
@@ -322,8 +322,8 @@ $(function() {
         state.grandTotalInputSize = (state.grandTotalInputSize || 0) + batchSize;
         state.parsingTarget += fileArray.length;
 
-        if (elements.pieMainText.length) elements.pieMainText.text((window.i18n && window.i18n.t('processing')) || 'Processing');
-        if (elements.pieSubText.length) elements.pieSubText.text((window.i18n && window.i18n.t('parsing_files')) || 'Parsing...');
+        if (elements.pieMainText.length) elements.pieMainText.text((i18n && i18n.t('processing')) || 'Processing');
+        if (elements.pieSubText.length) elements.pieSubText.text((i18n && i18n.t('parsing_files')) || 'Parsing...');
 
         state.parsing = {
             active: true,

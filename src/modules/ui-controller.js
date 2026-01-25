@@ -400,15 +400,105 @@ export function drawRings() {
     const CIRC_INNER = 678;
     const CIRC_OUTER = 729;
 
-    // Inner Ring (Yellow) - Parsing
+
+
+
+    // Outer Ring (Green) - Conversion (New ETA-Duration Logic)
+    if (state.totalFilesCount > 0 && elements.stickyConversion.length) {
+        
+        // 1. Calculate ETA (Estimated Time Remaining)
+        let eta = 0;
+        
+        if (state.completed.size === state.totalFilesCount) {
+             // DONE: Fast finish
+             eta = 300; // 300ms to finish
+        } else if (state.completed.size === 0 && state.processing.size === 0) {
+             // IDLE/RESET: Instant reset
+             eta = 0;
+        } else {
+             // WORKING: Estimate based on average speed
+             let avgPerFile = 2000; // Default guess 2s
+             
+             if (state.completed.size > 0 && state.processingStartTime) {
+                 const elapsed = Date.now() - state.processingStartTime;
+                 avgPerFile = elapsed / state.completed.size;
+             }
+             
+             // Ensure valid avg
+             if (avgPerFile < 100) avgPerFile = 100;
+             if (avgPerFile > 10000) avgPerFile = 10000;
+             
+             const filesLeft = state.totalFilesCount - state.completed.size;
+             eta = filesLeft * avgPerFile;
+             
+             // Min safety for animation smoothing
+             // Min safety for animation smoothing
+             if (eta < 500) eta = 500;
+        }
+        
+        // 2. Apply to DOM
+        if (state.completed.size === 0 && state.processing.size === 0 && state.queue.length === 0) {
+             // Reset State
+             elements.stickyConversion.css({
+                 'transition-duration': '0ms',
+                 'transform': 'scaleX(0)'
+             });
+             state.processingStartTime = null; 
+        } else {
+             // Active State
+             if (!state.processingStartTime) {
+                 // INITIAL START: Reset INSTANTLY without transition
+                 state.processingStartTime = Date.now();
+                 elements.stickyConversion.css({
+                    'transition': 'none',
+                    'transform': 'scaleX(0)',
+                    'opacity': '1'
+                 });
+                 // Force Reflow
+                 elements.stickyConversion[0].offsetHeight; 
+             }
+
+             // Continue Animation
+             // Use ease-out for final sprint (when we are done), otherwise ease-in-out for running
+             let timing = 'ease-in-out';
+             if (state.completed.size === state.totalFilesCount) {
+                 eta = 200; // Force 200ms finish
+                 timing = 'ease-out';
+             }
+
+             // Check if cache (state) matches current values to avoid DOM spam
+             if (state.visual.lastEta !== eta || state.visual.lastTiming !== timing) {
+                 elements.stickyConversion.css({
+                     'transition-property': 'transform, opacity',
+                     'transition-duration': `${eta}ms`,
+                     'transition-timing-function': timing,
+                     'transform': 'scaleX(1)',
+                     'opacity': '1'
+                 });
+                 // Cache new values
+                 state.visual.lastEta = eta;
+                 state.visual.lastTiming = timing;
+             }
+             elements.stickyConversion.removeClass('bar-hidden');
+        }
+    }
+
+    // Inner Ring & Sticky Parsing - keep simple for now or mirror logic? 
+    // Parsing is usually too fast for ETA. Keeping simple LERP for rings.
     const dInner = state.visual.innerTarget - state.visual.innerProgress;
     if (Math.abs(dInner) > 0.0001) state.visual.innerProgress += dInner * LERP;
     else state.visual.innerProgress = state.visual.innerTarget;
-
-    // Outer Ring (Green) - Conversion
-    const dOuter = state.visual.outerTarget - state.visual.outerProgress;
-    if (Math.abs(dOuter) > 0.0001) state.visual.outerProgress += dOuter * LERP;
-    else state.visual.outerProgress = state.visual.outerTarget;
+    
+    // Outer Progress is purely for Ring now (legacy visual)
+    // We can just sync it to target for simplicity or keep LERP
+    if (state.totalFilesCount > 0) {
+         let target = state.completed.size / state.totalFilesCount;
+         const dOuter = target - state.visual.outerProgress;
+         if (Math.abs(dOuter) > 0.0001) state.visual.outerProgress += dOuter * LERP;
+         else state.visual.outerProgress = target;
+    } else {
+         state.visual.outerProgress = 0;
+    }
 
     // Apply
     if (elements.progressCircleInner.length) {
@@ -421,8 +511,14 @@ export function drawRings() {
     }
 
     // Sticky Bars
-    if (elements.stickyParsing.length) elements.stickyParsing.css('width', (state.visual.innerProgress * 100) + '%');
-    if (elements.stickyConversion.length) elements.stickyConversion.css('width', (state.visual.outerProgress * 100) + '%');
+    // Parsing can stay LERP or simple scale
+    if (elements.stickyParsing.length) {
+         elements.stickyParsing.css('transform', `scaleX(${state.visual.innerProgress})`);
+    }
+
+    // Conversion is handled by ETA logic directly on CSS properties via transition-duration
+    // Do NOT set transform here for stickyConversion
+    // if (elements.stickyConversion.length) ... (removed)
     
     if (elements.stickySaved.length) {
         let sizeRatio = 0;
@@ -441,7 +537,7 @@ export function drawRings() {
             if (sizeRatio <= 1) {
                 // SAVED (Normal Case)
                 elements.stickySaved.css({
-                    'width': (sizeRatio * 100) + '%',
+                    'transform': `scaleX(${sizeRatio})`,
                     'background-color': '' // Reset
                 });
                 elements.stickySaved.removeClass('bar-error');
@@ -458,11 +554,11 @@ export function drawRings() {
                 // User wants Red line representing the EXCESS percentage
                 // "Over the green line" -> Red on top of Green
                 const excessRatio = sizeRatio - 1;
-                let excessPct = excessRatio * 100;
-                if (excessPct > 100) excessPct = 100;
+                let excessScale = excessRatio;
+                if (excessScale > 1) excessScale = 1;
 
                 elements.stickySaved.css({
-                    'width': excessPct + '%',
+                    'transform': `scaleX(${excessScale})`,
                     'background-color': 'var(--error)' // Explicit Red
                 });
                 elements.stickySaved.addClass('bar-error');
@@ -490,7 +586,8 @@ export function drawRings() {
         if (state.parsingTarget > 0) {
             state.visual.innerTarget = state.totalFilesCount / state.parsingTarget;
             if (elements.progressCircleInner.length) elements.progressCircleInner.css('opacity', '1');
-            state.visual.outerTarget = count / state.parsingTarget; 
+            state.visual.outerTarget = (count + (state.processing.size * 0.8)) / state.parsingTarget; 
+            if (state.visual.outerTarget > 1) state.visual.outerTarget = 0.99; // clamp while parsing 
             
             // Ensure parsing bar is visible during parsing
             if (elements.stickyParsing.length) elements.stickyParsing.removeClass('bar-hidden');
@@ -512,14 +609,17 @@ export function drawRings() {
             }
         }
         
-        // Sticky Parsing Bar - Hide after 1s
+        // Sticky Parsing Bar - Hide after 2s
         if (elements.stickyParsing.length) {
-             if (timeSinceParsing > 1000) {
+             if (timeSinceParsing > 2000) {
                  elements.stickyParsing.addClass('bar-hidden');
              }
         }
 
-        state.visual.outerTarget = count / state.totalFilesCount;
+        // Logic handled in drawRings via Time-Velocity
+        // Keeping this block for Pie Chart dependency if needed, but outerTarget is now unused for StickyBar
+        // state.visual.outerTarget is irrelevant for the new logic, but we can set it for debug
+        state.visual.outerTarget = 1;
 
         // Pie Chart SVG var - used for conic-gradient
         if (state.totalOriginalSize > 0 && elements.pieChart.length) {
@@ -548,8 +648,8 @@ export function drawRings() {
             
         if (!state.visual.conversionCompleteTime) {
             state.visual.conversionCompleteTime = Date.now();
-        } else if (Date.now() - state.visual.conversionCompleteTime > 1000) {
-            // Hide only conversion bar after 1s
+        } else if (Date.now() - state.visual.conversionCompleteTime > 2000) {
+            // Hide only conversion bar after 2s
             if (elements.stickyConversion.length) elements.stickyConversion.addClass('bar-hidden');
         }
     } else {

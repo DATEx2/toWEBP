@@ -27,7 +27,14 @@ $(function() {
     initLanguageSystem();
     initAnalytics();
     initCarouselDocs();
+    initCarouselDocs();
     initScrollReveal();
+
+    // EXPLICIT RESET of UI Elements on Load to prevent ghost bars
+    if (elements.stickySaved.length) elements.stickySaved.css({ 'display': 'none', 'transform': 'scaleX(0)' });
+    if (elements.stickyParsing.length) elements.stickyParsing.css({ 'transform': 'scaleX(0)' }).addClass('bar-hidden');
+    if (elements.stickyConversion.length) elements.stickyConversion.css({ 'transform': 'scaleX(0)', 'transition': 'none' }).addClass('bar-hidden');
+    if (elements.stickySaved.next('.sticky-bar-saved-bg').length) elements.stickySaved.next('.sticky-bar-saved-bg').css('display', 'none');
 
     // Start UI Loop
     requestAnimationFrame(renderLoop);
@@ -41,7 +48,7 @@ $(function() {
         drawRings();
         updateCarouselScroll();
         processCarouselBatch();
-        requestAnimationFrame(renderLoop);
+        setTimeout(t=> requestAnimationFrame(renderLoop), 1000);
     }
 
     // --- Scroll Handler ---

@@ -803,7 +803,9 @@ input[type="range"] {
 
 .card-preview {
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Default to contain to avoid cutting */
+  padding: 2px;
+  background: #fff;
 }
 
 .card-close-btn {
@@ -1461,8 +1463,9 @@ body.scrolled .sticky-progress-container {
     height: 32px;
   }
 
-  /* Carousel: Show 2 items */
-  .carousel-card { flex: 0 0 45%; max-width: 45%; }
+  /* Carousel: Show 2.5 items to indicate scroll */
+  .carousel-card { flex: 0 0 40%; max-width: 40%; }
+  .card-preview { object-fit: contain !important; padding: 4px; background: #fff; }
   .nav-btn { display: none !important; }
 
   /* Lang Menu Button - Move to top right */

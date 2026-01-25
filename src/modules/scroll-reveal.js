@@ -54,8 +54,8 @@ export function initScrollReveal() {
                             const $target = $(this);
                             $target.html(''); 
                             $target.css('visibility', 'visible');
-                            // Use stored html if available
-                            const content = $target.data('originalHtml') || $target.html();
+                            // Always try to get fresh translation first
+                            const content = getTranslatedText($target[0]);
                             startTyping($target, content, Math.random() * 2 + 1);
                         });
                     }

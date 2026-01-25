@@ -14,6 +14,7 @@ export const i18n = {
         
         // 1. Update HTML lang attribute
         document.documentElement.lang = lang;
+        console.log(`[i18n] Language switched to: ${lang}`);
 
         // 2. Update all elements with data-i18n attribute
         document.querySelectorAll('[data-i18n]').forEach(el => {

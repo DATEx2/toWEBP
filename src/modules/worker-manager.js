@@ -38,6 +38,9 @@ export function processQueue() {
                 // Free up worker immediately
                 state.workerStatus[i] = false;
                 
+                // Continue processing queue with other workers
+                processQueue();
+                
                 // Generate thumbnail for SVG first
                 const img = new Image();
                 const url = URL.createObjectURL(job.file);

@@ -36,15 +36,63 @@ export async function initLanguageSystem() {
         }
     });
 
+    function updateSEOTags(lang) {
+        // 1. Update HTML lang attribute
+        document.documentElement.lang = lang;
+
+        // 2. Update Canonical URL
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+        }
+        const url = new URL(window.location);
+        url.searchParams.set('lang', lang);
+        canonical.href = url.href;
+
+        // 3. Update Alternate Hreflang Tags (for all supported langs)
+        // Remove existing alternates to avoid dupes
+        document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+        
+        if (window.translations) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            Object.keys(window.translations).forEach(code => {
+                const link = document.createElement('link');
+                link.rel = 'alternate';
+                link.hreflang = code;
+                link.href = `${baseUrl}?lang=${code}`;
+                document.head.appendChild(link);
+            });
+            // x-default
+            const xDefault = document.createElement('link');
+            xDefault.rel = 'alternate';
+            xDefault.hreflang = 'x-default';
+            xDefault.href = baseUrl; // Default to English/Root without param
+            document.head.appendChild(xDefault);
+        }
+    }
+
     langOptions.forEach(option => {
         option.addEventListener('click', () => {
             const lang = option.dataset.lang;
             if (window.i18n) window.i18n.apply(lang);
             localStorage.setItem('towebp_language', lang);
             updateActiveLang(lang);
+            
+            // Update URL without reload
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('lang', lang);
+            window.history.pushState({path: newUrl.href}, '', newUrl.href);
+            
+            updateSEOTags(lang); // Update SEO tags
+
             langMenu.classList.add('hidden');
         });
     });
+
+    // Initial SEO Update
+    setTimeout(() => updateSEOTags(detectedLang), 100);
 
     function updateActiveLang(lang) {
         langOptions.forEach(opt => {
@@ -55,6 +103,14 @@ export async function initLanguageSystem() {
 }
 
 async function detectLanguage() {
+    // 1. Check URL param (Highest Priority for SEO/Sharing)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && window.translations && window.translations[urlLang]) {
+        return urlLang;
+    }
+
+    // 2. Check LocalStorage
     const savedLang = localStorage.getItem('towebp_language');
     if (savedLang && window.translations && window.translations[savedLang]) {
         return savedLang;

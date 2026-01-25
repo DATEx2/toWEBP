@@ -189,19 +189,18 @@ export function updateStats() {
             let subHtml = '';
 
             if (isDone) {
-                // Final completion message
-                mainText = `${formatSize(processedInput)} → ${formatSize(totalNew)}`;
+                // Final completion message - SIMPLIFIED
+                mainText = `${state.completed.size} ${t('files')}`;
                 
                 if (savedTotal > 0) {
                     const savedPercent = Math.round((savedTotal / processedInput) * 100);
-                    subHtml = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> (${formatSize(savedTotal)} ${t('saved')})`;
+                    subHtml = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> <span style="font-size: 0.9em; opacity: 0.9;">(${savedStr} ${t('saved')})</span>`;
                 } else if (savedTotal < 0) {
                     // File got bigger - show warning
                     const increasePercent = Math.round((Math.abs(savedTotal) / processedInput) * 100);
-                    subHtml = `<span style="color: var(--warning); font-weight: 600;">+${increasePercent}%</span> (${formatSize(Math.abs(savedTotal))} larger)`;
+                    subHtml = `<span style="color: var(--error); font-weight: 700;">+${increasePercent}%</span> <span style="font-size: 0.9em; opacity: 0.9;">(${formatSize(Math.abs(savedTotal))} added)</span>`;
                 } else {
-                    // Same size
-                    subHtml = `<span style="color: var(--text-muted);">Same size</span>`;
+                    subHtml = `<span style="opacity: 0.7;">0B ${t('saved')}</span>`;
                 }
             } else {
                 // In-progress message

@@ -1134,6 +1134,22 @@ body.scrolled .sticky-progress-container {
 .lightbox-close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .lightbox-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
 
+.lightbox-download {
+  position: absolute; top: 20px; left: 30px;
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.1);
+  border: none; border-radius: 50%;
+  cursor: pointer; z-index: 1001;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  transition: background 0.2s;
+}
+
+.lightbox-download:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+
 .lightbox-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: transparent; color: rgba(255,255,255,0.6);
@@ -1142,8 +1158,8 @@ body.scrolled .sticky-progress-container {
   display: flex; align-items: center; justify-content: center;
 }
 .lightbox-nav:hover { color: white; background: rgba(255,255,255,0.05); }
-.lightbox-nav.prev { left: 0; } .lightbox-nav.prev::after { content: 'â€¹'; }
-.lightbox-nav.next { right: 0; } .lightbox-nav.next::after { content: 'â€º'; }
+.lightbox-nav.prev { left: 0; } .lightbox-nav.prev::after { content: '\2039'; }
+.lightbox-nav.next { right: 0; } .lightbox-nav.next::after { content: '\203A'; }
 
 #lightbox-caption {
   margin-top: 1rem;

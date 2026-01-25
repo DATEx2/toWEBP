@@ -67,10 +67,17 @@ export function openLightboxById(id) {
     state.currentLightboxId = id;
     
     let highResUrl = src;
+    let downloadBlob = null;
+    let fileName = 'image';
+    
     if (state.completed && state.completed.has(id)) {
         const data = state.completed.get(id);
         if (data.blob) {
             highResUrl = URL.createObjectURL(data.blob);
+            downloadBlob = data.blob;
+        }
+        if (data.newName) {
+            fileName = data.newName;
         }
     }
     
@@ -80,6 +87,18 @@ export function openLightboxById(id) {
     if ($nameEl.length && elements.lightboxCaption.length) {
         elements.lightboxCaption.text($nameEl.text());
     }
+    
+    // Setup download button
+    elements.lightboxDownload.off('click').on('click', () => {
+        if (downloadBlob) {
+            const url = URL.createObjectURL(downloadBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    });
     
     elements.lightbox.removeClass('hidden');
     requestAnimationFrame(() => elements.lightbox.addClass('visible'));

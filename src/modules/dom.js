@@ -61,6 +61,7 @@ export const elements = {
     lightboxImg: $('#lightbox-img'),
     lightboxCaption: $('#lightbox-caption'),
     lightboxClose: $('#lightbox-close'),
+    lightboxDownload: $('#lightbox-download'),
     lightboxNext: $('#lightbox-next'),
     lightboxPrev: $('#lightbox-prev')
 };

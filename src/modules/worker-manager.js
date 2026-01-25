@@ -33,21 +33,30 @@ export function processQueue() {
                  row.classList.add('processing');
             }
 
-            // Map format select values to MIME types
-            const formatMap = {
-                'webp': 'image/webp',
-                'jpeg': 'image/jpeg',
-                'png': 'image/png',
-                'avif': 'image/avif'
-            };
-            const mimeFormat = formatMap[state.format] || state.format || 'image/webp';
+            // Check if SVG - process on main thread directly
+            if (job.file.type === 'image/svg+xml') {
+                // Free up worker immediately
+                state.workerStatus[i] = false;
+                
+                // Process on main thread
+                processOnMainThread(job.id, job.file);
+            } else {
+                // Map format select values to MIME types
+                const formatMap = {
+                    'webp': 'image/webp',
+                    'jpeg': 'image/jpeg',
+                    'png': 'image/png',
+                    'avif': 'image/avif'
+                };
+                const mimeFormat = formatMap[state.format] || state.format || 'image/webp';
 
-            worker.postMessage({
-                id: job.id,
-                file: job.file,
-                quality: state.quality / 100, 
-                format: mimeFormat
-            });
+                worker.postMessage({
+                    id: job.id,
+                    file: job.file,
+                    quality: state.quality / 100, 
+                    format: mimeFormat
+                });
+            }
         }
     });
 
@@ -57,6 +66,63 @@ export function processQueue() {
              requestAnimationFrame(state.parsing.resume);
          }
     }
+}
+
+
+// Main thread conversion function (for SVGs and fallback cases)
+function processOnMainThread(id, file) {
+    const job = state.processing.get(id);
+    if (!job) {
+        console.warn(`Job ${id} not found for main thread processing`);
+        return;
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        // Determine format/quality
+        const fmt = state.format === 'png' || state.format === 'jpeg' || state.format === 'webp' || state.format === 'avif'
+                    ? `image/${state.format}` : 'image/webp';
+        const quality = state.quality / 100;
+
+        canvas.toBlob((blob) => {
+            if (blob) {
+                // Success: Handle as a result
+                handleWorkerMessage(-1, {
+                     data: {
+                         type: 'result',
+                         id,
+                         success: true,
+                         blob,
+                         originalSize: file.size,
+                         newSize: blob.size
+                     }
+                });
+            } else {
+                // Blob generation failed
+                handleWorkerMessage(-1, {
+                    data: { type: 'result', id, success: false, error: "Canvas toBlob failed" }
+                });
+            }
+        }, fmt, quality);
+    };
+
+    img.onerror = () => {
+        URL.revokeObjectURL(url);
+        handleWorkerMessage(-1, {
+            data: { type: 'result', id, success: false, error: "Image load failed" }
+        });
+    };
+
+    img.src = url;
 }
 
 export function handleWorkerMessage(workerIndex, e) {
@@ -88,7 +154,7 @@ export function handleWorkerMessage(workerIndex, e) {
         return; 
     }
 
-    // --- CASE 1.5: FALLBACK (SVG/Encoding Error) ---
+    // --- CASE 1.5: FALLBACK (Encoding Error from worker) ---
     if (type === 'fallback') {
         // 1. Free up the worker immediately
         if (workerIndex >= 0) {
@@ -99,55 +165,11 @@ export function handleWorkerMessage(workerIndex, e) {
         const job = state.processing.get(id);
         if (!job) return;
 
-        // 2. Main Thread Conversion (for SVGs or tricky files)
-        const img = new Image();
-        const url = URL.createObjectURL(job.file);
-
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-
-            // Determine format/quality
-            const fmt = state.format === 'png' || state.format === 'jpeg' || state.format === 'webp' 
-                        ? `image/${state.format}` : 'image/webp';
-            const quality = state.quality / 100;
-
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    // Success: Recursively handle as a result (pass -1 as workerIndex)
-                    handleWorkerMessage(-1, {
-                         data: {
-                             type: 'result',
-                             id,
-                             success: true,
-                             blob,
-                             originalSize: job.file.size,
-                             newSize: blob.size
-                         }
-                    });
-                } else {
-                    // Blob generation failed
-                    handleWorkerMessage(-1, {
-                        data: { type: 'result', id, success: false, error: "Canvas toBlob failed" }
-                    });
-                }
-            }, fmt, quality);
-        };
-
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            handleWorkerMessage(-1, {
-                data: { type: 'result', id, success: false, error: "Image load failed (SVG?)" }
-            });
-        };
-
-        img.src = url;
+        // 2. Process on main thread
+        processOnMainThread(id, job.file);
         return;
     }
+
 
     // --- CASE 2: CONVERSION COMPLETE ---
     if (type === 'result') {

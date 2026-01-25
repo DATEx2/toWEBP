@@ -1207,6 +1207,18 @@ body.scrolled .sticky-progress-container {
   margin-bottom: 0.5rem;
 }
 
+.info-card:nth-child(1) .icon-wrapper svg {
+  color: var(--success);
+}
+
+.info-card:nth-child(2) .icon-wrapper svg {
+  color: var(--warning);
+}
+
+.info-card:nth-child(3) .icon-wrapper svg {
+  color: #8b5cf6; /* Purple for Smart */
+}
+
 .feature-icon {
   width: 32px; height: 32px;
 }

@@ -130,6 +130,11 @@
             <div class="logo-text">
                 <h1 data-i18n="app_name">toWeb<span>P</span>.dev</h1>
             </div>
+            
+            <!-- Download Button in Header (near Logo) -->
+            <button id="header-download-all" class="btn-primary" style="display: none; margin-left: 1rem; padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+                <span data-i18n="download_zip">Download ZIP</span>
+            </button>
         </div>
 
         <div id="carousel-section" class="carousel-section hidden">
@@ -157,14 +162,7 @@
                     <span data-i18n="total_saved_header">Total Saved: </span>
                     <span class="total-saved-pill">0 B</span>
                 </div>
-                <div class="header-actions">
-                    <button id="header-download-all" class="btn-primary" style="display: none;">
-                        <span data-i18n="download_zip">Download ZIP</span>
-                    </button>
-                    <button id="header-clear-all" class="btn-text" style="display: none;">
-                        <span data-i18n="clear">Clear</span>
-                    </button>
-                </div>
+                <!-- Actions moved -->
             </div>
 
             <div class="header-controls">
@@ -433,6 +431,13 @@
 
             <div id="file-list" class="file-list">
                 <!-- File items will be injected here -->
+            </div>
+            
+            <!-- Clear Button Area (Below List) -->
+            <div id="clear-area" style="display: flex; justify-content: flex-end; padding: 1rem 0; max-width: 800px; margin: 0 auto; width: 100%;">
+                 <button id="header-clear-all" class="btn-text" style="display: none;">
+                    <span data-i18n="clear">Clear</span>
+                </button>
             </div>
         </main>
     </div>

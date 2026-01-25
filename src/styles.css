@@ -1449,7 +1449,20 @@ body.scrolled .sticky-progress-container {
     height: 42px; 
     justify-content: flex-start; 
     flex-grow: 1;
+    align-items: center;
   }
+  
+  #header-download-all {
+    margin-left: 0.5rem !important;
+    padding: 0.2rem 0.6rem !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap;
+    height: 32px;
+  }
+
+  /* Carousel: Show 2 items */
+  .carousel-card { flex: 0 0 45%; max-width: 45%; }
+  .nav-btn { display: none !important; }
 
   /* Lang Menu Button - Move to top right */
   .lang-dropdown-wrapper {

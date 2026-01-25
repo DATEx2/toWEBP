@@ -86,9 +86,26 @@ export function initScrollReveal() {
                         i++;
                     }
                 } else {
-                    // Regular char
-                    currentHtml += char;
-                    i++;
+                    // Regular char - sometimes burst a whole word
+                    // 15% chance to type until next space, provided no tags intervene
+                    if (Math.random() < 0.15) {
+                        const nextSpace = htmlContent.indexOf(' ', i);
+                        const nextTag = htmlContent.indexOf('<', i);
+                        
+                        // If we have a space, and it's closer than the next tag (or no tag exists)
+                        if (nextSpace !== -1 && (nextTag === -1 || nextSpace < nextTag)) {
+                            // Valid word burst opportunity
+                            const wordChunk = htmlContent.slice(i, nextSpace + 1); // include the space
+                            currentHtml += wordChunk;
+                            i += wordChunk.length;
+                        } else {
+                            currentHtml += char;
+                            i++;
+                        }
+                    } else {
+                        currentHtml += char;
+                        i++;
+                    }
                 }
 
                 $element.html(currentHtml);

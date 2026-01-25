@@ -10,14 +10,33 @@ export function initScrollReveal() {
         threshold: 0.1
     };
 
+    function getTranslatedText(el) {
+        const key = el.getAttribute('data-i18n');
+        if (!key) return el.innerHTML;
+
+        if (window.i18n && window.translations) {
+            const currentLang = window.i18n.getCurrentLang ? window.i18n.getCurrentLang() : 'en';
+            const translation = window.translations[currentLang] ? window.translations[currentLang][key] : null;
+            
+            if (translation) {
+                return translation;
+            } else {
+                console.warn(`[ScrollReveal] Missing translation for key: "${key}" in language: "${currentLang}". Using HTML fallback.`);
+            }
+        }
+        return el.innerHTML;
+    }
+
     // Pre-process elements: Hide text content immediately to prevent "already typed" flash
-    // We store the original HTML in a data attribute for retrieval
     $('.scroll-reveal .type-target').each(function() {
-        const $el = $(this);
+        const el = this;
+        const $el = $(el);
         if (!$el.data('originalHtml')) {
-            $el.data('originalHtml', $el.html());
+            // Priority: Translation File > Current DOM content
+            const content = getTranslatedText(el);
+            $el.data('originalHtml', content);
             $el.html('');
-            $el.css('visibility', 'hidden'); // Hide until typing starts
+            $el.css('visibility', 'hidden'); 
         }
     });
 

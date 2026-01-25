@@ -73,6 +73,7 @@
 
 <body>
     <svg class="bg" xmlns="http://www.w3.org/2000/svg"
+    <svg class="bg" xmlns="http://www.w3.org/2000/svg"
         width="100%" height="100%" viewBox="292 108 1436 764" data-app="Xyris">
         <defs>
             <radialGradient id="radialGradient-f7bed18d-5a4b-43ba-b897-b04ef0a2390e">
@@ -80,7 +81,7 @@
                 <stop offset="100%" stop-color="#21004a"></stop>
             </radialGradient>
             <style>
-                .blob {
+                .blob { 
                     filter: blur(100px);
                     will-change: transform, d;
                 }
@@ -227,11 +228,13 @@
             </div>
         </div>
         <!-- Sticky Progress Bar (Initially Hidden) -->
+        <div class="sticky-saved-container">
+            <div class="sticky-bar sticky-bar-saved" id="sticky-saved"></div>
+            <div class="sticky-bar sticky-bar-saved-bg"></div>
+        </div>
         <div class="sticky-progress-container">
-            <div class="sticky-bar-parsing" id="sticky-parsing"></div>
-            <div class="sticky-bar-conversion" id="sticky-conversion"></div>
-            <div class="sticky-bar-saved" id="sticky-saved"></div>
-            <div class="sticky-bar-saved-bg"></div>
+            <div class="sticky-bar sticky-bar-parsing" id="sticky-parsing"></div>
+            <div class="sticky-bar sticky-bar-conversion" id="sticky-conversion"></div>
         </div>
         <div id="carousel-section" class="carousel-section hidden">
             <button class="nav-btn prev" id="prev-btn">

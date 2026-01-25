@@ -403,83 +403,55 @@ export function drawRings() {
 
 
 
-    // Outer Ring (Green) - Conversion (New ETA-Duration Logic)
+    // Outer Ring (Green) - Conversion Progress
     if (state.totalFilesCount > 0 && elements.stickyConversion.length) {
         
-        // 1. Calculate ETA (Estimated Time Remaining)
-        let eta = 0;
-        
-        if (state.completed.size === state.totalFilesCount) {
-             // DONE: Fast finish
-             eta = 300; // 300ms to finish
-        } else if (state.completed.size === 0 && state.processing.size === 0) {
-             // IDLE/RESET: Instant reset
-             eta = 0;
-        } else {
-             // WORKING: Estimate based on average speed
-             let avgPerFile = 2000; // Default guess 2s
-             
-             if (state.completed.size > 0 && state.processingStartTime) {
-                 const elapsed = Date.now() - state.processingStartTime;
-                 avgPerFile = elapsed / state.completed.size;
-             }
-             
-             // Ensure valid avg
-             if (avgPerFile < 100) avgPerFile = 100;
-             if (avgPerFile > 10000) avgPerFile = 10000;
-             
-             const filesLeft = state.totalFilesCount - state.completed.size;
-             eta = filesLeft * avgPerFile;
-             
-             // Min safety for animation smoothing
-             // Min safety for animation smoothing
-             if (eta < 500) eta = 500;
-        }
-        
-        // 2. Apply to DOM
         if (state.completed.size === 0 && state.processing.size === 0 && state.queue.length === 0) {
-             // Reset State
-             elements.stickyConversion.css({
-                 'transition-duration': '0ms',
-                 'transform': 'scaleX(0)'
-             });
-             state.processingStartTime = null; 
+             // Reset State - only if not already reset
+             if (state.visual.conversionReset !== true) {
+                 elements.stickyConversion.css({
+                     'transform': 'scaleX(0)',
+                     'opacity': '0'
+                 });
+                 if (!elements.stickyConversion.hasClass('bar-hidden')) {
+                     elements.stickyConversion.addClass('bar-hidden');
+                 }
+                 state.processingStartTime = null;
+                 state.visual.conversionReset = true;
+                 state.visual.conversionOpacity = 0;
+                 state.visual.lastConversionProgress = 0;
+             }
         } else {
              // Active State
              if (!state.processingStartTime) {
-                 // INITIAL START: Reset INSTANTLY without transition
                  state.processingStartTime = Date.now();
-                 elements.stickyConversion.css({
-                    'transition': 'none',
-                    'transform': 'scaleX(0)',
-                    'opacity': '1'
-                 });
-                 // Force Reflow
-                 elements.stickyConversion[0].offsetHeight; 
              }
 
-             // Continue Animation
-             // Use ease-out for final sprint (when we are done), otherwise ease-in-out for running
-             let timing = 'ease-in-out';
-             if (state.completed.size === state.totalFilesCount) {
-                 eta = 200; // Force 200ms finish
-                 timing = 'ease-out';
+             // Calculate progress using the TRUE total target (parsingTarget) to avoid regression
+             // Fallback to totalFilesCount if parsingTarget isn't set yet (rare)
+             const total = (state.parsingTarget && state.parsingTarget > 0) ? state.parsingTarget : state.totalFilesCount;
+             const progress = total > 0 ? state.completed.size / total : 0;
+             
+             // Only update if progress changed
+             if (state.visual.lastConversionProgress !== progress) {
+                 const transformValue = `scaleX(${progress})`;
+                 elements.stickyConversion.css('transform', transformValue);
+                 state.visual.lastConversionProgress = progress;
              }
-
-             // Check if cache (state) matches current values to avoid DOM spam
-             if (state.visual.lastEta !== eta || state.visual.lastTiming !== timing) {
-                 elements.stickyConversion.css({
-                     'transition-property': 'transform, opacity',
-                     'transition-duration': `${eta}ms`,
-                     'transition-timing-function': timing,
-                     'transform': 'scaleX(1)',
-                     'opacity': '1'
-                 });
-                 // Cache new values
-                 state.visual.lastEta = eta;
-                 state.visual.lastTiming = timing;
+             
+             // Only update opacity if needed (using cached state)
+             if (state.visual.conversionOpacity !== 1) {
+                 elements.stickyConversion.css('opacity', '1');
+                 state.visual.conversionOpacity = 1;
+                 state.visual.conversionReset = false;
              }
-             elements.stickyConversion.removeClass('bar-hidden');
+             
+             // Only remove class if it exists AND we are not fully done (let auto-hide logic handle done state)
+             if (state.completed.size < state.totalFilesCount) {
+                 if (elements.stickyConversion.hasClass('bar-hidden')) {
+                     elements.stickyConversion.removeClass('bar-hidden');
+                 }
+             }
         }
     }
 
@@ -503,17 +475,27 @@ export function drawRings() {
     // Apply
     if (elements.progressCircleInner.length) {
         const offset = CIRC_INNER - (state.visual.innerProgress * CIRC_INNER);
-        elements.progressCircleInner.css('strokeDashoffset', offset);
+        if (state.visual.lastInnerOffset !== offset) {
+            elements.progressCircleInner.css('strokeDashoffset', offset);
+            state.visual.lastInnerOffset = offset;
+        }
     }
     if (elements.progressCircleOuter.length) {
         const offset = CIRC_OUTER - (state.visual.outerProgress * CIRC_OUTER);
-        elements.progressCircleOuter.css('strokeDashoffset', offset);
+        if (state.visual.lastOuterOffset !== offset) {
+            elements.progressCircleOuter.css('strokeDashoffset', offset);
+            state.visual.lastOuterOffset = offset;
+        }
     }
 
     // Sticky Bars
     // Parsing can stay LERP or simple scale
     if (elements.stickyParsing.length) {
-         elements.stickyParsing.css('transform', `scaleX(${state.visual.innerProgress})`);
+         const transformValue = `scaleX(${state.visual.innerProgress})`;
+         if (state.visual.lastParsingTransform !== transformValue) {
+             elements.stickyParsing.css('transform', transformValue);
+             state.visual.lastParsingTransform = transformValue;
+         }
     }
 
     // Conversion is handled by ETA logic directly on CSS properties via transition-duration
@@ -522,7 +504,6 @@ export function drawRings() {
     
     if (elements.stickySaved.length) {
         let sizeRatio = 0;
-        let isError = false;
         
         const $bg = elements.stickySaved.next('.sticky-bar-saved-bg');
 
@@ -530,51 +511,82 @@ export function drawRings() {
             // Visualize relative size of the new files (New Size)
             sizeRatio = state.totalNewSize / state.totalOriginalSize;
             
-            // Ensure visible
-            elements.stickySaved.css('display', 'block');
-            if ($bg.length) $bg.css('display', 'block');
+            // Ensure visible - only if cache says it's hidden
+            if (state.visual.savedVisible !== true) {
+                elements.stickySaved.css('display', 'block');
+                if ($bg.length) $bg.css('display', 'block');
+                state.visual.savedVisible = true;
+            }
 
             if (sizeRatio <= 1) {
                 // SAVED (Normal Case)
-                elements.stickySaved.css({
-                    'transform': `scaleX(${sizeRatio})`,
-                    'background-color': '' // Reset
-                });
-                elements.stickySaved.removeClass('bar-error');
+                const transformValue = `scaleX(${sizeRatio})`;
+                
+                // Only update if changed
+                if (state.visual.lastSavedTransform !== transformValue) {
+                    elements.stickySaved.css('transform', transformValue);
+                    state.visual.lastSavedTransform = transformValue;
+                }
+                
+                // Only update background if it's not default
+                if (state.visual.savedIsError !== false) {
+                    elements.stickySaved.css('background-color', '');
+                    if (elements.stickySaved.hasClass('bar-error')) {
+                        elements.stickySaved.removeClass('bar-error');
+                    }
+                    state.visual.savedIsError = false;
+                }
                 
                 // Reset BG to standard (Faint Green)
-                if ($bg.length) {
+                if ($bg.length && state.visual.savedBgIsError !== false) {
                     $bg.css({
                         'background-color': '',
-                        'opacity': '' // Use CSS default (0.5)
+                        'opacity': ''
                     });
+                    state.visual.savedBgIsError = false;
                 }
             } else {
                 // LOST (Increase Case)
-                // User wants Red line representing the EXCESS percentage
-                // "Over the green line" -> Red on top of Green
                 const excessRatio = sizeRatio - 1;
                 let excessScale = excessRatio;
                 if (excessScale > 1) excessScale = 1;
 
-                elements.stickySaved.css({
-                    'transform': `scaleX(${excessScale})`,
-                    'background-color': 'var(--error)' // Explicit Red
-                });
-                elements.stickySaved.addClass('bar-error');
+                const transformValue = `scaleX(${excessScale})`;
+                
+                // Only update if changed
+                if (state.visual.lastSavedTransform !== transformValue) {
+                    elements.stickySaved.css('transform', transformValue);
+                    state.visual.lastSavedTransform = transformValue;
+                }
+                
+                // Only update background if not already error
+                if (state.visual.savedIsError !== true) {
+                    elements.stickySaved.css('background-color', 'var(--error)');
+                    if (!elements.stickySaved.hasClass('bar-error')) {
+                        elements.stickySaved.addClass('bar-error');
+                    }
+                    state.visual.savedIsError = true;
+                }
 
                 // Make BG Solid Green to represent "Original Size" baseline
-                if ($bg.length) {
+                if ($bg.length && state.visual.savedBgIsError !== true) {
                     $bg.css({
                         'background-color': 'var(--success)',
                         'opacity': '1'
                     });
+                    state.visual.savedBgIsError = true;
                 }
             }
         } else {
-            // Hide if no stats
-            elements.stickySaved.css('display', 'none');
-            if ($bg.length) $bg.css('display', 'none');
+            // Hide if no stats - only if cache says it's visible
+            if (state.visual.savedVisible !== false) {
+                elements.stickySaved.css('display', 'none');
+                if ($bg.length) $bg.css('display', 'none');
+                state.visual.savedVisible = false;
+                state.visual.lastSavedTransform = null;
+                state.visual.savedIsError = null;
+                state.visual.savedBgIsError = null;
+            }
         }
     }
 
@@ -590,7 +602,7 @@ export function drawRings() {
             if (state.visual.outerTarget > 1) state.visual.outerTarget = 0.99; // clamp while parsing 
             
             // Ensure parsing bar is visible during parsing
-            if (elements.stickyParsing.length) elements.stickyParsing.removeClass('bar-hidden');
+            if (elements.stickyParsing.length && elements.stickyParsing.hasClass('bar-hidden')) elements.stickyParsing.removeClass('bar-hidden');
         }
     } else if (state.totalFilesCount > 0) {
         state.visual.innerTarget = 1;
@@ -601,18 +613,26 @@ export function drawRings() {
         
         if (elements.progressCircleInner.length) {
             if (timeSinceParsing > 300) {
-                elements.progressCircleInner.css('opacity', '0');
-                elements.progressCircleInner.css('visibility', 'hidden');
+                if (state.visual.innerCircleVisible !== false) {
+                    elements.progressCircleInner.css('opacity', '0');
+                    elements.progressCircleInner.css('visibility', 'hidden');
+                    state.visual.innerCircleVisible = false;
+                }
             } else {
-                elements.progressCircleInner.css('opacity', '1');
-                elements.progressCircleInner.css('visibility', 'visible');
+                if (state.visual.innerCircleVisible !== true) {
+                    elements.progressCircleInner.css('opacity', '1');
+                    elements.progressCircleInner.css('visibility', 'visible');
+                    state.visual.innerCircleVisible = true;
+                }
             }
         }
         
         // Sticky Parsing Bar - Hide after 2s
         if (elements.stickyParsing.length) {
              if (timeSinceParsing > 2000) {
-                 elements.stickyParsing.addClass('bar-hidden');
+                 if (!elements.stickyParsing.hasClass('bar-hidden')) {
+                     elements.stickyParsing.addClass('bar-hidden');
+                 }
              }
         }
 
@@ -634,11 +654,19 @@ export function drawRings() {
         state.visual.conversionCompleteTime = null; // Reset timer
         state.parsingCompleteTime = null; // Reset parsing timer
         
-        // Reset visibility
-        if (elements.stickyParsing.length) elements.stickyParsing.removeClass('bar-hidden');
-        if (elements.stickyConversion.length) elements.stickyConversion.removeClass('bar-hidden');
-        if (elements.pieDefaultContent.length) elements.pieDefaultContent.removeClass('hidden');
-        if (elements.pieActiveContent.length) elements.pieActiveContent.addClass('hidden');
+        // Reset visibility - only if needed
+        if (elements.stickyParsing.length && elements.stickyParsing.hasClass('bar-hidden')) {
+            elements.stickyParsing.removeClass('bar-hidden');
+        }
+        if (elements.stickyConversion.length && elements.stickyConversion.hasClass('bar-hidden')) {
+            elements.stickyConversion.removeClass('bar-hidden');
+        }
+        if (elements.pieDefaultContent.length && elements.pieDefaultContent.hasClass('hidden')) {
+            elements.pieDefaultContent.removeClass('hidden');
+        }
+        if (elements.pieActiveContent.length && !elements.pieActiveContent.hasClass('hidden')) {
+            elements.pieActiveContent.addClass('hidden');
+        }
     }
 
     // Conversion Bar Auto-hide (Saved bar stays)
@@ -650,15 +678,19 @@ export function drawRings() {
             state.visual.conversionCompleteTime = Date.now();
         } else if (Date.now() - state.visual.conversionCompleteTime > 2000) {
             // Hide only conversion bar after 2s
-            if (elements.stickyConversion.length) elements.stickyConversion.addClass('bar-hidden');
+            if (elements.stickyConversion.length && !elements.stickyConversion.hasClass('bar-hidden')) {
+                elements.stickyConversion.addClass('bar-hidden');
+            }
         }
     } else {
         // We are processing or idle with no files
         if (state.totalFilesCount > 0 || state.visual.innerProgress > 0) {
              state.visual.conversionCompleteTime = null;
              
-             // Ensure conversion bar visible
-             if (elements.stickyConversion.length) elements.stickyConversion.removeClass('bar-hidden');
+             // Ensure conversion bar visible - only if hidden
+             if (elements.stickyConversion.length && elements.stickyConversion.hasClass('bar-hidden')) {
+                 elements.stickyConversion.removeClass('bar-hidden');
+             }
              
              // Cleanup old parent logic if present in DOM (safety)
              if (elements.stickyParsing.length) {

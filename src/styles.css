@@ -451,6 +451,7 @@ body.expanded.scrolled header {
   color: var(--primary);
   height: 70px;
   flex-shrink: 0;
+  margin-right: auto; /* Push everything else to the right */
 }
 
 h1 {
@@ -528,7 +529,7 @@ h6 {
   transform: translateY(-10px);
   transition: all 0.3s ease;
   flex: 1;
-  justify-content: center;
+  justify-content: flex-end;
   height: 44px;
   /* Fixed height to prevent jumps */
   overflow: hidden;
@@ -1062,7 +1063,7 @@ input[type="range"] {
 .carousel-track {
   display: flex;
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .carousel-card {
@@ -1078,8 +1079,8 @@ input[type="range"] {
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s, box-shadow 0.2s;
   animation: popIn 0.3s ease forwards;
-  margin: 0 4px;
-  /* Ensure spacing */
+  /* margin: 0 4px; Removed to fix scroll math matching gap: 1rem */
+  /* Ensure spacing via gap only */
   display: flex;
   flex-direction: column;
 }
@@ -1409,8 +1410,12 @@ input[type="range"] {
   transform: scaleX(0);
   transform-origin: left;
   width: 100%;
-
-  transition-property: transform;
+  height: 8px;
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
   will-change: transform;
   z-index: 1;
   opacity: 0;
@@ -1448,6 +1453,10 @@ input[type="range"] {
   height: 8px !important;
   background: var(--success);
   z-index: 4;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-out, background-color 0.3s ease-out;
+  will-change: transform;
 }
 
 .sticky-bar-saved.bar-error {
@@ -1461,7 +1470,8 @@ input[type="range"] {
 
 .sticky-bar-saved-bg {
   position: absolute;
-  transform: scaleX(100%);
+  transform: scaleX(1);
+  transform-origin: left;
   top: 0px;
   left: 0;
   width: 100%;
@@ -1470,6 +1480,8 @@ input[type="range"] {
   /* Changed from primary to success */
   opacity: 0;
   z-index: 3;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease-out;
+  will-change: transform, opacity;
 }
 .expanded .sticky-bar.sticky-bar-saved-bg {
   opacity: 0.5;

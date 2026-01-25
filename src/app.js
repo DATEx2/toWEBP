@@ -36,6 +36,15 @@ $(function() {
     if (elements.stickyConversion.length) elements.stickyConversion.css({ 'transform': 'scaleX(0)', 'transition': 'none' }).addClass('bar-hidden');
     if (elements.stickySaved.next('.sticky-bar-saved-bg').length) elements.stickySaved.next('.sticky-bar-saved-bg').css('display', 'none');
 
+    // Initialize cache to match the reset state
+    state.visual.savedVisible = false;
+    state.visual.lastSavedTransform = null;
+    state.visual.savedIsError = null;
+    state.visual.savedBgIsError = null;
+    state.visual.conversionReset = true;
+    state.visual.conversionOpacity = 0;
+    state.visual.lastConversionProgress = 0;
+
     // Start UI Loop
     requestAnimationFrame(renderLoop);
 
@@ -48,7 +57,7 @@ $(function() {
         drawRings();
         updateCarouselScroll();
         processCarouselBatch();
-        setTimeout(t=> requestAnimationFrame(renderLoop), 1000);
+        setTimeout(t=> requestAnimationFrame(renderLoop), 16);
     }
 
     // --- Scroll Handler ---

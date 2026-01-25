@@ -302,6 +302,10 @@ header {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
+.expanded header {
+  border-radius: 0;
+}
+
 body.expanded .app-container {
   max-width: 95%;
   margin-top: 290px;
@@ -447,6 +451,7 @@ body.expanded.scrolled header {
   color: var(--primary);
   height: 70px;
   flex-shrink: 0;
+  margin-right: auto; /* Push everything else to the right */
 }
 
 h1 {
@@ -1058,7 +1063,7 @@ input[type="range"] {
 .carousel-track {
   display: flex;
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .carousel-card {
@@ -1074,8 +1079,8 @@ input[type="range"] {
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s, box-shadow 0.2s;
   animation: popIn 0.3s ease forwards;
-  margin: 0 4px;
-  /* Ensure spacing */
+  /* margin: 0 4px; Removed to fix scroll math matching gap: 1rem */
+  /* Ensure spacing via gap only */
   display: flex;
   flex-direction: column;
 }
@@ -1376,18 +1381,23 @@ input[type="range"] {
 }
 
 /* Sticky Progress Bar */
+.sticky-saved-container,
 .sticky-progress-container {
   position: absolute;
-  bottom: 0;
+  bottom: -1px;
   left: 0;
   width: 100%;
-  height: 4px; /* Collapsed to single text line height equivalent */
+  height: 12px; /* Collapsed to single text line height equivalent */
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
   pointer-events: none;
   overflow: hidden;
   z-index: 10;
   order: 101; /* Force to bottom of header */
+}
+.sticky-saved-container {
+  top: 0px;
+  bottom: auto;
 }
 
 /* .sticky-progress-container.auto-hide removed */
@@ -1396,40 +1406,57 @@ input[type="range"] {
   opacity: 0 !important;
 }
 
+.sticky-bar {
+  transform: scaleX(0);
+  transform-origin: left;
+  width: 100%;
+  height: 8px;
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  will-change: transform;
+  z-index: 1;
+  opacity: 0;
+}
+.expanded .sticky-bar {
+  opacity: 1 !important;
+}
+
 .sticky-bar-parsing {
   position: absolute;
-  top: 0;
+  bottom: 0px;
   left: 0;
-  height: 100%;
-  background: rgba(250, 204, 21, 0.8); /* Slightly more opaque yellow */
-  width: 0%;
-  transition: width 0.2s linear, opacity 0.3s ease;
+  height: 8px;
+  background: rgba(250, 204, 21, 0.8);
+  width: 100%;
   z-index: 1;
 }
 
 .sticky-bar-conversion {
   position: absolute;
-  top: 0; /* Overlap parsing */
+  bottom: 0px;
   left: 0;
-  height: 100%;
-  width: 0%;
-  transition: width 0.1s linear, opacity 0.3s ease;
+  height: 8px;
+  background: rgba(13, 148, 136, 0.8);
+  width: 100%;
   z-index: 2;
-  background: rgba(13, 148, 136, 0.8); /* More solid teal/green */
 }
 
 
 .sticky-bar-saved {
   position: absolute;
-  bottom: 0;
-  /* Align to bottom (8-12px range effectively) */
+  top: 0px;
   left: 0;
-  width: 0;
-  height: 4px !important;
+  width: 100%;
+  height: 8px !important;
   background: var(--success);
-  /* Changed from primary */
-  transition: width 0.3s ease, background-color 0.3s ease;
   z-index: 4;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-out, background-color 0.3s ease-out;
+  will-change: transform;
 }
 
 .sticky-bar-saved.bar-error {
@@ -1443,14 +1470,21 @@ input[type="range"] {
 
 .sticky-bar-saved-bg {
   position: absolute;
-  bottom: 0;
+  transform: scaleX(1);
+  transform-origin: left;
+  top: 0px;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 8px;
   background: var(--success);
   /* Changed from primary to success */
-  opacity: 0.5;
+  opacity: 0;
   z-index: 3;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease-out;
+  will-change: transform, opacity;
+}
+.expanded .sticky-bar.sticky-bar-saved-bg {
+  opacity: 0.5;
 }
 
 /* Modals / Lightbox */

@@ -73,7 +73,7 @@
 
 <body>
     <svg class="bg" xmlns="http://www.w3.org/2000/svg"
-        style="transform: translateZ(0); pointer-events: none;"
+    <svg class="bg" xmlns="http://www.w3.org/2000/svg"
         width="100%" height="100%" viewBox="292 108 1436 764" data-app="Xyris">
         <defs>
             <radialGradient id="radialGradient-f7bed18d-5a4b-43ba-b897-b04ef0a2390e">
@@ -81,12 +81,9 @@
                 <stop offset="100%" stop-color="#21004a"></stop>
             </radialGradient>
             <style>
-                .blob {
+                .blob { 
                     filter: blur(100px);
-                    /* 'd' attribute animation is CPU bound. 'transform' is GPU. 
-                       Removing 'will-change: d' might actually help browser optimize compositing. */
-                    will-change: transform; 
-                    transform: translateZ(0); /* Promote to layer */
+                    will-change: transform, d;
                 }
             </style>
         </defs>

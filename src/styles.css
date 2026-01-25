@@ -1648,9 +1648,9 @@ body.scrolled .sticky-progress-container {
 
 /* Scroll Reveal */
 .scroll-reveal {
-  opacity: 0;
+  opacity: 1; /* Changed from 0 to ensure visibility if JS fails */
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  transform: translateY(20px);
+  transform: translateY(0); /* Changed from 20px to 0 */
 }
 .scroll-reveal.visible { 
   opacity: 1 !important;

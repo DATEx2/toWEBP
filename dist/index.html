@@ -228,13 +228,10 @@
             </div>
         </div>
         <!-- Sticky Progress Bar (Initially Hidden) -->
-        <div class="sticky-saved-container">
-            <div class="sticky-bar sticky-bar-saved" id="sticky-saved"></div>
-            <div class="sticky-bar sticky-bar-saved-bg"></div>
-        </div>
-        <div class="sticky-progress-container">
-            <div class="sticky-bar sticky-bar-parsing" id="sticky-parsing"></div>
-            <div class="sticky-bar sticky-bar-conversion" id="sticky-conversion"></div>
+        <div class="sticky-progress-stack">
+            <div class="sticky-bar bar-parsing" id="sticky-parsing"></div>
+            <div class="sticky-bar bar-conversion" id="sticky-conversion"></div>
+            <div class="sticky-bar bar-saved" id="sticky-saved"></div>
         </div>
         <div id="carousel-section" class="carousel-section hidden">
             <button class="nav-btn prev" id="prev-btn">
@@ -289,21 +286,15 @@
                                         </defs>
 
                                         <!-- Outer Track (Processing) -->
-                                        <circle cx="120" cy="120" r="116" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
-                                        <!-- Inner Track (Parsing) -->
-                                        <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="4" />
-
-                                        <!-- Outer Ring: Processing (Green) -->
-                                        <!-- Circumference = 2*PI*116 ≈ 729 -->
-                                        <circle id="progress-circle-outer" cx="120" cy="120" r="116" fill="none" stroke="var(--primary)"
-                                            stroke-width="4" stroke-linecap="round" stroke-dasharray="729" stroke-dashoffset="729"
-                                            style="will-change: stroke-dashoffset;" />
-
-                                        <!-- Inner Ring: Parsing (Yellow) -->
-                                        <!-- Circumference = 2*PI*108 ≈ 678 -->
-                                        <circle id="progress-circle-inner" cx="120" cy="120" r="108" fill="none" stroke="#eab308" stroke-width="4"
-                                            stroke-linecap="round" stroke-dasharray="678" stroke-dashoffset="678"
-                                            style="will-change: stroke-dashoffset;" />
+                <circle cx="120" cy="120" r="113" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="14"></circle>
+                <!-- Inner Track (Parsing) -->
+                <circle cx="120" cy="120" r="113" fill="none" stroke="rgba(0,0,0,0.02)" stroke-width="14"></circle>
+                <!-- Outer Ring: Processing (Green) -->
+                <!-- Circumference = 2*PI*113 = 710 -->
+                <circle id="progress-circle-outer" cx="120" cy="120" r="113" fill="none" stroke="var(--primary)" stroke-width="14" stroke-linecap="round" stroke-dasharray="710" stroke-dashoffset="710" style="will-change: stroke-dashoffset;"></circle>
+                <!-- Inner Ring: Parsing (Yellow) -->
+                <!-- Circumference = 2*PI*113 = 710 -->
+                <circle id="progress-circle-inner" cx="120" cy="120" r="113" fill="none" stroke="#eab308" stroke-width="14" stroke-linecap="round" stroke-dasharray="710" stroke-dashoffset="710" style="will-change: stroke-dashoffset;"></circle>
                                     </svg>
                                 </div>
 

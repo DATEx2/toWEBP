@@ -29,6 +29,8 @@ export const elements = {
     progressRing: $('#progress-ring'),
     progressCircleOuter: $('#progress-circle-outer'),
     progressCircleInner: $('#progress-circle-inner'),
+    progressCircleThickMain: $('#progress-circle-thick-main'),
+    progressCircleThickDelta: $('#progress-circle-thick-delta'),
     pieMainText: $('#pie-main-text'),
     pieSubText: $('#pie-sub-text'),
     pieDefaultContent: $('#pie-default-content'),

@@ -226,8 +226,8 @@ export function updateStats() {
                             subHtml += ` <span class="${colorClass}">(${sign}${diffStr})</span>`;
                         }
                     }
-                } else if (state.queue.length > 0) {
-                    subHtml = t('starting');
+                } else if (state.queue.length > 0 || state.processing.size > 0 || state.totalFilesCount < state.parsingTarget) {
+                    subHtml = t('processing');
                 }
             }
 
@@ -397,63 +397,13 @@ export function drawRings() {
     updateStats();
 
     const LERP = 0.05;
-    const CIRC_INNER = 678;
-    const CIRC_OUTER = 729;
+    const CIRC_INNER = 710; // 2 * PI * 113
+    const CIRC_OUTER = 710;
 
 
 
 
-    // Outer Ring (Green) - Conversion Progress
-    if (state.totalFilesCount > 0 && elements.stickyConversion.length) {
-        
-        if (state.completed.size === 0 && state.processing.size === 0 && state.queue.length === 0) {
-             // Reset State - only if not already reset
-             if (state.visual.conversionReset !== true) {
-                 elements.stickyConversion.css({
-                     'transform': 'scaleX(0)',
-                     'opacity': '0'
-                 });
-                 if (!elements.stickyConversion.hasClass('bar-hidden')) {
-                     elements.stickyConversion.addClass('bar-hidden');
-                 }
-                 state.processingStartTime = null;
-                 state.visual.conversionReset = true;
-                 state.visual.conversionOpacity = 0;
-                 state.visual.lastConversionProgress = 0;
-             }
-        } else {
-             // Active State
-             if (!state.processingStartTime) {
-                 state.processingStartTime = Date.now();
-             }
 
-             // Calculate progress using the TRUE total target (parsingTarget) to avoid regression
-             // Fallback to totalFilesCount if parsingTarget isn't set yet (rare)
-             const total = (state.parsingTarget && state.parsingTarget > 0) ? state.parsingTarget : state.totalFilesCount;
-             const progress = total > 0 ? state.completed.size / total : 0;
-             
-             // Only update if progress changed
-             if (state.visual.lastConversionProgress !== progress) {
-                 const transformValue = `scaleX(${progress})`;
-                 elements.stickyConversion.css('transform', transformValue);
-                 state.visual.lastConversionProgress = progress;
-             }
-             
-             // Only update opacity if needed (using cached state)
-             if (state.visual.conversionOpacity !== 1) {
-                 elements.stickyConversion.css('opacity', '1');
-                 state.visual.conversionOpacity = 1;
-                 state.visual.conversionReset = false;
-             }
-             
-             // Only remove class if it exists AND we are not fully done (let auto-hide logic handle done state)
-             if (state.completed.size < state.totalFilesCount) {
-                 if (elements.stickyConversion.hasClass('bar-hidden')) {
-                     elements.stickyConversion.removeClass('bar-hidden');
-                 }
-             }
-        }
-    }
 
     // Inner Ring & Sticky Parsing - keep simple for now or mirror logic? 
     // Parsing is usually too fast for ETA. Keeping simple LERP for rings.
@@ -463,8 +413,15 @@ export function drawRings() {
     
     // Outer Progress is purely for Ring now (legacy visual)
     // We can just sync it to target for simplicity or keep LERP
+    // Outer Progress is purely for Ring now (legacy visual)
+    // We can just sync it to target for simplicity or keep LERP
     if (state.totalFilesCount > 0) {
-         let target = state.completed.size / state.totalFilesCount;
+         // Use state.parsingTarget if available to avoid regression during parsing
+         const total = (state.parsingTarget && state.parsingTarget > 0) ? state.parsingTarget : state.totalFilesCount;
+         // Include processing files (counted as 80% done) to show immediate activity and smoother progress
+         const activeCount = state.completed.size + (state.processing.size * 0.8);
+         let target = total > 0 ? activeCount / total : 0;
+         
          const dOuter = target - state.visual.outerProgress;
          if (Math.abs(dOuter) > 0.0001) state.visual.outerProgress += dOuter * LERP;
          else state.visual.outerProgress = target;
@@ -473,6 +430,7 @@ export function drawRings() {
     }
 
     // Apply
+    // Apply - Legacy rings active for initial phase
     if (elements.progressCircleInner.length) {
         const offset = CIRC_INNER - (state.visual.innerProgress * CIRC_INNER);
         if (state.visual.lastInnerOffset !== offset) {
@@ -490,13 +448,18 @@ export function drawRings() {
 
     // Sticky Bars
     // Parsing can stay LERP or simple scale
+    // Sticky Bars (Header Stack) - Layer 1: Parsing
     if (elements.stickyParsing.length) {
          const transformValue = `scaleX(${state.visual.innerProgress})`;
          if (state.visual.lastParsingTransform !== transformValue) {
              elements.stickyParsing.css('transform', transformValue);
              state.visual.lastParsingTransform = transformValue;
          }
+         // Opacity handled by data
+         elements.stickyParsing.css('opacity', state.visual.innerProgress > 0.001 ? '1' : '0');
     }
+
+    // Layers 2 & 3 (Conversion & Saved) are handled in Pie Chart Logic below
 
     // Conversion is handled by ETA logic directly on CSS properties via transition-duration
     // Do NOT set transform here for stickyConversion
@@ -597,7 +560,9 @@ export function drawRings() {
     if (isParsing) {
         if (state.parsingTarget > 0) {
             state.visual.innerTarget = state.totalFilesCount / state.parsingTarget;
-            if (elements.progressCircleInner.length) elements.progressCircleInner.css('opacity', '1');
+            if (elements.progressCircleInner.length) {
+                // elements.progressCircleInner.css('opacity', '1'); // Legacy hidden
+            }
             state.visual.outerTarget = (count + (state.processing.size * 0.8)) / state.parsingTarget; 
             if (state.visual.outerTarget > 1) state.visual.outerTarget = 0.99; // clamp while parsing 
             
@@ -611,6 +576,7 @@ export function drawRings() {
         
         const timeSinceParsing = Date.now() - state.parsingCompleteTime;
         
+        /* Legacy Ring Visibility Logic Disabled
         if (elements.progressCircleInner.length) {
             if (timeSinceParsing > 300) {
                 if (state.visual.innerCircleVisible !== false) {
@@ -626,6 +592,7 @@ export function drawRings() {
                 }
             }
         }
+        */
         
         // Sticky Parsing Bar - Hide after 2s
         if (elements.stickyParsing.length) {
@@ -641,12 +608,7 @@ export function drawRings() {
         // state.visual.outerTarget is irrelevant for the new logic, but we can set it for debug
         state.visual.outerTarget = 1;
 
-        // Pie Chart SVG var - used for conic-gradient
-        if (state.totalOriginalSize > 0 && elements.pieChart.length) {
-             const compressedPercent = (state.totalNewSize / state.totalOriginalSize) * 100;
-             const deg = (compressedPercent / 100) * 360;
-             elements.pieChart.css('--p', `${deg}deg`);
-        }
+        // Pie Chart Logic moved to end of function to ensure it runs during parsing too
     } else {
         // Reset
         state.visual.innerTarget = 0;
@@ -693,12 +655,94 @@ export function drawRings() {
              }
              
              // Cleanup old parent logic if present in DOM (safety)
+             // Cleanup old parent logic if present in DOM (safety)
              if (elements.stickyParsing.length) {
                  elements.stickyParsing.parent().removeClass('auto-hide');
                  elements.stickyParsing.parent().css('opacity', '');
              }
         }
     }
+
+    // Pie Chart Background Logic (Global Scope in drawRings)
+    if (state.totalFilesCount > 0 && elements.pieChart.length) {
+         
+         const hasData = state.totalOriginalSize > 0;
+         
+         // Always keep Pie Chart container visible (for text/mask)
+         // Default background to 'none' if no data, otherwise gradient
+         elements.pieChart.css({ 
+             'opacity': '1', 
+             'visibility': 'visible'
+         });
+         
+         // NOTE: We do NOT hide elements.progressCircleInner here. 
+         // Its visibility is managed by the parsing logic earlier in the function.
+
+         // Only calculate Gradient if visible
+         if (hasData) {
+             let ratio = state.totalNewSize / state.totalOriginalSize;
+             
+             let progressDeg = state.visual.outerProgress * 360; 
+             if (isNaN(progressDeg)) progressDeg = 0;
+             if (isNaN(ratio)) ratio = 0;
+    
+             const colGreen = '#10b981';
+             const colGreenTransp = '#6ee7b7';
+             const colRedTransp = 'rgba(239, 68, 68, 0.9)';
+
+             // Sync Header Bars
+             if (elements.stickyConversion.length) {
+                 let barProg = progressDeg / 360;
+                 if (barProg > 1) barProg = 1;
+                 elements.stickyConversion.css({ 'transform': `scaleX(${barProg})`, 'opacity': '1' });
+                 
+                 let barSavedW = barProg * ratio;
+                 if (ratio <= 1) elements.stickySaved.removeClass('bar-error');
+                 else elements.stickySaved.addClass('bar-error');
+                 
+                 elements.stickySaved.css({ 'transform': `scaleX(${barSavedW})`, 'opacity': '1' });
+             }
+             
+             let effectiveProgressDeg = progressDeg;
+             // Ensure minimum visual feedback
+             if (effectiveProgressDeg < 5) effectiveProgressDeg = Math.max(5, effectiveProgressDeg);
+
+             let bgStyle = '';
+             if (ratio <= 1) {  
+                 let solidLimit = effectiveProgressDeg * ratio;
+                 if (ratio > 0.001) solidLimit = Math.max(solidLimit, 0.5);
+                 solidLimit = Math.min(solidLimit, effectiveProgressDeg);
+                 
+                 const d1 = Number(solidLimit).toFixed(2);
+                 const d2 = Number(effectiveProgressDeg).toFixed(2);
+                 bgStyle = `conic-gradient(${colGreen} 0deg ${d1}deg, ${colGreenTransp} ${d1}deg ${d2}deg, transparent ${d2}deg)`;
+             } else { 
+                 const excessRatio = Math.min(ratio - 1, 1);
+                 const excessDeg = effectiveProgressDeg * excessRatio;
+                 const dExcess = Number(excessDeg).toFixed(2);
+                 const dProg = Number(effectiveProgressDeg).toFixed(2);
+                 
+                 bgStyle = `conic-gradient(${colRedTransp} 0deg ${dExcess}deg, transparent ${dExcess}deg), conic-gradient(${colGreen} 0deg ${dProg}deg, transparent ${dProg}deg)`;
+             }
+             
+             if (state.visual.lastPieBg !== bgStyle) {
+                 elements.pieChart.css('background', bgStyle);
+                 state.visual.lastPieBg = bgStyle;
+             }
+         } else {
+             // Clear background if no data is available
+             if (state.visual.lastPieBg !== 'none') {
+                 elements.pieChart.css('background', 'none');
+                 state.visual.lastPieBg = 'none';
+             }
+             // Hide bars if no data
+             if (elements.stickyConversion.length) {
+                 elements.stickyConversion.css('opacity', '0');
+                 elements.stickySaved.css('opacity', '0');
+             }
+         }
+    } 
+
 }
 
 export function updateQualityDisplay() {

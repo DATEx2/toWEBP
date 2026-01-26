@@ -926,8 +926,8 @@ input[type="range"] {
 #progress-ring {
   /* Position is handled inline (absolute). Ensure pointer-events let clicks through */
   pointer-events: none;
-  z-index: 20 !important;
-  /* Force above pie chart (z=5) and donut hole (z=6) */
+  z-index: 1 !important;
+  /* Force behind pie chart (z=5) so Green covers Yellow */
 }
 
 .pie-chart {
@@ -1380,112 +1380,70 @@ input[type="range"] {
   display: none;
 }
 
-/* Sticky Progress Bar */
-.sticky-saved-container,
-.sticky-progress-container {
+/* Sticky Progress Stack (Consolidated) */
+.sticky-progress-stack {
   position: absolute;
-  bottom: -1px;
+  top: 0px; 
   left: 0;
   width: 100%;
-  height: 12px; /* Collapsed to single text line height equivalent */
-  opacity: 1;
-  transition: all 0.3s ease;
+  height: 8px;
+  z-index: 50;
   pointer-events: none;
   overflow: hidden;
-  z-index: 10;
-  order: 101; /* Force to bottom of header */
-}
-.sticky-saved-container {
-  top: 0px;
-  bottom: auto;
 }
 
-/* .sticky-progress-container.auto-hide removed */
-
-.bar-hidden {
-  opacity: 0 !important;
-}
-
+/* Common Bar Properties */
 .sticky-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   transform: scaleX(0);
   transform-origin: left;
-  width: 100%;
-  height: 8px;
-  position: absolute;
-  bottom: 0px;
-  left: 0;
-  
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-  will-change: transform;
-  z-index: 1;
-  opacity: 0;
-}
-.expanded .sticky-bar {
-  opacity: 1 !important;
-}
-
-.sticky-bar-parsing {
-  position: absolute;
-  bottom: 0px;
-  left: 0;
-  height: 8px;
-  background: rgba(250, 204, 21, 0.8);
-  width: 100%;
-  z-index: 1;
-}
-
-.sticky-bar-conversion {
-  position: absolute;
-  bottom: 0px;
-  left: 0;
-  height: 8px;
-  background: rgba(13, 148, 136, 0.8);
-  width: 100%;
-  z-index: 2;
-}
-
-
-.sticky-bar-saved {
-  position: absolute;
-  top: 0px;
-  left: 0;
-  width: 100%;
-  height: 8px !important;
-  background: var(--success);
-  z-index: 4;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease-out, background-color 0.3s ease-out;
+  transition: transform 0.3s ease;
   will-change: transform;
 }
 
-.sticky-bar-saved.bar-error {
-  background-color: var(--error) !important;
+/* Layer 1: Parsing (Yellow - Match Pie Inner) */
+.bar-parsing {
+  background: #eab308;
+  z-index: 10;
+  opacity: 0; /* Hidden by default, shown via JS */
+  transition: transform 0.1s linear, opacity 0.2s;
 }
 
-.sticky-bar-saved.bar-error+.sticky-bar-saved-bg {
-  background-color: var(--error);
-  opacity: 0.15;
-}
-
-.sticky-bar-saved-bg {
-  position: absolute;
-  transform: scaleX(1);
-  transform-origin: left;
-  top: 0px;
-  left: 0;
-  width: 100%;
-  height: 8px;
-  background: var(--success);
-  /* Changed from primary to success */
+/* Layer 2: Conversion Total (Light Green - Match Pie Gradient Base) */
+.bar-conversion {
+  background: #6ee7b7;
+  z-index: 20;
   opacity: 0;
-  z-index: 3;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease-out;
-  will-change: transform, opacity;
+  transition: transform 0.1s linear, opacity 0.2s;
 }
-.expanded .sticky-bar.sticky-bar-saved-bg {
-  opacity: 0.5;
+
+/* Layer 3: Saved / New Size (Solid Green - Match Pie Solid) */
+.bar-saved {
+  background: #10b981;
+  z-index: 30;
+  opacity: 0;
+  transition: transform 0.1s linear, opacity 0.2s, background-color 0.2s;
 }
+
+/* Error State for Layer 3 (Red) */
+.bar-saved.bar-error {
+  background: #ef4444 !important;
+}
+
+/* Legacy Rings (Still used for Pie Chart) */
+#progress-circle-outer,
+#progress-circle-inner {
+  transition: stroke-dashoffset 0.1s linear;
+  transform-origin: center;
+  transform-box: fill-box;
+  opacity: 1; 
+}
+/* Removed old .sticky-bar-saved-bg styles as they are replaced by .bar-conversion */
+
 
 /* Modals / Lightbox */
 .lightbox {
@@ -2469,3 +2427,4 @@ input[type="range"] {
     margin: 2px;
   }
 }
+#progress-circle-outer {opacity: 0;pointer-events: none;}

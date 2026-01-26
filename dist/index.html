@@ -299,25 +299,27 @@
                                 </div>
 
                                 <!-- Pie Chart (Content) - Relative Overlay -->
-                                <div id="pie-chart" class="pie-chart" style="--p:0deg;">
-                                    <div class="pie-center-text">
-                                        <div id="pie-default-content"
-                                            style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;">
-                                            <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                                <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                                <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                                <path
-                                                    d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z"
-                                                    stroke="currentColor" stroke-width="2" />
-                                            </svg>
-                                            <span style="font-weight: 600; color: var(--text-main);" data-i18n="drag_drop">Drag & Drop</span>
-                                            <small style="color: var(--text-muted);" data-i18n="click_browse">or click to browse</small>
-                                        </div>
+                                <!-- Pie Chart (Content) - Relative Overlay -->
+                                <div id="pie-chart" class="pie-chart" style="--p:0deg;"></div>
+
+                                <!-- Floating Text Container (Sibling) -->
+                                <div class="pie-center-text">
+                                    <div id="pie-default-content"
+                                        style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center;">
+                                        <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 16L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M8 16H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path
+                                                d="M3 9C3 7.11438 3 6.17157 3.58579 5.58579C4.17157 5 5.11438 5 7 5H17C18.8856 5 19.8284 5 20.4142 5.58579C21 6.17157 21 7.11438 21 9V15C21 16.8856 21 17.8284 20.4142 18.4142C19.8284 19 18.8856 19 17 19H7C5.11438 19 4.17157 19 3.58579 18.4142C3 17.8284 3 16.8856 3 15V9Z"
+                                                stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        <span style="font-weight: 600; color: var(--text-main);" data-i18n="drag_drop">Drag & Drop</span>
+                                        <small style="color: var(--text-muted);" data-i18n="click_browse">or click to browse</small>
                                     </div>
 
                                     <div id="pie-active-content" class="hidden stats-text-container">
@@ -608,6 +610,9 @@
         </div>
     </div>
 
+
+    <!-- Tooltip for Pie Chart -->
+    <div id="chart-tooltip" class="chart-tooltip hidden"></div>
 
     <script src="bundle.js" defer></script>
     <!-- Cloudflare Web Analytics removed (loaded conditionally in app.js) -->

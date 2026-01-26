@@ -338,6 +338,36 @@ export function updateCarouselScroll() {
             $container.scrollLeft(current + (dist * speed)); 
         }
     }
+
+    // --- Arrow Visibility Logic ---
+    if (elements.prevBtn.length && elements.nextBtn.length) {
+        const currentScroll = $container.scrollLeft();
+        // Use raw DOM for scroll propertires to be accurate
+        const scrollWidth = $container[0].scrollWidth;
+        const clientWidth = $container[0].clientWidth; // clientWidth excludes borders/scrollbars
+        
+        const tolerance = 2; // px
+
+        // Hide both if no overflow
+        if (scrollWidth <= clientWidth + tolerance) {
+            elements.prevBtn.css({ 'opacity': '0', 'pointer-events': 'none' });
+            elements.nextBtn.css({ 'opacity': '0', 'pointer-events': 'none' });
+        } else {
+            // Check Left
+            if (currentScroll > tolerance) {
+                 elements.prevBtn.css({ 'opacity': '1', 'pointer-events': 'auto' });
+            } else {
+                 elements.prevBtn.css({ 'opacity': '0', 'pointer-events': 'none' });
+            }
+            
+            // Check Right
+            if (currentScroll + clientWidth < scrollWidth - tolerance) {
+                 elements.nextBtn.css({ 'opacity': '1', 'pointer-events': 'auto' });
+            } else {
+                 elements.nextBtn.css({ 'opacity': '0', 'pointer-events': 'none' });
+            }
+        }
+    }
 }
 
 export function initCarouselDocs() {

@@ -8,7 +8,7 @@ import { i18n } from './i18n.js';
 export function initScrollReveal() {
     const observerOptions = {
         root: null,
-        rootMargin: '-100px', // Trigger slightly before element enters viewport
+        rootMargin: '-10px', // Trigger slightly before element enters viewport
         threshold: 0.1
     };
 

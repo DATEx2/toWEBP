@@ -27,6 +27,7 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Layout */
+  --main-width: 1200px;
   --radius-lg: 1rem;
   --radius-md: 0.75rem;
   --radius-sm: 0.5rem;
@@ -179,7 +180,7 @@ body {
 
 /* Container */
 .app-container {
-  max-width: 1140px;
+  max-width: var(--main-width);
   margin: 100px auto 1rem;
   background: #ffffffcc;
   backdrop-filter: blur(20px);
@@ -193,7 +194,7 @@ body {
 
 body.expanded .app-container {
   max-width: 95%;
-  margin-top: 290px;
+  margin-top: 230px;
 }
 
 main {
@@ -308,11 +309,12 @@ header {
 
 body.expanded .app-container {
   max-width: 95%;
-  margin-top: 290px;
+  margin-top: 230px;
 }
 
 main {
-  padding: 2rem;
+  padding: var(--padding);
+  padding-bottom: 0;
 }
 
 .bg {
@@ -330,7 +332,11 @@ main {
 .hero-section {
   text-align: center;
   margin-bottom: 1rem;
-  padding: 0 1rem;
+  padding: 0 var(--padding);
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-section h2 {
@@ -396,12 +402,12 @@ header {
   min-height: 70px;
   height: auto;
   padding: 0 var(--padding); /* Reset padding */
-  max-width: 1240px;
+  max-width: var(--main-width);
   width: 100%;
   margin: 0 auto;
   display: flex;
-  justify-content: flex-start; /* Let items flow */
-  align-items: center;
+  justify-content: flex-end; /* Let items flow */
+  align-items: flex-end;
   flex-wrap: wrap;
   align-content: flex-start;
   background: rgba(255, 255, 255, 0.95);
@@ -413,11 +419,12 @@ header {
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-md);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding-top: 8px;
 }
 
 body.expanded header {
   height: auto;
-  min-height: 260px;
+  min-height: 20px;
   max-width: 100%;
   margin: 0 auto;
   left: 0;
@@ -449,7 +456,7 @@ body.expanded.scrolled header {
   align-items: center;
   gap: 0.75rem;
   color: var(--primary);
-  height: 70px;
+  height: 45px;
   flex-shrink: 0;
   margin-right: auto; /* Push everything else to the right */
 }
@@ -1071,12 +1078,12 @@ input[type="range"] {
   /* Fixed width */
   height: 140px;
   /* Increased height for buttons */
-  background: white;
-  border: 1px solid var(--border);
+  background: #f8fafc;
+  border: 1px solid rgba(0,0,0,0.12);
   border-radius: var(--radius-md);
   overflow: hidden;
   position: relative;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: transform 0.2s, box-shadow 0.2s;
   animation: popIn 0.3s ease forwards;
   /* margin: 0 4px; Removed to fix scroll math matching gap: 1rem */
@@ -1097,7 +1104,7 @@ input[type="range"] {
   /* Fixed image height */
   width: 100%;
   flex-shrink: 0;
-  background: #f8fafc;
+  background: transparent;
 }
 
 .card-preview {
@@ -1106,7 +1113,7 @@ input[type="range"] {
   object-fit: contain;
   /* Default to contain to avoid cutting */
   padding: 2px;
-  background: #fff;
+  background: transparent;
 }
 
 .card-close-btn {
@@ -1442,6 +1449,57 @@ input[type="range"] {
   transform-box: fill-box;
   opacity: 1; 
 }
+
+/* Chart Tooltip & Hover Effects */
+.chart-tooltip {
+    position: fixed;
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    transform: translateY(10px);
+}
+.chart-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#pie-chart {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
+}
+#pie-chart.pop-scale {
+    transform: scale(1.08);
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+    z-index: 10;
+}
+.pie-center-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+}
+
+#progress-circle-inner, #progress-circle-outer {
+    transition: stroke-width 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), stroke-dashoffset 0.1s linear;
+    will-change: stroke-width;
+}
+.stroke-pop {
+    stroke-width: 24px !important; /* Thicker on hover (Base 14) */
+}
 /* Removed old .sticky-bar-saved-bg styles as they are replaced by .bar-conversion */
 
 
@@ -1616,11 +1674,13 @@ input[type="range"] {
 }
 
 /* Info Section */
+/* Info Section */
 .info-section {
-  max-width: min(1200px, 100vw);
+  max-width: var(--main-width);
   margin: 0 auto 100dvh auto;
   padding: var(--padding) var(--padding);
   transition: opacity 0.3s ease-out;
+  width: calc(100% - 2rem);
 }
 
 .info-grid {
@@ -1786,10 +1846,14 @@ input[type="range"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .seo-col {
-  padding: 2rem;
+  padding: var(--padding);
   background: #ffffffcc;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -1832,9 +1896,13 @@ input[type="range"] {
 /* FAQ Section */
 .faq-section {
   background: #ffffffcc;
-  padding: 3rem 2rem;
+  padding: 3rem var(--padding);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .faq-grid {
@@ -2251,7 +2319,7 @@ input[type="range"] {
 /* GDPR Section */
 .gdpr-section {
   text-align: left;
-  padding: 2rem;
+  padding: var(--padding);
   background: #ffffffcc;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -2261,6 +2329,10 @@ input[type="range"] {
   align-items: flex-start;
   gap: 1.5rem;
   justify-content: center;
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gdpr-badge {
@@ -2427,4 +2499,23 @@ input[type="range"] {
     margin: 2px;
   }
 }
-#progress-circle-outer {opacity: 0;pointer-events: none;}
+#progress-circle-outer { opacity: 0; pointer-events: none; }
+
+.header-actions button {
+  transition: max-width 0.4s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease; 
+  max-width: 200px; 
+  opacity: 1; 
+  overflow: hidden; 
+  white-space: nowrap; 
+}
+
+.header-actions button.hidden-animated {
+  max-width: 0 !important; 
+  padding-left: 0 !important; 
+  padding-right: 0 !important; 
+  margin-left: 0 !important; 
+  margin-right: 0 !important; 
+  opacity: 0 !important; 
+  border-width: 0 !important; 
+  pointer-events: none; 
+} 

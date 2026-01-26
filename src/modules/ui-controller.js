@@ -327,7 +327,10 @@ export function updateStats() {
                 'visibility': 'visible'
             });        
         } else {
-            // Reserve space to avoid layout shift/flicker
+            // Reserve space to avoid layout shift/flicker but hide content
+            elements.headerTotalSaved.text(''); 
+            const $parent = elements.headerTotalSaved.parent();
+            if ($parent.length) $parent.css('visibility', 'hidden');
             elements.headerTotalSaved.parent().css({
                 'display': 'flex',
                 'visibility': 'hidden'
@@ -358,37 +361,19 @@ export function updateStats() {
             }
             // Show Actions only when done
             if (isDone) {
-                elements.headerDownloadBtn.css({
-                    'display': 'inline-flex',
-                    'visibility': 'visible'
-                });
-                elements.headerClearBtn.css({
-                    'display': 'inline-flex',
-                    'visibility': 'visible'
-                });
+                elements.headerDownloadBtn.css('display', 'inline-flex').removeClass('hidden-animated');
+                elements.headerClearBtn.css('display', 'inline-flex').removeClass('hidden-animated');
             } else {
-                // Hide but keep space? 
-                // However, on mobile space is tight. If we reserve space, the header top row is always tall.
-                // The user complained about layout CHANGING. So fixed height is better.
-                // We set .header-actions min-height in CSS.
-                // We should make buttons take space.
-                
-                elements.headerDownloadBtn.css({
-                    'display': 'inline-flex',
-                    'visibility': 'hidden'
-                });
-                elements.headerClearBtn.css({
-                    'display': 'inline-flex',
-                    'visibility': 'hidden'
-                });
+                elements.headerDownloadBtn.css('display', 'inline-flex').addClass('hidden-animated');
+                elements.headerClearBtn.css('display', 'inline-flex').addClass('hidden-animated');
             }
         } else {
             if (elements.headerStats.hasClass('visible')) {
                 elements.headerStats.removeClass('visible');
             }
             // Hide Actions
-            elements.headerDownloadBtn.css('display', 'none');
-            elements.headerClearBtn.css('display', 'none');
+            elements.headerDownloadBtn.css('display', 'inline-flex').addClass('hidden-animated');
+            elements.headerClearBtn.css('display', 'inline-flex').addClass('hidden-animated');
         }
     }
 }
@@ -405,20 +390,14 @@ export function drawRings() {
 
 
 
-    // Inner Ring & Sticky Parsing - keep simple for now or mirror logic? 
-    // Parsing is usually too fast for ETA. Keeping simple LERP for rings.
+    // Inner Ring & Sticky Parsing
     const dInner = state.visual.innerTarget - state.visual.innerProgress;
     if (Math.abs(dInner) > 0.0001) state.visual.innerProgress += dInner * LERP;
     else state.visual.innerProgress = state.visual.innerTarget;
-    
-    // Outer Progress is purely for Ring now (legacy visual)
-    // We can just sync it to target for simplicity or keep LERP
-    // Outer Progress is purely for Ring now (legacy visual)
-    // We can just sync it to target for simplicity or keep LERP
+
+    // Outer Ring Progress (Legacy Sync for thin rings)
     if (state.totalFilesCount > 0) {
-         // Use state.parsingTarget if available to avoid regression during parsing
          const total = (state.parsingTarget && state.parsingTarget > 0) ? state.parsingTarget : state.totalFilesCount;
-         // Include processing files (counted as 80% done) to show immediate activity and smoother progress
          const activeCount = state.completed.size + (state.processing.size * 0.8);
          let target = total > 0 ? activeCount / total : 0;
          
@@ -429,129 +408,24 @@ export function drawRings() {
          state.visual.outerProgress = 0;
     }
 
-    // Apply
-    // Apply - Legacy rings active for initial phase
+    // Apply SVG Rings
     if (elements.progressCircleInner.length) {
         const offset = CIRC_INNER - (state.visual.innerProgress * CIRC_INNER);
-        if (state.visual.lastInnerOffset !== offset) {
-            elements.progressCircleInner.css('strokeDashoffset', offset);
-            state.visual.lastInnerOffset = offset;
-        }
+        elements.progressCircleInner.css('strokeDashoffset', offset);
     }
     if (elements.progressCircleOuter.length) {
         const offset = CIRC_OUTER - (state.visual.outerProgress * CIRC_OUTER);
-        if (state.visual.lastOuterOffset !== offset) {
-            elements.progressCircleOuter.css('strokeDashoffset', offset);
-            state.visual.lastOuterOffset = offset;
-        }
+        elements.progressCircleOuter.css('strokeDashoffset', offset);
     }
 
-    // Sticky Bars
-    // Parsing can stay LERP or simple scale
-    // Sticky Bars (Header Stack) - Layer 1: Parsing
+    // Sticky Parsing Bar (Header)
     if (elements.stickyParsing.length) {
          const transformValue = `scaleX(${state.visual.innerProgress})`;
-         if (state.visual.lastParsingTransform !== transformValue) {
-             elements.stickyParsing.css('transform', transformValue);
-             state.visual.lastParsingTransform = transformValue;
-         }
-         // Opacity handled by data
+         elements.stickyParsing.css('transform', transformValue);
          elements.stickyParsing.css('opacity', state.visual.innerProgress > 0.001 ? '1' : '0');
     }
 
     // Layers 2 & 3 (Conversion & Saved) are handled in Pie Chart Logic below
-
-    // Conversion is handled by ETA logic directly on CSS properties via transition-duration
-    // Do NOT set transform here for stickyConversion
-    // if (elements.stickyConversion.length) ... (removed)
-    
-    if (elements.stickySaved.length) {
-        let sizeRatio = 0;
-        
-        const $bg = elements.stickySaved.next('.sticky-bar-saved-bg');
-
-        if (state.totalOriginalSize > 0) {
-            // Visualize relative size of the new files (New Size)
-            sizeRatio = state.totalNewSize / state.totalOriginalSize;
-            
-            // Ensure visible - only if cache says it's hidden
-            if (state.visual.savedVisible !== true) {
-                elements.stickySaved.css('display', 'block');
-                if ($bg.length) $bg.css('display', 'block');
-                state.visual.savedVisible = true;
-            }
-
-            if (sizeRatio <= 1) {
-                // SAVED (Normal Case)
-                const transformValue = `scaleX(${sizeRatio})`;
-                
-                // Only update if changed
-                if (state.visual.lastSavedTransform !== transformValue) {
-                    elements.stickySaved.css('transform', transformValue);
-                    state.visual.lastSavedTransform = transformValue;
-                }
-                
-                // Only update background if it's not default
-                if (state.visual.savedIsError !== false) {
-                    elements.stickySaved.css('background-color', '');
-                    if (elements.stickySaved.hasClass('bar-error')) {
-                        elements.stickySaved.removeClass('bar-error');
-                    }
-                    state.visual.savedIsError = false;
-                }
-                
-                // Reset BG to standard (Faint Green)
-                if ($bg.length && state.visual.savedBgIsError !== false) {
-                    $bg.css({
-                        'background-color': '',
-                        'opacity': ''
-                    });
-                    state.visual.savedBgIsError = false;
-                }
-            } else {
-                // LOST (Increase Case)
-                const excessRatio = sizeRatio - 1;
-                let excessScale = excessRatio;
-                if (excessScale > 1) excessScale = 1;
-
-                const transformValue = `scaleX(${excessScale})`;
-                
-                // Only update if changed
-                if (state.visual.lastSavedTransform !== transformValue) {
-                    elements.stickySaved.css('transform', transformValue);
-                    state.visual.lastSavedTransform = transformValue;
-                }
-                
-                // Only update background if not already error
-                if (state.visual.savedIsError !== true) {
-                    elements.stickySaved.css('background-color', 'var(--error)');
-                    if (!elements.stickySaved.hasClass('bar-error')) {
-                        elements.stickySaved.addClass('bar-error');
-                    }
-                    state.visual.savedIsError = true;
-                }
-
-                // Make BG Solid Green to represent "Original Size" baseline
-                if ($bg.length && state.visual.savedBgIsError !== true) {
-                    $bg.css({
-                        'background-color': 'var(--success)',
-                        'opacity': '1'
-                    });
-                    state.visual.savedBgIsError = true;
-                }
-            }
-        } else {
-            // Hide if no stats - only if cache says it's visible
-            if (state.visual.savedVisible !== false) {
-                elements.stickySaved.css('display', 'none');
-                if ($bg.length) $bg.css('display', 'none');
-                state.visual.savedVisible = false;
-                state.visual.lastSavedTransform = null;
-                state.visual.savedIsError = null;
-                state.visual.savedBgIsError = null;
-            }
-        }
-    }
 
     // Logic Update for Targets
     const count = state.completed.size;
@@ -690,18 +564,44 @@ export function drawRings() {
              const colGreenTransp = '#6ee7b7';
              const colRedTransp = 'rgba(239, 68, 68, 0.9)';
 
-             // Sync Header Bars
-             if (elements.stickyConversion.length) {
+                 // Sync Header Bars with fresh selectors to avoid cache issues
+                 const $savedBar = $('#sticky-saved');
+                 const $conversionBar = $('#sticky-conversion');
+                 const $parsingBar = $('#sticky-parsing');
+
                  let barProg = progressDeg / 360;
                  if (barProg > 1) barProg = 1;
-                 elements.stickyConversion.css({ 'transform': `scaleX(${barProg})`, 'opacity': '1' });
                  
+                 // Parsing bar stays visible underneath (Layer 1)
+
+                 $conversionBar.css({ 'transform': `scaleX(${barProg})`, 'opacity': '1' });
+
                  let barSavedW = barProg * ratio;
-                 if (ratio <= 1) elements.stickySaved.removeClass('bar-error');
-                 else elements.stickySaved.addClass('bar-error');
                  
-                 elements.stickySaved.css({ 'transform': `scaleX(${barSavedW})`, 'opacity': '1' });
-             }
+                 if (ratio <= 1) {
+                     // NORMAL CASE: Bar represents New Size (Green Solid) over Conversion (Green Light)
+                     $savedBar.removeClass('bar-error').css({'z-index': '', 'background': ''});
+                     $conversionBar.css('opacity', '1');
+                     
+                     const visualSavedW = Math.min(barSavedW, 1);
+                     $savedBar.css('transform', `scaleX(${visualSavedW})`);
+                 } else {
+                     // ERROR STATE: Bar represents EXCESS (Red) on top of Original (Green)
+                     // Matches Pie Chart: Green Ring + Red Segment
+                     $savedBar.addClass('bar-error');
+                     $savedBar.css({
+                        'z-index': '100', 
+                        'background-color': '#ef4444',
+                        'opacity': '1',
+                        'display': 'block'
+                     });
+                     $conversionBar.css('opacity', '1'); // Show Green Base
+                     
+                     // Calculate Excess scale (e.g. 1.05 -> 0.05)
+                     let excess = ratio - 1;
+                     const visualExcess = Math.min(excess, 1);
+                     $savedBar.css('transform', `scaleX(${visualExcess})`);
+                 }
              
              let effectiveProgressDeg = progressDeg;
              // Ensure minimum visual feedback
@@ -735,10 +635,10 @@ export function drawRings() {
                  elements.pieChart.css('background', 'none');
                  state.visual.lastPieBg = 'none';
              }
-             // Hide bars if no data
+             // Hide bars if no data - Force Reset
              if (elements.stickyConversion.length) {
-                 elements.stickyConversion.css('opacity', '0');
-                 elements.stickySaved.css('opacity', '0');
+                 elements.stickyConversion.css({'opacity': '0', 'transform': 'scaleX(0)'});
+                 elements.stickySaved.css({'opacity': '0', 'transform': 'scaleX(0)'});
              }
          }
     } 
@@ -747,4 +647,128 @@ export function drawRings() {
 
 export function updateQualityDisplay() {
     if (elements.qualityValue.length) elements.qualityValue.text(state.quality);
+}
+
+export function setupChartInteractions() {
+    const $tooltip = $('#chart-tooltip');
+    const $container = $('.pie-chart-wrapper'); 
+    
+    $container.on('mousemove', (e) => {
+        // Calculate coordinates relative to the container center
+        const rect = e.currentTarget.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const x = e.clientX - rect.left - centerX;
+        const y = e.clientY - rect.top - centerY;
+        
+        const r = Math.sqrt(x*x + y*y);
+        
+        // Coordinate system: Top is -90deg in atan2. We want Top = 0deg, Clockwise.
+        let angle = (Math.atan2(y, x) * 180 / Math.PI) + 90;
+        if (angle < 0) angle += 360;
+        
+        // Active Ring Zone: R=113, Stroke=14+ => approx 90-135px visual range.
+        // We use a wider grab area for better UX.
+        const inRing = r >= 85 && r <= 140; 
+        
+        if (!inRing || state.totalFilesCount === 0) {
+            hideTooltip();
+            clearEffects();
+            return;
+        }
+
+        const ratio = state.totalOriginalSize > 0 ? state.totalNewSize / state.totalOriginalSize : 0;
+        const progressLines = state.visual.outerProgress * 360;
+        
+        let isRed = false;
+        let isGreen = false;
+        
+        // Determine collision with Pie Segments
+        if (state.totalOriginalSize > 0) {
+            let excessDeg = 0;
+            if (ratio > 1) {
+                const excessRatio = Math.min(ratio - 1, 1);
+                excessDeg = progressLines * excessRatio;
+            }
+            
+            // Red segment is drawn first (on top visually if overlapping, or first in conic-gradient order)
+            if (angle < excessDeg) isRed = true;
+            else if (angle < progressLines) isGreen = true;
+        }
+        
+        if (isRed) {
+            // RED ZONE (Size Increased)
+            const added = state.totalNewSize - state.totalOriginalSize;
+            const p = Math.round((ratio - 1) * 100);
+            showTooltip(e, `+${p}% (${formatSize(added)} added)`);
+            setEffect('pie');
+        } else if (isGreen) {
+            // GREEN ZONE (Saved)
+            const saved = state.totalOriginalSize - state.totalNewSize;
+            let percent = Math.round((1 - ratio) * 100);
+            if (percent < 0) percent = 0;
+            showTooltip(e, `New File Size ${formatSize(state.totalNewSize)} -${percent}% (${formatSize(saved)} saved)`);
+            setEffect('pie'); // Apply effect to Pie Wrapper
+        } else {
+            // EMPTY ZONE / YELLOW PROCESSING
+            // Determine if Yellow is active in this angle
+            const yellowDeg = state.visual.innerProgress * 360;
+            
+            if (angle < yellowDeg) {
+                // YELLOW ZONE
+                const p = Math.round(state.visual.innerProgress * 100);
+                // Calculate files done vs total
+                const processed = state.completed.size + state.processing.size;
+                showTooltip(e, `Processing ${processed}/${state.totalFilesCount} (${p}%)`);
+                setEffect('yellow'); // Apply effect to Inner SVG Ring
+            } else {
+                // TRUE EMPTY SPACE
+                hideTooltip();
+                clearEffects();
+            }
+        }
+    }).on('mouseleave', () => {
+        hideTooltip();
+        clearEffects();
+    });
+
+    function showTooltip(e, text) {
+        $tooltip.text(text).removeClass('hidden').addClass('visible');
+        
+        // Dynamic positioning with offset
+        const xOffset = 20;
+        const yOffset = 20;
+        
+        $tooltip.css({ 
+            left: (e.clientX + xOffset) + 'px', 
+            top: (e.clientY + yOffset) + 'px',
+            'z-index': 10000 // Ensure on top
+        });
+    }
+    
+    function hideTooltip() {
+        $tooltip.removeClass('visible'); // Keeps hidden class if managed by CSS, but we use .visible to toggle opacity
+        if (!$tooltip.hasClass('hidden')) $tooltip.addClass('hidden'); // Ensure hidden state
+    }
+    
+    function setEffect(type) {
+        // Enforce exclusive effects
+        // If Pie is active, Yellow should NOT pop (user request)
+        // If Yellow is active, Pie should NOT pop
+        
+        if (type === 'pie') {
+            elements.pieChart.addClass('pop-scale');
+            elements.progressCircleInner.removeClass('stroke-pop');
+        } else if (type === 'yellow') {
+            elements.progressCircleInner.addClass('stroke-pop');
+            elements.pieChart.removeClass('pop-scale');
+        }
+    }
+    
+    function clearEffects() {
+        elements.pieChart.removeClass('pop-scale');
+        elements.progressCircleInner.removeClass('stroke-pop');
+        // Outer ring typically tracks pie, so we don't pop it separately unless needed
+        elements.progressCircleOuter.removeClass('stroke-pop');
+    }
 }

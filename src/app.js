@@ -1,7 +1,7 @@
 import { state, initWorkers, resetState } from './modules/state.js';
 import { elements } from './modules/dom.js';
 import { processQueue, handleWorkerMessage } from './modules/worker-manager.js';
-import { updateVisuals, drawRings, updateQualityDisplay, updateStats, createUiItem, createCarouselCard } from './modules/ui-controller.js';
+import { updateVisuals, drawRings, updateQualityDisplay, updateStats, createUiItem, createCarouselCard, setupChartInteractions } from './modules/ui-controller.js';
 import { initLanguageSystem, i18n } from './modules/i18n.js';
 import { initParallax } from './modules/parallax.js';
 import { initAnalytics } from './modules/analytics.js';
@@ -27,13 +27,13 @@ $(function() {
     initLanguageSystem();
     initAnalytics();
     initCarouselDocs();
-    initCarouselDocs();
     initScrollReveal();
+    setupChartInteractions();
 
     // EXPLICIT RESET of UI Elements on Load to prevent ghost bars
     if (elements.stickySaved.length) elements.stickySaved.css({ 'display': 'none', 'transform': 'scaleX(0)' });
-    if (elements.stickyParsing.length) elements.stickyParsing.css({ 'transform': 'scaleX(0)' }).addClass('bar-hidden');
-    if (elements.stickyConversion.length) elements.stickyConversion.css({ 'transform': 'scaleX(0)', 'transition': 'none' }).addClass('bar-hidden');
+    if (elements.stickyParsing.length) elements.stickyParsing.css({ 'transform': 'scaleX(0)' });
+    if (elements.stickyConversion.length) elements.stickyConversion.css({ 'transform': 'scaleX(0)' });
     if (elements.stickySaved.next('.sticky-bar-saved-bg').length) elements.stickySaved.next('.sticky-bar-saved-bg').css('display', 'none');
 
     // Initialize cache to match the reset state
@@ -248,8 +248,20 @@ $(function() {
     const performClear = () => {
         elements.fileList.empty();
         elements.carouselTrack.empty();
-        // In app.js: dropStats always visible now. Reset state.
-        
+
+        // Force Hide Headers & Text
+        if (elements.headerStats.length) elements.headerStats.removeClass('visible').css('opacity', '');
+        if (elements.headerFilesCount.length) elements.headerFilesCount.text('');
+        if (elements.headerTotalSaved.length) {
+            elements.headerTotalSaved.text('');
+            elements.headerTotalSaved.parent().css('visibility', 'hidden');
+        }
+
+        // Force Reset Visuals (Pie & Bars)
+        if (elements.pieChart.length) elements.pieChart.css('background', 'none');
+        if (elements.stickyConversion.length) elements.stickyConversion.css({'opacity': '0', 'transform': 'scaleX(0)'});
+        if (elements.stickySaved.length) elements.stickySaved.css({'opacity': '0', 'transform': 'scaleX(0)'});
+
         // Close Carousel Animation
         if (elements.carouselSection.length) {
             elements.carouselSection.removeClass('open');
@@ -258,7 +270,7 @@ $(function() {
                 if (!elements.carouselSection.hasClass('open')) {
                     elements.carouselSection.addClass('hidden');
                 }
-            }, 600); // Match CSS transition duration
+            }, 600); 
         }
 
         resetState();
@@ -266,7 +278,8 @@ $(function() {
         if (elements.pieDefaultContent.length) elements.pieDefaultContent.removeClass('hidden');
         if (elements.pieActiveContent.length) elements.pieActiveContent.addClass('hidden');
         
-        updateStats(); // Will hide sticky stats
+        updateStats(); // Logic update
+        drawRings(); // Visual update
         $('body').removeClass('expanded');
     };
 

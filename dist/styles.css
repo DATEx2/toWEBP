@@ -459,6 +459,7 @@ body.expanded.scrolled header {
   height: 45px;
   flex-shrink: 0;
   margin-right: auto; /* Push everything else to the right */
+  text-decoration: none;
 }
 
 h1 {

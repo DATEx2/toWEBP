@@ -144,6 +144,14 @@ export async function initLanguageSystem() {
         url.searchParams.set('lang', lang);
         canonical.href = url.href;
 
+        // 2.1 Update Logo Link
+        const logoLink = document.getElementById('logo-link');
+        if (logoLink) {
+            const logoUrl = new URL(window.location.origin + window.location.pathname);
+            logoUrl.searchParams.set('lang', lang);
+            logoLink.href = logoUrl.href;
+        }
+
         // 3. Update Alternate Hreflang Tags (for all supported langs)
         // Remove existing alternates to avoid dupes
         document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());

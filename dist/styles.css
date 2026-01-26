@@ -1678,7 +1678,7 @@ input[type="range"] {
 .info-section {
   max-width: var(--main-width);
   margin: 0 auto 100dvh auto;
-  padding: var(--padding) var(--padding);
+  /* padding: var(--padding) var(--padding); */
   transition: opacity 0.3s ease-out;
   width: calc(100% - 2rem);
 }
@@ -2400,7 +2400,6 @@ input[type="range"] {
 .seo-col.full-width {
   grid-column: 1 / -1;
   text-align: left;
-  max-width: 1140px;
   width: 100%;
   margin: 0 auto;
 }
@@ -2519,3 +2518,7 @@ input[type="range"] {
   border-width: 0 !important; 
   pointer-events: none; 
 } 
+
+.bar-hidden {
+  display: none !important;
+}

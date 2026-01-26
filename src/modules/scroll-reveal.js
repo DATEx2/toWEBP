@@ -8,8 +8,8 @@ import { i18n } from './i18n.js';
 export function initScrollReveal() {
     const observerOptions = {
         root: null,
-        rootMargin: '-10px', // Trigger slightly before element enters viewport
-        threshold: 0.1
+        rootMargin: '1px 0px', // Trigger 1px before it enters the screen
+        threshold: 0 // Trigger as soon as any part is visible
     };
 
     function getTranslatedText(el) {

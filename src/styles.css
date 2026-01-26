@@ -1846,7 +1846,8 @@ input[type="range"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
-  width: var(--main-width);
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
   margin-left: auto;
   margin-right: auto;
 }
@@ -1898,7 +1899,8 @@ input[type="range"] {
   padding: 3rem var(--padding);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  width: var(--main-width);
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
   margin-left: auto;
   margin-right: auto;
 }
@@ -2327,7 +2329,8 @@ input[type="range"] {
   align-items: flex-start;
   gap: 1.5rem;
   justify-content: center;
-  width: var(--main-width);
+  max-width: var(--main-width);
+  width: calc(100% - 2rem);
   margin-left: auto;
   margin-right: auto;
 }
@@ -2515,3 +2518,7 @@ input[type="range"] {
   border-width: 0 !important; 
   pointer-events: none; 
 } 
+
+.bar-hidden {
+  display: none !important;
+}

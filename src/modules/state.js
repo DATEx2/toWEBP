@@ -38,7 +38,6 @@ export const state = {
         innerProgress: 0,
         innerTarget: 0,
         outerProgress: 0,
-        outerProgress: 0,
         outerTarget: 0,
         lastEta: null,
         lastTiming: null

@@ -529,7 +529,6 @@ export function drawRings() {
              }
              
              // Cleanup old parent logic if present in DOM (safety)
-             // Cleanup old parent logic if present in DOM (safety)
              if (elements.stickyParsing.length) {
                  elements.stickyParsing.parent().removeClass('auto-hide');
                  elements.stickyParsing.parent().css('opacity', '');

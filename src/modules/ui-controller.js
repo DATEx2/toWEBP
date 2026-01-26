@@ -119,6 +119,7 @@ export function updateVisuals() {
             if (update.success) {
                 // Carousel Done UI
 
+                $row.find('.file-name').text(update.newName).attr('title', update.newName);
                 $row.find('.size-new').html(` <span style="opacity:0.6">&rarr;</span> ${formatSize(update.newSize)}`);
                 
                 const $badge = $row.find('.badge');

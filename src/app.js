@@ -74,8 +74,26 @@ $(function() {
 
     // --- Event Listeners ---
 
-    // Format Tabs
+    // Format Tabs & Support Detection
     if (elements.formatTabs.length) {
+        // 1. Detect Browser Support for Encoding
+        const testCanvas = document.createElement('canvas');
+        testCanvas.width = testCanvas.height = 1;
+        const supportsWebP = testCanvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+        const supportsAVIF = testCanvas.toDataURL('image/avif').indexOf('data:image/avif') === 0;
+
+        // 2. Disable Unsupported Tabs
+        elements.formatTabs.find('.format-tab').each(function() {
+            const $btn = $(this);
+            const fmt = $btn.data('format');
+            if (fmt === 'webp' && !supportsWebP) {
+                $btn.addClass('disabled-format').attr('title', 'WebP Encoding Not Supported by Browser');
+            }
+            if (fmt === 'avif' && !supportsAVIF) {
+                $btn.addClass('disabled-format').attr('title', 'AVIF Encoding Not Supported by Browser').text('AVIF (N/A)');
+            }
+        });
+
         const savedFmt = localStorage.getItem('towebp_format') || 'webp';
         state.format = savedFmt;
         
@@ -89,7 +107,10 @@ $(function() {
         setActiveTab(savedFmt);
 
         elements.formatTabs.on('click', '.format-tab', function(e) {
-             const val = $(this).data('format');
+             const $btn = $(this);
+             if ($btn.hasClass('disabled-format')) return; // Block unsupported clicks
+
+             const val = $btn.data('format');
              state.format = val;
              localStorage.setItem('towebp_format', val);
              setActiveTab(val);
@@ -307,21 +328,49 @@ $(function() {
 
 
     // --- File Handling Logic ---
-    function handleFiles(files) {
+    async function handleFiles(files) {
         if (!files.length) return;
         if (elements.downloadAllBtn.length) elements.downloadAllBtn.prop('disabled', true);
 
-        const rawFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-        if (rawFiles.length === 0) return;
-
+        const rawFilesWithHeic = Array.from(files);
         const fileArray = [];
-        rawFiles.forEach(f => {
-            const sig = `${f.name}-${f.size}-${f.lastModified}`;
+        
+        // Pre-process files (HEIC to PNG fallback)
+        for (const f of rawFilesWithHeic) {
+            const isHEIC = f.name.toLowerCase().endsWith('.heic') || 
+                           f.name.toLowerCase().endsWith('.heif') || 
+                           f.type === 'image/heic' || 
+                           f.type === 'image/heif';
+            
+            let fileToProcess = f;
+            
+            if (isHEIC && window.heic2any) {
+                try {
+                    // Update UI to show we are working on HEIC
+                    if (elements.pieMainText.length) elements.pieMainText.text('HEIC Decode');
+                    if (elements.pieSubText.length) elements.pieSubText.text(f.name);
+                    
+                    const resultBlob = await heic2any({ 
+                        blob: f, 
+                        toType: 'image/png', 
+                        quality: 0.9 
+                    });
+                    
+                    const blobs = Array.isArray(resultBlob) ? resultBlob : [resultBlob];
+                    fileToProcess = new File([blobs[0]], f.name.replace(/\.(heic|heif)$/i, '.png'), { type: 'image/png' });
+                } catch (err) {
+                    console.error("[HEIC] Conversion failed, skipping or fallback:", err);
+                }
+            }
+
+            if (!fileToProcess.type.startsWith('image/')) continue;
+
+            const sig = `${fileToProcess.name}-${fileToProcess.size}-${fileToProcess.lastModified}`;
             if (!state.fileSignatures.has(sig)) {
                 state.fileSignatures.add(sig);
-                fileArray.push(f);
+                fileArray.push(fileToProcess);
             }
-        });
+        }
 
         if (fileArray.length === 0) return;
 

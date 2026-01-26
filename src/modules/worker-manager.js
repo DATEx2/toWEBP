@@ -10,8 +10,8 @@ export function processQueue() {
             const worker = state.workers[i];
             
             state.workerStatus[i] = true;
-            // Store full job data including file for retrieval later
-            state.processing.set(job.id, { ...job, startTime: Date.now() });
+            // Store full job data including file and current target format for retrieval later
+            state.processing.set(job.id, { ...job, startTime: Date.now(), targetFormat: state.format });
 
             // Update UI: Set to Processing (Spinner) - Quick Direct Update for responsiveness
             const card = document.getElementById(`carousel-${job.id}`);
@@ -232,14 +232,28 @@ export function handleWorkerMessage(workerIndex, e) {
 
         const originalName = (job && job.file) ? job.file.name : `image_${id}`;
         
+        // Use the format that was active when the job started
+        const targetFormat = (job && job.targetFormat) ? job.targetFormat : state.format;
+        
         const extMap = {
             'image/jpeg': '.jpg',
             'image/png': '.png',
             'image/webp': '.webp',
-            'image/avif': '.avif'
+            'image/avif': '.avif',
+            'jpeg': '.jpg',
+            'png': '.png',
+            'webp': '.webp',
+            'avif': '.avif'
         };
-        const ext = extMap[state.format] || '.webp';
-        const newName = originalName.replace(/\.[^/.]+$/, "") + ext;
+        const ext = extMap[targetFormat] || '.webp';
+        
+        // Remove existing extension and append the new one
+        let baseName = originalName;
+        const lastDotIndex = originalName.lastIndexOf('.');
+        if (lastDotIndex !== -1) {
+            baseName = originalName.substring(0, lastDotIndex);
+        }
+        const newName = baseName + ext;
 
         if (success) {
             const oSize = Number(originalSize) || 0;

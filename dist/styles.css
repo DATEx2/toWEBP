@@ -2531,6 +2531,13 @@ input[type="range"] {
   pointer-events: none; 
 } 
 
+.disabled-format {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(1);
+  pointer-events: auto; /* Allow title/tooltip to show */
+}
+
 .bar-hidden {
   display: none !important;
 }

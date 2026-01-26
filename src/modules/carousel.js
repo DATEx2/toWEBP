@@ -76,8 +76,8 @@ export function openLightboxById(id) {
             highResUrl = URL.createObjectURL(data.blob);
             downloadBlob = data.blob;
         }
-        if (data.newName) {
-            fileName = data.newName;
+        if (data.fileName) {
+            fileName = data.fileName;
         }
     }
     

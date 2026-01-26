@@ -203,13 +203,22 @@ export function updateStats() {
                 
                 if (savedTotal > 0) {
                     const savedPercent = Math.round((savedTotal / processedInput) * 100);
-                    subHtml = `<span style="color: var(--success); font-weight: 700;">-${savedPercent}%</span> <span style="font-size: 0.9em; opacity: 0.9;">(${savedStr} ${t('saved')})</span>`;
+                    subHtml = `
+                        <div style="color: var(--success); font-weight: 700;">-${savedPercent}% <span style="font-size: 0.9em; opacity: 0.8; font-weight: 400;">(${savedStr} ${t('saved')})</span></div>
+                        <div style="font-weight: 700; margin-top: 4px; color: var(--text-main); font-size: 1.1em;">${formatSize(state.totalNewSize)}</div>
+                    `;
                 } else if (savedTotal < 0) {
                     // File got bigger - show warning
                     const increasePercent = Math.round((Math.abs(savedTotal) / processedInput) * 100);
-                    subHtml = `<span style="color: var(--error); font-weight: 700;">+${increasePercent}%</span> <span style="font-size: 0.9em; opacity: 0.9;">(${formatSize(Math.abs(savedTotal))} added)</span>`;
+                    subHtml = `
+                        <div style="color: var(--error); font-weight: 700;">+${increasePercent}% <span style="font-size: 0.9em; opacity: 0.8; font-weight: 400;">(${formatSize(Math.abs(savedTotal))} added)</span></div>
+                        <div style="font-weight: 700; margin-top: 4px; color: var(--text-main); font-size: 1.1em;">${formatSize(state.totalNewSize)}</div>
+                    `;
                 } else {
-                    subHtml = `<span style="opacity: 0.7;">0B ${t('saved')}</span>`;
+                    subHtml = `
+                        <div style="opacity: 0.7;">0B ${t('saved')}</div>
+                        <div style="font-weight: 700; margin-top: 4px; color: var(--text-main); font-size: 1.1em;">${formatSize(state.totalNewSize)}</div>
+                    `;
                 }
             } else {
                 // In-progress message

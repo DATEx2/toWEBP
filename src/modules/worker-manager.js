@@ -86,10 +86,11 @@ export function processQueue() {
                     'webp': 'image/webp',
                     'jpeg': 'image/jpeg',
                     'png': 'image/png',
-                    'avif': 'image/avif'
+                    'avif': 'image/avif',
+                    'gif': 'image/gif'
                 };
                 const mimeFormat = formatMap[state.format] || state.format || 'image/webp';
-
+                
                 worker.postMessage({
                     id: job.id,
                     file: job.file,
@@ -128,9 +129,121 @@ function processOnMainThread(id, file) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
 
+        // --- Generate Thumbnail for Carousel (Main Thread Fallback) ---
+        const thumbCanvas = document.createElement('canvas');
+        const thumbHeight = Math.min(200, canvas.height);
+        const scale = thumbHeight / canvas.height;
+        thumbCanvas.width = canvas.width * scale;
+        thumbCanvas.height = thumbHeight;
+        thumbCanvas.getContext('2d').drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+        const thumbData = thumbCanvas.toDataURL('image/jpeg', 0.8);
+        
+        handleWorkerMessage(-1, {
+            data: { type: 'thumb', id, thumbnail: thumbData }
+        });
+
         // Determine format/quality
-        const fmt = state.format === 'png' || state.format === 'jpeg' || state.format === 'webp' || state.format === 'avif'
-                    ? `image/${state.format}` : 'image/webp';
+        const targetFormat = (job && job.targetFormat) ? job.targetFormat : state.format;
+        
+        if (targetFormat === 'gif' && window.GifWriter) {
+            // GIF processing via omggif - IMPROVED SAMPLING
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const rgba = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 1. Better Palette Generation (Sampling)
+            const colorCounts = new Map();
+            const step = Math.max(1, Math.floor((width * height) / 5000)); // Sample ~5000 pixels
+            
+            for (let i = 0; i < rgba.length; i += 4 * step) {
+                const alpha = rgba[i+3];
+                if (alpha < 128) continue; // Skip transparency
+                const r = rgba[i];
+                const g = rgba[i+1];
+                const b = rgba[i+2];
+                // Quantize slightly to group similar colors
+                const qr = r >> 3;
+                const qg = g >> 3;
+                const qb = b >> 3;
+                const key = (qr << 10) | (qg << 5) | qb;
+                colorCounts.set(key, (colorCounts.get(key) || 0) + 1);
+            }
+            
+            // Sort by frequency and take top X colors based on quality
+            const qVal = (job && job.quality) ? job.quality : (state.quality / 100);
+            const maxColors = Math.max(2, Math.floor(qVal * 256));
+
+            const sortedColors = [...colorCounts.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, maxColors)
+                .map(entry => {
+                    const key = entry[0];
+                    const r = (key >> 10) << 3;
+                    const g = ((key >> 5) & 0x1F) << 3;
+                    const b = (key & 0x1F) << 3;
+                    return (r << 16) | (g << 8) | b;
+                });
+            
+            const palette = sortedColors;
+            while (palette.length < 256) palette.push(0);
+            
+            // 2. Map Pixels to Palette (Nearest Color)
+            const indices = new Uint8Array(width * height);
+            const colorCache = new Map();
+            
+            for (let i = 0; i < rgba.length; i += 4) {
+                const r = rgba[i];
+                const g = rgba[i+1];
+                const b = rgba[i+2];
+                const key = (r << 16) | (g << 8) | b;
+                
+                let bestIdx = 0;
+                if (colorCache.has(key)) {
+                    bestIdx = colorCache.get(key);
+                } else {
+                    let minDist = Infinity;
+                    for (let j = 0; j < maxColors; j++) {
+                        const pr = (palette[j] >> 16) & 0xFF;
+                        const pg = (palette[j] >> 8) & 0xFF;
+                        const pb = palette[j] & 0xFF;
+                        const dist = Math.pow(r - pr, 2) + Math.pow(g - pg, 2) + Math.pow(b - pb, 2);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestIdx = j;
+                        }
+                        if (dist === 0) break;
+                    }
+                    colorCache.set(key, bestIdx);
+                }
+                indices[i/4] = bestIdx;
+            }
+            
+            try {
+                const buffer = new Uint8Array(width * height * 2 + 1024);
+                const gf = new GifWriter(buffer, width, height, { loop: 0 });
+                gf.addFrame(0, 0, width, height, indices, { palette: palette });
+                
+                const gifBlob = new Blob([buffer.subarray(0, gf.end())], { type: 'image/gif' });
+                
+                handleWorkerMessage(-1, {
+                    data: {
+                        type: 'result',
+                        id,
+                        success: true,
+                        blob: gifBlob,
+                        originalSize: file.size,
+                        newSize: gifBlob.size
+                    }
+                });
+                return;
+            } catch (err) {
+                console.error("GIF encoding error:", err);
+            }
+        }
+
+        const fmt = targetFormat === 'png' || targetFormat === 'jpeg' || targetFormat === 'webp' || targetFormat === 'avif'
+                    ? `image/${targetFormat}` : 'image/webp';
         const quality = state.quality / 100;
 
         canvas.toBlob((blob) => {
@@ -243,7 +356,8 @@ export function handleWorkerMessage(workerIndex, e) {
             'jpeg': '.jpg',
             'png': '.png',
             'webp': '.webp',
-            'avif': '.avif'
+            'avif': '.avif',
+            'gif': '.gif'
         };
         const ext = extMap[targetFormat] || '.webp';
         

@@ -6,12 +6,41 @@ let isUserInteracting = false;
 let interactTimeout;
 let carouselSorted = false; // Track if carousel has been sorted after completion
 
+// Lightbox Zoom & Pan State
+let zoomScale = 1;
+let translateX = 0;
+let translateY = 0;
+let isPanning = false;
+let startX = 0;
+let startY = 0;
+let initialPinchDistance = 0;
+let lastZoomScale = 1;
+
 // openLightbox moved below with order-aware navigation
 
 export function closeLightbox() {
     if (!elements.lightbox.length) return;
     elements.lightbox.removeClass('visible');
-    setTimeout(() => elements.lightbox.addClass('hidden'), 300);
+    setTimeout(() => {
+        elements.lightbox.addClass('hidden');
+        resetZoom(); // Reset when closing
+    }, 300);
+}
+
+function resetZoom() {
+    zoomScale = 1;
+    translateX = 0;
+    translateY = 0;
+    initialPinchDistance = 0;
+    lastZoomScale = 1;
+    updateImageTransform();
+}
+
+function updateImageTransform() {
+    if (elements.lightboxImg.length) {
+        // Using translate3d for better performance on mobile
+        elements.lightboxImg.css('transform', `translate3d(${translateX}px, ${translateY}px, 0) scale(${zoomScale})`);
+    }
 }
 
 // Get all completed image IDs sorted by original order
@@ -81,6 +110,7 @@ export function openLightboxById(id) {
         }
     }
     
+    resetZoom(); // Always reset when opening a new image
     elements.lightboxImg.attr('src', highResUrl);
     
     const $nameEl = $card.find('.card-filename');
@@ -409,6 +439,111 @@ export function initCarouselDocs() {
             const cur = $cContainer.scrollLeft();
             $cContainer.animate({ scrollLeft: cur + w }, 300);
             endInteract(); 
+        });
+    }
+
+    // --- Lightbox Zoom & Pan Listeners ---
+    if (elements.lightboxZoomIn.length) {
+        elements.lightboxZoomIn.on('click', (e) => {
+            e.stopPropagation();
+            zoomScale = Math.min(zoomScale * 1.5, 5);
+            updateImageTransform();
+        });
+    }
+
+    if (elements.lightboxZoomOut.length) {
+        elements.lightboxZoomOut.on('click', (e) => {
+            e.stopPropagation();
+            zoomScale = Math.max(zoomScale / 1.5, 1);
+            if (zoomScale === 1) {
+                translateX = 0;
+                translateY = 0;
+            }
+            updateImageTransform();
+        });
+    }
+
+    if (elements.lightboxClose.length) {
+        elements.lightboxClose.on('click', (e) => {
+            e.stopPropagation();
+            closeLightbox();
+        });
+    }
+
+    // Pan & Drag Controls
+    const lContent = elements.lightboxContent[0];
+    if (lContent) {
+        // Mouse Events
+        elements.lightboxContent.on('mousedown', (e) => {
+            if (zoomScale > 1) {
+                isPanning = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+            }
+        });
+
+        $(window).on('mousemove', (e) => {
+            if (isPanning && zoomScale > 1) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                
+                // Optional: add clamping logic here if needed
+                updateImageTransform();
+            }
+        }).on('mouseup', () => {
+            isPanning = false;
+        });
+
+        // Touch Events (Panning & Pinch)
+        lContent.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1 && zoomScale > 1) {
+                isPanning = true;
+                startX = e.touches[0].clientX - translateX;
+                startY = e.touches[0].clientY - translateY;
+            } else if (e.touches.length === 2) {
+                // Pinch start
+                isPanning = false;
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                lastZoomScale = zoomScale;
+            }
+        }, { passive: true });
+
+        lContent.addEventListener('touchmove', (e) => {
+            if (isPanning && e.touches.length === 1 && zoomScale > 1) {
+                translateX = e.touches[0].clientX - startX;
+                translateY = e.touches[0].clientY - startY;
+                updateImageTransform();
+            } else if (e.touches.length === 2) {
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                
+                if (initialPinchDistance > 0) {
+                    const ratio = currentDistance / initialPinchDistance;
+                    zoomScale = Math.min(Math.max(lastZoomScale * ratio, 1), 5);
+                    if (zoomScale === 1) {
+                        translateX = 0;
+                        translateY = 0;
+                    }
+                    updateImageTransform();
+                }
+            }
+        }, { passive: true });
+
+        lContent.addEventListener('touchend', () => {
+            isPanning = false;
+            initialPinchDistance = 0;
+        });
+
+        // Close on background click (excluding img and buttons)
+        elements.lightbox.on('click', (e) => {
+             if (e.target === elements.lightbox[0] || e.target === elements.lightboxContent[0]) {
+                 closeLightbox();
+             }
         });
     }
 }

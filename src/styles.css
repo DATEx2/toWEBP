@@ -1533,19 +1533,68 @@ input[type="range"] {
 
 .lightbox-content {
   position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.lightbox-content:active {
+  cursor: grabbing;
 }
 
 .lightbox img {
-  max-width: 100%;
+  max-width: 90vw;
   max-height: 85vh;
   border-radius: 4px;
   box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
   user-select: none;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.lightbox-zoom-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 10015;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 40px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lightbox-zoom-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.lightbox-zoom-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.lightbox-zoom-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .lightbox-close {
@@ -1554,12 +1603,17 @@ input[type="range"] {
   right: 30px;
   width: 44px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 10001;
-  /* Increased to ensure it's on top */
+  z-index: 10010; /* Much higher to be on top of EVERYTHING */
+  transition: all 0.2s;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
 }
 
 .lightbox-close::before,
@@ -1610,18 +1664,16 @@ input[type="range"] {
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.3);
   border: none;
-  width: 60px;
+  width: 15%; /* Compacted width */
   height: calc(100% - 160px);
-  /* Reduced height to avoid overlap with top buttons */
   cursor: pointer;
   z-index: 10001;
-  /* Increased */
-  font-size: 3rem;
+  font-size: 4rem; /* Slightly larger for visibility */
   display: flex;
   align-items: center;
-  justify-content: center;
+  transition: all 0.2s;
 }
 
 .lightbox-nav:hover {
@@ -1631,6 +1683,8 @@ input[type="range"] {
 
 .lightbox-nav.prev {
   left: 0;
+  justify-content: flex-start;
+  padding-left: 20px;
 }
 
 .lightbox-nav.prev::after {
@@ -1639,6 +1693,8 @@ input[type="range"] {
 
 .lightbox-nav.next {
   right: 0;
+  justify-content: flex-end;
+  padding-right: 20px;
 }
 
 .lightbox-nav.next::after {
@@ -2177,12 +2233,13 @@ input[type="range"] {
   .header-sticky-stats {
     display: none;
     width: 100%;
-    order: 3; /* Position after logo and main actions */
+    order: 3;
     justify-content: flex-start;
     margin: 0.25rem 0;
-    padding: 0;
+    padding-left: 0.5rem; /* Better alignment */
     flex-shrink: 0;
     flex-basis: 100%;
+    user-select: none;
   }
 
   body.expanded .header-sticky-stats {

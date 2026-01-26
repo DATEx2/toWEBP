@@ -65,7 +65,10 @@ export const elements = {
     lightboxClose: $('#lightbox-close'),
     lightboxDownload: $('#lightbox-download'),
     lightboxNext: $('#lightbox-next'),
-    lightboxPrev: $('#lightbox-prev')
+    lightboxPrev: $('#lightbox-prev'),
+    lightboxZoomIn: $('#lightbox-zoom-in'),
+    lightboxZoomOut: $('#lightbox-zoom-out'),
+    lightboxContent: $('#lightbox-content')
 };
 
 // Aliases for backup buttons if needed

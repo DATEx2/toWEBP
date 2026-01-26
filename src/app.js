@@ -81,6 +81,7 @@ $(function() {
         testCanvas.width = testCanvas.height = 1;
         const supportsWebP = testCanvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
         const supportsAVIF = testCanvas.toDataURL('image/avif').indexOf('data:image/avif') === 0;
+        const supportsGIF = testCanvas.toDataURL('image/gif').indexOf('data:image/gif') === 0;
 
         // 2. Disable Unsupported Tabs
         elements.formatTabs.find('.format-tab').each(function() {
@@ -92,10 +93,27 @@ $(function() {
             if (fmt === 'avif' && !supportsAVIF) {
                 $btn.addClass('disabled-format').attr('title', 'AVIF Encoding Not Supported by Browser').text('AVIF (N/A)');
             }
+            // GIF usually N/A natively, we will handle it via worker fallback or library if needed
+            // But for now, we leave it clickable if the library is loaded
         });
 
-        const savedFmt = localStorage.getItem('towebp_format') || 'webp';
+        let savedFmt = localStorage.getItem('towebp_format') || 'webp';
+        
+        // Safety: If saved format is avif but it's hidden/not supported, fallback to webp
+        if (savedFmt === 'avif') {
+            const avifBtn = elements.formatTabs.find('.format-tab[data-format="avif"]');
+            if (!avifBtn.length || avifBtn.hasClass('disabled-format') || avifBtn.parent().is(':empty')) {
+               savedFmt = 'webp';
+               localStorage.setItem('towebp_format', 'webp');
+            }
+        }
+        
         state.format = savedFmt;
+        
+        // Initial quality slider visibility - always visible
+        if (elements.qualityInput.length) {
+            elements.qualityInput.closest('.setting-group').css({'opacity': '1', 'pointer-events': 'auto', 'visibility': 'visible'});
+        }
         
         const setActiveTab = (fmt) => {
              elements.formatTabs.find('.format-tab').each(function() {
@@ -114,7 +132,10 @@ $(function() {
              state.format = val;
              localStorage.setItem('towebp_format', val);
              setActiveTab(val);
+             
+             // Quality slider always stays visible to maintain UI consistency
              if (elements.qualityInput.length) {
+                 elements.qualityInput.closest('.setting-group').css({'opacity': '1', 'pointer-events': 'auto', 'visibility': 'visible'});
                  elements.qualityInput.trigger('change');
              }
         });

@@ -71,6 +71,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />
     <!-- HEIC Support -->
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <!-- GIF Support -->
+    <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
 </head>
 
 <body>
@@ -207,6 +209,7 @@
                     <button class="format-tab active" data-format="webp">WebP</button>
                     <button class="format-tab" data-format="jpeg">JPEG</button>
                     <button class="format-tab" data-format="png">PNG</button>
+                    <button class="format-tab" data-format="gif">GIF</button>
                     <!-- <button class="format-tab" data-format="avif">AVIF</button> -->
                 </div>
 
@@ -604,8 +607,16 @@
         </button>
         <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"></button>
         <button id="lightbox-next" class="lightbox-nav next" aria-label="Next"></button>
-        <div class="lightbox-content">
-            <img id="lightbox-img" src="" alt="Full preview">
+        <div id="lightbox-zoom-controls" class="lightbox-zoom-controls">
+            <button id="lightbox-zoom-in" class="lightbox-zoom-btn" title="Zoom In">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button id="lightbox-zoom-out" class="lightbox-zoom-btn" title="Zoom Out">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        </div>
+        <div class="lightbox-content" id="lightbox-content">
+            <img id="lightbox-img" src="" alt="Full preview" draggable="false">
             <div id="lightbox-caption"></div>
         </div>
     </div>
